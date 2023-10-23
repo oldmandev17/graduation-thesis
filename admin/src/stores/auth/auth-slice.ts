@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { AuthState } from './auth-types'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { AuthState, SignUpPayload, UpdateUserPayload } from './auth-types'
 
 const initialState: AuthState = {
   user: undefined,
@@ -10,9 +10,28 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {}
+  reducers: {
+    authSignIn: (state) => ({
+      ...state
+    }),
+
+    authSignUp: (state, action: PayloadAction<SignUpPayload>) => ({
+      ...state,
+      ...action.payload
+    }),
+
+    authUpdateUser: (state, action: PayloadAction<UpdateUserPayload>) => ({
+      user: action.payload.user,
+      accessToken: action.payload.accessToken
+    }),
+
+    authFetchMe: (state, action: PayloadAction<any>) => ({
+      ...state,
+      ...action.payload
+    })
+  }
 })
 
-export const {} = authSlice.actions
+export const { authSignIn, authSignUp, authUpdateUser, authFetchMe } = authSlice.actions
 
 export default authSlice.reducer
