@@ -1,14 +1,65 @@
 import Joi from 'joi'
+import { UserGender, UserRole, UserStatus } from 'src/models/userModel'
 
-// Validation model user register input
 export const authRegisterSchema = Joi.object({
   name: Joi.string().alphanum().min(3).max(30).required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
   password: Joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
   confirmPassword: Joi.ref('password')
 })
-// Validation model user login input
+
 export const authLoginSchema = Joi.object({
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
   password: Joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/))
+})
+
+export const categogySchema = Joi.object({
+  name: Joi.string().required()
+})
+
+export const categoryStatusSchema = Joi.array().items(Joi.string())
+
+export const logDeleteSchema = Joi.array().items(Joi.string())
+
+export const userCreateSchema = Joi.object({
+  name: Joi.string().alphanum().min(3).max(30).required(),
+  email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+})
+
+export const userDeleteSchema = Joi.array().items(Joi.string())
+
+export const categoryDeleteSchema = Joi.array().items(Joi.string())
+
+export const userUpdateSchema = Joi.object({
+  name: Joi.string(),
+  birthday: Joi.date(),
+  gender: Joi.string()
+    .allow(null)
+    .valid(...Object.values(UserGender)),
+  phone: Joi.string()
+    .allow(null)
+    .regex(/^[0-9]{10}$/),
+  password: Joi.string()
+    .allow(null)
+    .pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
+  confirmPassword: Joi.ref('password'),
+  role: Joi.array().items(
+    Joi.string()
+      .allow(null)
+      .valid(...Object.values(UserRole))
+  ),
+  status: Joi.string()
+    .allow(null)
+    .valid(...Object.values(UserStatus))
+})
+
+export const authForgotPasswordSchema = Joi.object({
+  email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+})
+
+export const authResetPasswordSchema = Joi.object({
+  userId: Joi.string().required(),
+  resetString: Joi.string().required(),
+  password: Joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
+  confirmPassword: Joi.ref('password')
 })

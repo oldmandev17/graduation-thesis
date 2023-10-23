@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
 import passport from 'passport'
 import { Strategy as FacebookStrategy } from 'passport-facebook'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
+import User, { UserProvider, UserRole } from 'src/models/userModel'
 import { v4 } from 'uuid'
 
 passport.use(
@@ -14,24 +14,19 @@ passport.use(
     async function (accessToken: string, refreshToken: string, profile: any, cb: any) {
       try {
         if (profile?.id) {
-          const prisma = new PrismaClient()
-          const userExist = await prisma.user.findMany({
-            where: {
-              email: profile.emails[0]?.value,
-              provider: 'gmail'
-            }
+          const userExist = await User.findOne({
+            email: profile.emails[0]?.value,
+            provider: UserProvider.GOOGLE
           })
 
-          if (userExist.length === 0) {
-            await prisma.user.create({
-              data: {
-                name: profile?.displayName,
-                email: profile?.emails[0]?.value,
-                avatar: profile?.photos[0]?.value,  
-                provider: 'gmail',
-                verify: profile?.emails[0]?.verified,
-                role: [profile?.emails[0]?.verified ? 'buyer' : 'none']
-              }
+          if (!userExist) {
+            await User.create({
+              name: profile?.displayName,
+              email: profile?.emails[0]?.value,
+              avatar: profile?.photos[0]?.value,
+              provider: UserProvider.GOOGLE,
+              verify: profile?.emails[0]?.verified,
+              role: [profile?.emails[0]?.verified ? UserRole.BUYER : UserRole.NONE]
             })
           }
         }

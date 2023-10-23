@@ -1,23 +1,21 @@
-import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
+import User, { UserRole } from 'src/models/userModel'
+import UserReset from 'src/models/userResetModel'
+import UserVerification from 'src/models/userVerificationModel'
 import { v4 } from 'uuid'
 
-// Create email service
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    // user: process.env.AUTH_EMAIL,
-    // pass: process.env.AUTH_PASSWORD
-    user: 'nntam17052001@gmail.com',
-    pass: 'bxkfwivzxpvvibgo'
+    user: process.env.AUTH_EMAIL as string,
+    pass: process.env.AUTH_PASSWORD as string
   }
 })
-// Send email verification email register
-export const sendVerificationEmail = async (id: string, email: string, res: any, next: any) => {
+
+export const sendVerificationEmail = async (_id: string, email: string, res: any, next: any) => {
   try {
-    const uniqueString = v4() + id
-    const prisma = new PrismaClient()
+    const uniqueString = v4() + _id
     const saltRounds = 10
     const hashedUniqueString = (await bcrypt.hash(uniqueString, saltRounds)) as string
 
@@ -25,70 +23,87 @@ export const sendVerificationEmail = async (id: string, email: string, res: any,
       from: process.env.AUTH_EMAIL,
       to: email,
       subject: 'Verify Your Email',
-      html: `<p>Verify your email address to complete the signup and login into your account</p><p>This link <b>expires in 6 hours</b>.</p><p>Press <a href=${
-        process.env.CURRENT_URL + 'auth/verify/' + id + '/' + uniqueString
-      }>here</a> to procced</p>`
+      html: `<p>Verify your email address to complete the signup and login into your account</p>.<p>This link <b>expires in 6 hours</b>.</p><p>Press <a href=${
+        process.env.URL_SERVER + '/api/auth/verify/' + _id + '/' + uniqueString
+      }>here</a> to procced.</p>`
     }
 
-    await prisma.userVerification.deleteMany({
-      where: {
-        userId: id
-      }
+    await UserVerification.deleteMany({
+      user: _id
     })
 
-    await prisma.userVerification.create({
-      data: {
-        user: {
-          connect: { id }
-        },
-        verificationString: hashedUniqueString,
-        expiresAt: new Date(Date.now() + 21600000)
-      }
+    await UserVerification.create({
+      user: _id,
+      verificationString: hashedUniqueString,
+      expiresAt: Date.now() + 21600000
     })
 
     await transporter.sendMail(mailOptions)
 
-    res.status(200).send('Verification email sent.')
+    res.status(200).send()
   } catch (error: any) {
     next(error)
   }
 }
-// Send email reset password
-export const sendResetEmail = async (id: string, email: string, redirectUrl: string, res: any, next: any) => {
+
+export const sendResetEmail = async (_id: string, email: string, res: any, next: any) => {
   try {
-    const resetString = v4() + id
-    const prisma = new PrismaClient()
+    const resetString = v4() + _id
     const saltRounds = 10
     const hashedResetString = (await bcrypt.hash(resetString, saltRounds)) as string
 
-    await prisma.userReset.deleteMany({
-      where: {
-        userId: id
-      }
+    await UserReset.deleteMany({
+      user: _id
     })
-
+    const user = await User.findOne({ _id })
     const mailOptions = {
       from: process.env.AUTH_EMAIL,
       to: email,
       subject: 'Password Reset',
-      html: `<p>We heard that your lost the password.</p><p>Don't worry, use the link below to reset it.</p><p>This link <b>expires in 60 minutes</b>.</p><p>Press <a href=${
-        redirectUrl + '/' + id + '/' + resetString
+      html: `<p>We heard that your lost the password.</p><p>Don't worry, use the link below to reset it.</p><p>This link <b>expires in 60 minutes.</b></p><p>Press <a href=${
+        [UserRole.ADMIN, UserRole.MANAGER].every((item) => user?.role.includes(item))
+          ? process.env.URL_ADMIN
+          : process.env.URL_CLIENT + '/resetPassword/' + _id + '/' + resetString
       }>here</a> to procced.</p>`
     }
 
-    await prisma.userReset.create({
-      data: {
-        user: {
-          connect: { id }
-        },
-        resetString: hashedResetString,
-        expiresAt: new Date(Date.now() + 3600000)
-      }
+    await UserReset.create({
+      user: _id,
+      resetString: hashedResetString,
+      expiresAt: Date.now() + 3600000
     })
 
     await transporter.sendMail(mailOptions)
 
-    res.status(200).send('Password reset email sent.')
+    res.status(200).send()
+  } catch (error: any) {
+    next(error)
+  }
+}
+
+export const sendPasswordEmail = async (_id: string, email: string, password: string, res: any, next: any) => {
+  try {
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: email,
+      subject: 'Send Password',
+      html: `<p>Verify your email address to complete the signup and login into your account</p>.<p>Your password <b>${password}</b>.</p><p>Press <a href=${
+        process.env.URL_ADMIN + '/login'
+      }>here</a> to login.</p>`
+    }
+
+    await transporter.sendMail(mailOptions)
+    await User.updateOne(
+      {
+        _id
+      },
+      {
+        verify: true,
+        updatedAt: Date.now()
+      }
+    )
+
+    res.status(200).send()
   } catch (error: any) {
     next(error)
   }

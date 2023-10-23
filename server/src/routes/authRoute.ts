@@ -1,24 +1,27 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import passport from 'passport'
-import { getProfile, login, logout, refreshToken, register, verifyEmail } from 'src/controllers/authControllers'
-import { verifyAccessToken } from 'src/middlewares/jwtHelper'
+import {
+  createUser,
+  getProfile,
+  login,
+  logout,
+  refreshToken,
+  register,
+  verifyEmail
+} from 'src/controllers/authController'
+import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
+import { UserRole } from 'src/models/userModel'
 
 const authRouter = Router()
-// Register: .../auth/register with input req.body include name, email, password and confirmPassword field
-authRouter.route('/register').post(register)
-// Verify email: .../auth/verify/:userId/:uniqueString
-authRouter.route('/verify/:userId/:verificationString').get(verifyEmail)
-// Login: .../auth/login with input req.body include email and password field
-authRouter.route('/login').post(login)
-// Refresh token: .../auth/refresh-token with input req.body include refreshToken field
-authRouter.route('/refresh-token').post(refreshToken)
-// Logout: .../auth/logout with input req.body include refreshToken field
-authRouter.route('/logout/:refreshToken').delete(logout)
-// Get profile: .../auth/me with req.header include accessToken
-authRouter.route('/me').get(verifyAccessToken, getProfile)
-// Return auth router
 
-// localhost:5000/api/auth/google
+authRouter.route('/register').post(register)
+authRouter.route('/verify/:userId/:verificationString').get(verifyEmail)
+authRouter.route('/login').post(login)
+authRouter.route('/refresh-token').post(refreshToken)
+authRouter.route('/logout/:refreshToken').delete(logout)
+authRouter.route('/me').get(verifyAccessToken, getProfile)
+authRouter.route('/admin/create-user').post(verifyAccessToken, authorizeRoles([UserRole.ADMIN]), createUser)
+
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
 
 authRouter.get(
