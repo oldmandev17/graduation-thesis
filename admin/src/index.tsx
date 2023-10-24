@@ -16,7 +16,6 @@ const DashboardPage = lazy(() => import('pages/admin/Dashboard'))
 const NotFoundPage = lazy(() => import('pages/admin/NotFound'))
 
 const LogInPage = lazy(() => import('pages/auth/LogIn'))
-const RegisterPage = lazy(() => import('pages/auth/Register'))
 const ForgotPasswordPage = lazy(() => import('pages/auth/ForgotPassword'))
 // const RequiredAuthPage = lazy(() => import('pages/auth/RequiredAuth'))
 const ResetPasswordPage = lazy(() => import('pages/auth/ResetPassword'))
@@ -60,10 +59,6 @@ const router = createBrowserRouter([
           {
             path: '/auth/login',
             element: <LogInPage />
-          },
-          {
-            path: '/auth/register',
-            element: <RegisterPage />
           },
           {
             path: '/auth/forgotPassword',
