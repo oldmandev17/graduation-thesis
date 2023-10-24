@@ -1,5 +1,48 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
+import * as Yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
+import { useAppDispatch } from 'stores/hooks'
+import { authForgotPassowrd } from 'stores/auth/auth-slice'
+
 function ForgotPassword() {
+  const forgotPasswordSchema = Yup.object({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    terms: Yup.boolean()
+      .oneOf([true], 'You must agree to the terms and conditions')
+      .required('You must agree to the terms and conditions')
+  })
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    resolver: yupResolver(forgotPasswordSchema),
+    mode: 'onSubmit'
+  })
+
+  const dispatch = useAppDispatch()
+
+  const handleForgotPassword = (values: any) => {
+    dispatch(authForgotPassowrd(values))
+    reset()
+  }
+
+  useEffect(() => {
+    const arrErroes = Object.values(errors)
+    if (arrErroes.length > 0) {
+      toast.error(String(arrErroes[0]?.message), {
+        pauseOnHover: false,
+        delay: 0
+      })
+    }
+  }, [errors])
+
   return (
     <section>
       <div className='flex flex-col items-center justify-center px-6 py-20 mx-auto'>
@@ -18,13 +61,15 @@ function ForgotPassword() {
           <p className='font-light text-gray-500 dark:text-gray-400'>
             Don't fret! Just type in your email and we will send you a code to reset your password!
           </p>
-          <form className='mt-4 space-y-4 lg:mt-5 md:space-y-5' action='#'>
+          <form className='mt-4 space-y-4 lg:mt-5 md:space-y-5' onSubmit={handleSubmit(handleForgotPassword)}>
             <div>
               <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
                 Your email
               </label>
               <input
                 type='email'
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...register('email')}
                 name='email'
                 id='email'
                 className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
@@ -35,6 +80,8 @@ function ForgotPassword() {
               <div className='flex items-center h-5'>
                 <input
                   id='terms'
+                  {...register('terms')}
+                  name='terms'
                   aria-describedby='terms'
                   type='checkbox'
                   className='w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800'

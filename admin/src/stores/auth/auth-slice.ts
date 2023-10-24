@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { AuthState, SignUpPayload, UpdateUserPayload } from './auth-types'
+import { AuthState, ForgotPasswordPayload, LogInPayload, ResetPasswordPayload, UpdateUserPayload } from './auth-types'
 
 const initialState: AuthState = {
   user: undefined,
@@ -11,13 +12,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    authSignIn: (state) => ({
+    authLogIn: (state, action: PayloadAction<LogInPayload>) => ({
       ...state
-    }),
-
-    authSignUp: (state, action: PayloadAction<SignUpPayload>) => ({
-      ...state,
-      ...action.payload
     }),
 
     authUpdateUser: (state, action: PayloadAction<UpdateUserPayload>) => ({
@@ -28,10 +24,14 @@ const authSlice = createSlice({
     authFetchMe: (state, action: PayloadAction<any>) => ({
       ...state,
       ...action.payload
-    })
+    }),
+
+    authForgotPassowrd: (state, action: PayloadAction<ForgotPasswordPayload>) => ({}),
+
+    authResetPassword: (state, action: PayloadAction<ResetPasswordPayload>) => ({})
   }
 })
 
-export const { authSignIn, authSignUp, authUpdateUser, authFetchMe } = authSlice.actions
+export const { authLogIn, authUpdateUser, authFetchMe, authForgotPassowrd, authResetPassword } = authSlice.actions
 
 export default authSlice.reducer

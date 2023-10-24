@@ -1,10 +1,6 @@
 import { axiosJson } from 'apis/axios'
 
-const requestAuthSignUp = (data: any) => {
-  return axiosJson.post('/auth/register', { ...data })
-}
-
-export const requestAuthSignIn = (data: any) => {
+export const requestAuthLogIn = (data: any) => {
   return axiosJson.post('/auth/login', { ...data })
 }
 
@@ -19,4 +15,28 @@ const requestAuthFetchMe = (token: any) => {
   })
 }
 
-export { requestAuthSignUp, requestAuthFetchMe }
+const requestForgotPassword = (data: any) => {
+  return axiosJson.post(
+    '/auth/requestPasswordReset',
+    { ...data },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+}
+
+const requestResetPassword = (data: any) => {
+  return axiosJson.post(
+    '/auth/resetPassword',
+    { ...data },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+}
+
+export { requestAuthFetchMe, requestForgotPassword, requestResetPassword }

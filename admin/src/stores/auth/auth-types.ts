@@ -6,14 +6,7 @@ export interface AuthState {
   redirect?: boolean
 }
 
-export interface SignUpPayload {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
-}
-
-export interface SignInPayload {
+export interface LogInPayload {
   email: string
   password: string
 }
@@ -21,4 +14,15 @@ export interface SignInPayload {
 export interface UpdateUserPayload {
   user?: User
   accessToken?: string | null
+}
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface ResetPasswordPayload {
+  userId: string
+  resetString: string
+  password: String
+  confirmPassword: string
 }

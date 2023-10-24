@@ -1,18 +1,9 @@
 import { call, put } from 'redux-saga/effects'
 import { toast } from 'react-toastify'
 import { saveToken } from 'utils/auth'
-import { requestAuthFetchMe, requestAuthSignIn, requestAuthSignUp } from './auth-requests'
-import { SignInPayload, SignUpPayload } from './auth-types'
+import { requestAuthFetchMe, requestAuthLogIn, requestForgotPassword, requestResetPassword } from './auth-requests'
+import { ForgotPasswordPayload, LogInPayload, ResetPasswordPayload } from './auth-types'
 import { authUpdateUser } from './auth-slice'
-
-function* handleAuthSignUp({ payload }: { payload: SignUpPayload; type: string }): Generator<any, void, any> {
-  try {
-    const response = yield call(requestAuthSignUp, payload)
-    if (response.status === 201) toast.success('Please check your email')
-  } catch (error: any) {
-    toast.error(error.response.data.error.message)
-  }
-}
 
 function* handleAuthFetchMe({ payload }: { payload: string }): Generator<any, void, any> {
   try {
@@ -29,9 +20,9 @@ function* handleAuthFetchMe({ payload }: { payload: string }): Generator<any, vo
   }
 }
 
-function* handleAuthSignIn({ payload }: { payload: SignInPayload; type: string }): Generator<any, void, any> {
+function* handleAuthLogIn({ payload }: { payload: LogInPayload; type: string }): Generator<any, void, any> {
   try {
-    const response = yield call(requestAuthSignIn, payload)
+    const response = yield call(requestAuthLogIn, payload)
     if (response.data.accessToken && response.data.refreshToken) {
       saveToken(response.data.accessToken, response.data.refreshToken)
       yield call(handleAuthFetchMe, { payload: response.data.accessToken })
@@ -41,4 +32,34 @@ function* handleAuthSignIn({ payload }: { payload: SignInPayload; type: string }
   }
 }
 
-export { handleAuthSignUp, handleAuthSignIn }
+function* handleAuthForgotPassword({
+  payload
+}: {
+  payload: ForgotPasswordPayload
+  type: string
+}): Generator<any, void, any> {
+  try {
+    const response = yield call(requestForgotPassword, payload)
+    if (response.status === 200) toast.success('Please check your email')
+  } catch (error: any) {
+    toast.error(error.response.data.error.message)
+  }
+}
+
+function* handleAuthResetPassword({
+  payload
+}: {
+  payload: ResetPasswordPayload
+  type: string
+}): Generator<any, void, any> {
+  try {
+    const response = yield call(requestResetPassword, payload)
+    if (response.status === 200) {
+      toast.success('Reset password successfully')
+    }
+  } catch (error: any) {
+    toast.error(error.response.data.error.message)
+  }
+}
+
+export { handleAuthLogIn, handleAuthFetchMe, handleAuthForgotPassword, handleAuthResetPassword }
