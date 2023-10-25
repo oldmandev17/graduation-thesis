@@ -14,12 +14,19 @@ import './index.css'
 const AdminLayout = lazy(() => import('layouts/Admin'))
 const AuthenticationLayout = lazy(() => import('layouts/Authentication'))
 
-const DashboardPage = lazy(() => import('pages/admin/Dashboard'))
+const OverviewPage = lazy(() => import('pages/admin/Overview'))
+const LogPage = lazy(() => import('pages/admin/Log'))
+const AccountPage = lazy(() => import('pages/admin/Account'))
+const CategoryPage = lazy(() => import('pages/admin/Category'))
+const GigPage = lazy(() => import('pages/admin/Gig'))
+const OrderPage = lazy(() => import('pages/admin/Order'))
+const SettingPage = lazy(() => import('pages/admin/Setting'))
+const UserPage = lazy(() => import('pages/admin/User'))
+
 const NotFoundPage = lazy(() => import('pages/admin/NotFound'))
 
 const LogInPage = lazy(() => import('pages/auth/LogIn'))
 const ForgotPasswordPage = lazy(() => import('pages/auth/ForgotPassword'))
-// const RequiredAuthPage = lazy(() => import('pages/auth/RequiredAuth'))
 const ResetPasswordPage = lazy(() => import('pages/auth/ResetPassword'))
 const UnAuthorizePage = lazy(() => import('pages/auth/UnAuthorize'))
 
@@ -41,6 +48,10 @@ const router = createBrowserRouter([
     ),
     children: [
       {
+        path: '/*',
+        element: <NotFoundPage />
+      },
+      {
         path: '/',
         element: <RequiredAuth allowPermissions={[UserRole.ADMIN, UserRole.MANAGER]} />,
         children: [
@@ -49,14 +60,38 @@ const router = createBrowserRouter([
             element: <AdminLayout />,
             children: [
               {
-                path: '/dashboard',
-                element: <DashboardPage />
+                path: '/overview',
+                element: <OverviewPage />
+              },
+              {
+                path: '/account',
+                element: <AccountPage />
+              },
+              {
+                path: '/category',
+                element: <CategoryPage />
+              },
+              {
+                path: '/gig',
+                element: <GigPage />
+              },
+              {
+                path: '/log',
+                element: <LogPage />
+              },
+              {
+                path: '/order',
+                element: <OrderPage />
+              },
+              {
+                path: '/setting',
+                element: <SettingPage />
+              },
+              {
+                path: '/user',
+                element: <UserPage />
               }
             ]
-          },
-          {
-            path: '/*',
-            element: <NotFoundPage />
           }
         ]
       },
