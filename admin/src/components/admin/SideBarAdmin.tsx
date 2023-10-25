@@ -2,17 +2,17 @@
 function SideBarAdmin() {
   return (
     <aside
-      className='fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform -translate-x-full bg-white borderR border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700'
+      className='fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-white border border-gray-200 pt-14 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700'
       aria-label='Sidenav'
       id='drawer-navigation'
     >
-      <div className='overflow-y-auto py-5 px-3 h-full bg-white dark:bg-gray-800'>
-        <form action='#' method='GET' className='md:hidden mb-2'>
+      <div className='h-full px-3 py-5 overflow-y-auto bg-white dark:bg-gray-800'>
+        <form action='#' method='GET' className='mb-2 md:hidden'>
           <label htmlFor='sidebar-search' className='sr-only'>
             Search
           </label>
           <div className='relative'>
-            <div className='flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none'>
+            <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
               <svg
                 className='w-5 h-5 text-gray-500 dark:text-gray-400'
                 fill='currentColor'
@@ -30,7 +30,7 @@ function SideBarAdmin() {
               type='text'
               name='search'
               id='sidebar-search'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+              className='block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
               placeholder='Search'
             />
           </div>
@@ -57,7 +57,7 @@ function SideBarAdmin() {
           <li>
             <button
               type='button'
-              className='flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+              className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
               aria-controls='dropdown-pages'
               data-collapse-toggle='dropdown-pages'
             >
@@ -93,7 +93,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Settings
                 </a>
@@ -101,7 +101,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Kanban
                 </a>
@@ -109,7 +109,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Calendar
                 </a>
@@ -119,7 +119,7 @@ function SideBarAdmin() {
           <li>
             <button
               type='button'
-              className='flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+              className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
               aria-controls='dropdown-sales'
               data-collapse-toggle='dropdown-sales'
             >
@@ -155,7 +155,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Products
                 </a>
@@ -163,7 +163,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Billing
                 </a>
@@ -171,7 +171,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Invoice
                 </a>
@@ -194,7 +194,7 @@ function SideBarAdmin() {
                 <path d='M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z' />
               </svg>
               <span className='flex-1 ml-3 whitespace-nowrap'>Messages</span>
-              <span className='inline-flex justify-center items-center w-5 h-5 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800'>
+              <span className='inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800'>
                 4
               </span>
             </a>
@@ -202,7 +202,7 @@ function SideBarAdmin() {
           <li>
             <button
               type='button'
-              className='flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+              className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
               aria-controls='dropdown-authentication'
               data-collapse-toggle='dropdown-authentication'
             >
@@ -238,7 +238,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Sign In
                 </a>
@@ -246,7 +246,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Sign Up
                 </a>
@@ -254,7 +254,7 @@ function SideBarAdmin() {
               <li>
                 <a
                   href='/#'
-                  className='flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
+                  className='flex items-center w-full p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700'
                 >
                   Forgot Password
                 </a>
@@ -266,7 +266,7 @@ function SideBarAdmin() {
           <li>
             <a
               href='/#'
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
                 aria-hidden='true'
@@ -288,7 +288,7 @@ function SideBarAdmin() {
           <li>
             <a
               href='/#'
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
                 aria-hidden='true'
@@ -305,7 +305,7 @@ function SideBarAdmin() {
           <li>
             <a
               href='/#'
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
                 aria-hidden='true'
@@ -325,7 +325,7 @@ function SideBarAdmin() {
           </li>
         </ul>
       </div>
-      <div className='hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20'>
+      <div className='absolute bottom-0 left-0 z-20 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-gray-800'>
         <a
           href='/#'
           className='inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
@@ -362,7 +362,7 @@ function SideBarAdmin() {
         <div
           id='tooltip-settings'
           role='tooltip'
-          className='inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip'
+          className='absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip'
         >
           Settings page
           <div className='tooltip-arrow' data-popper-arrow />
@@ -405,14 +405,14 @@ function SideBarAdmin() {
           </svg>
         </button>
         <div
-          className='hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700'
+          className='z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700'
           id='language-dropdown'
         >
           <ul className='py-1' role='none'>
             <li>
               <a
                 href='/#'
-                className='block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600'
+                className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600'
                 role='menuitem'
               >
                 <div className='inline-flex items-center'>
@@ -451,7 +451,7 @@ function SideBarAdmin() {
             <li>
               <a
                 href='/#'
-                className='block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600'
+                className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600'
                 role='menuitem'
               >
                 <div className='inline-flex items-center'>
@@ -473,7 +473,7 @@ function SideBarAdmin() {
             <li>
               <a
                 href='/#'
-                className='block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600'
+                className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600'
                 role='menuitem'
               >
                 <div className='inline-flex items-center'>
@@ -497,7 +497,7 @@ function SideBarAdmin() {
             <li>
               <a
                 href='/#'
-                className='block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600'
+                className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600'
                 role='menuitem'
               >
                 <div className='inline-flex items-center'>

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const axiosJson = axios.create({
-  baseURL: process.env.REACT_APP_URL_API,
+  baseURL: `${process.env.REACT_APP_URL_SERVER}/api`,
   headers: {
     'Content-Type': 'application/json',
     'Cache-Control': 'no-cache'
@@ -9,7 +9,7 @@ export const axiosJson = axios.create({
 })
 
 export const axiosFormData = axios.create({
-  baseURL: process.env.REACT_APP_URL_API,
+  baseURL: `${process.env.REACT_APP_URL_SERVER}/api`,
   headers: {
     'Content-Type': 'multipart/form-data',
     'Cache-Control': 'no-cache'

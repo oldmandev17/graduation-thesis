@@ -233,6 +233,9 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       errorMessage: '',
       content: ''
     })
+
+    delete userExist?.password
+
     res.status(200).json({
       profile: userExist
     })

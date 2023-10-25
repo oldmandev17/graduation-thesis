@@ -9,16 +9,16 @@ function RequiredAuth({ allowPermissions = [] }: { allowPermissions: Array<strin
   const { user } = useAppSelector((state) => state.auth)
   const { accessToken } = getToken()
   const location = useLocation()
-  if (!accessToken) return <Navigate to='/signin' state={{ from: location }} replace />
+  if (!accessToken) return <Navigate to='/auth/login' state={{ from: location }} replace />
   const decode: { userId: string; role: Array<string> } = jwt_decode(accessToken)
   const userPermissions: Array<string> = decode?.role || []
   // eslint-disable-next-line no-nested-ternary
   return userPermissions.find((p) => allowPermissions?.includes(p)) || allowPermissions.length <= 0 ? (
     <Outlet />
   ) : user && user._id ? (
-    <Navigate to='/unauthorize' state={{ from: location }} replace />
+    <Navigate to='/auth/unAuthorize' state={{ from: location }} replace />
   ) : (
-    <Navigate to='/signin' state={{ from: location }} replace />
+    <Navigate to='/auth/login' state={{ from: location }} replace />
   )
 }
 

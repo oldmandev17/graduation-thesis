@@ -1,9 +1,16 @@
-import { call, put } from 'redux-saga/effects'
 import { toast } from 'react-toastify'
-import { saveToken } from 'utils/auth'
-import { requestAuthFetchMe, requestAuthLogIn, requestForgotPassword, requestResetPassword } from './auth-requests'
-import { ForgotPasswordPayload, LogInPayload, ResetPasswordPayload } from './auth-types'
+import { call, put } from 'redux-saga/effects'
+import { logout, saveToken } from 'utils/auth'
+import {
+  requestAuthFetchMe,
+  requestAuthLogIn,
+  requestAuthLogout,
+  requestAuthRefreshToken,
+  requestForgotPassword,
+  requestResetPassword
+} from './auth-requests'
 import { authUpdateUser } from './auth-slice'
+import { ForgotPasswordPayload, LogInPayload, ResetPasswordPayload } from './auth-types'
 
 function* handleAuthFetchMe({ payload }: { payload: string }): Generator<any, void, any> {
   try {
@@ -46,6 +53,38 @@ function* handleAuthForgotPassword({
   }
 }
 
+function* handleAuthLogout({ payload }: { payload: string; type: any }): Generator<any, void, any> {
+  try {
+    logout()
+    yield put(
+      authUpdateUser({
+        user: undefined,
+        accessToken: null
+      })
+    )
+    yield call(requestAuthLogout, payload)
+  } catch (error: any) {
+    toast.error(error.response.data.error.message)
+  }
+}
+
+function* handleAuthRefreshToken({ payload }: { payload: string; type: string }): Generator<any, void, any> {
+  try {
+    const response = yield call(requestAuthRefreshToken, payload)
+    if (response.status === 200) {
+      saveToken(response.data.accessToken, response.data.refreshToken)
+      yield call(handleAuthFetchMe, { payload: response.data.accessToken })
+    } else {
+      yield handleAuthLogout({
+        payload: response.data.accessToken,
+        type: null
+      })
+    }
+  } catch (error: any) {
+    toast.error(error.response.data.error.message)
+  }
+}
+
 function* handleAuthResetPassword({
   payload
 }: {
@@ -62,4 +101,11 @@ function* handleAuthResetPassword({
   }
 }
 
-export { handleAuthLogIn, handleAuthFetchMe, handleAuthForgotPassword, handleAuthResetPassword }
+export {
+  handleAuthFetchMe,
+  handleAuthForgotPassword,
+  handleAuthLogIn,
+  handleAuthLogout,
+  handleAuthRefreshToken,
+  handleAuthResetPassword
+}

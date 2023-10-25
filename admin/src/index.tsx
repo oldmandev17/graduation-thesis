@@ -1,3 +1,5 @@
+import { UserRole } from 'modules/user'
+import RequiredAuth from 'pages/auth/RequiredAuth'
 import { ReactNode, Suspense, lazy, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
@@ -40,11 +42,17 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <AdminLayout />,
+        element: <RequiredAuth allowPermissions={[UserRole.ADMIN, UserRole.MANAGER]} />,
         children: [
           {
             path: '/',
-            element: <DashboardPage />
+            element: <AdminLayout />,
+            children: [
+              {
+                path: '/dashboard',
+                element: <DashboardPage />
+              }
+            ]
           },
           {
             path: '/*',

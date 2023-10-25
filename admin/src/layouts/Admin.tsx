@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import FooterAdmin from 'components/admin/FooterAdmin'
 import HeaderAdmin from 'components/admin/HeaderAdmin'
 import SideBarAdmin from 'components/admin/SideBarAdmin'
@@ -8,7 +9,7 @@ function Admin() {
     <div className='antialiased bg-gray-50 dark:bg-gray-900'>
       <HeaderAdmin />
       <SideBarAdmin />
-      <main className='p-4 md:ml-64 h-auto pt-20'>
+      <main className='h-auto p-4 pt-20 md:ml-64'>
         <Outlet />
         <FooterAdmin />
       </main>

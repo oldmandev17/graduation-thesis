@@ -1,12 +1,12 @@
+/* eslint-disable consistent-return */
 import { axiosJson } from 'apis/axios'
 
-export const requestAuthLogIn = (data: any) => {
+const requestAuthLogIn = (data: any) => {
   return axiosJson.post('/auth/login', { ...data })
 }
 
 const requestAuthFetchMe = (token: any) => {
   if (!token) return
-  // eslint-disable-next-line consistent-return
   return axiosJson.get('/auth/me', {
     headers: {
       'Content-Type': 'application/json',
@@ -39,4 +39,35 @@ const requestResetPassword = (data: any) => {
   )
 }
 
-export { requestAuthFetchMe, requestForgotPassword, requestResetPassword }
+const requestAuthRefreshToken = (token: any) => {
+  if (!token) return
+  return axiosJson.post(
+    '/auth/refresh-token',
+    {
+      refreshToken: token
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+}
+
+const requestAuthLogout = (token: any) => {
+  if (!token) return
+  return axiosJson.delete(`/auth/logout/${token}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+}
+
+export {
+  requestAuthFetchMe,
+  requestAuthLogout,
+  requestAuthRefreshToken,
+  requestForgotPassword,
+  requestResetPassword,
+  requestAuthLogIn
+}

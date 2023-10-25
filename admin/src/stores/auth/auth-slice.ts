@@ -28,10 +28,22 @@ const authSlice = createSlice({
 
     authForgotPassowrd: (state, action: PayloadAction<ForgotPasswordPayload>) => ({}),
 
-    authResetPassword: (state, action: PayloadAction<ResetPasswordPayload>) => ({})
+    authResetPassword: (state, action: PayloadAction<ResetPasswordPayload>) => ({}),
+
+    authLogout: (state, action: PayloadAction<string>) => ({}),
+
+    authRefreshToken: (state, action: PayloadAction<string>) => ({})
   }
 })
 
-export const { authLogIn, authUpdateUser, authFetchMe, authForgotPassowrd, authResetPassword } = authSlice.actions
+export const {
+  authLogIn,
+  authUpdateUser,
+  authFetchMe,
+  authForgotPassowrd,
+  authResetPassword,
+  authLogout,
+  authRefreshToken
+} = authSlice.actions
 
 export default authSlice.reducer
