@@ -17,7 +17,6 @@ function SelectCustom({
   setValue: React.Dispatch<React.SetStateAction<any>>
 }) {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    // Update the selectedOption state when the user selects a different option
     setValue(event.target.value === 'null' ? null : event.target.value)
   }
 

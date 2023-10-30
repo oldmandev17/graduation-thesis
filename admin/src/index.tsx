@@ -102,6 +102,48 @@ const router = createBrowserRouter([
         ]
       },
       {
+        path: '/test',
+        element: <AdminLayout />,
+        children: [
+          {
+            path: '/test/overview',
+            element: <OverviewPage />
+          },
+          {
+            path: '/test/account',
+            element: <AccountPage />
+          },
+          {
+            path: '/test/category',
+            element: <CategoryPage />
+          },
+          {
+            path: '/test/gig',
+            element: <GigPage />
+          },
+          {
+            path: '/test/log',
+            element: <LogPage />
+          },
+          {
+            path: '/test/order',
+            element: <OrderPage />
+          },
+          {
+            path: '/test/setting',
+            element: <SettingPage />
+          },
+          {
+            path: '/test/user',
+            element: <UserPage />
+          },
+          {
+            path: '/test/message',
+            element: <MessagePage />
+          }
+        ]
+      },
+      {
         path: '/auth',
         element: <AuthenticationLayout />,
         children: [

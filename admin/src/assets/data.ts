@@ -1,3 +1,4 @@
+import { CategoryStatus } from 'modules/category'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
 
 const arrLogMethods = [
@@ -120,4 +121,19 @@ const arrLimits = [
   }
 ]
 
-export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits }
+const arrCategoryStatus = [
+  {
+    label: 'ACTIVE',
+    value: CategoryStatus.ACTIVE
+  },
+  {
+    label: 'INACTIVE',
+    value: CategoryStatus.INACTIVE
+  },
+  {
+    label: 'DELETED',
+    value: CategoryStatus.DELETED
+  }
+]
+
+export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits, arrCategoryStatus }

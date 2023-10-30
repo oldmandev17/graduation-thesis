@@ -4,26 +4,27 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { deleteLog, getAllLog } from 'apis/api'
+import { deleteLog, getAllLog, getLogDetail } from 'apis/api'
 import { arrLimits, arrLogMethods, arrLogNames, arrLogStatus } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import DialogCustom from 'components/common/DialogCustom'
+import ModalCustom from 'components/common/ModalCustom'
 import SelectCustom from 'components/common/SelectCustom'
 import { ILog, LogMethod, LogName, LogStatus } from 'modules/log'
 import { useCallback, useEffect, useState } from 'react'
 import { BsTrash } from 'react-icons/bs'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
+import generateExcel from 'utils/generateExcel'
 import timeAgo from 'utils/timeAgo'
 
 function Log() {
   const date = new Date()
-  date.setHours(0, 0, 0, 0)
   const [logs, setLogs] = useState<Array<ILog>>([])
+  const [logDetail, setLogDetail] = useState<ILog>()
   const [startDay, setStartDay] = useState<Date>(date)
-  console.log("🚀 ~ file: Log.tsx:25 ~ Log ~ startDay:", startDay)
-  const [endDay, seteEndDay] = useState<Date>(new Date(date.getTime() + 24 * 60 * 60 * 1000))
+  const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
   const [orderBy, setOrderBy] = useState<string>('desc')
   const [status, setStatus] = useState<LogStatus | null>(null)
@@ -38,7 +39,19 @@ function Log() {
   const { accessToken } = getToken()
 
   const getAllLogs = useCallback(async () => {
-    await getAllLog(page, limit, status, method, name, sortBy, orderBy, startDay, endDay, accessToken)
+    endDay.setHours(0, 0, 0, 0)
+    await getAllLog(
+      page,
+      limit,
+      status,
+      method,
+      name,
+      sortBy,
+      orderBy,
+      startDay,
+      new Date(endDay.getTime() + 24 * 60 * 60 * 1000),
+      accessToken
+    )
       .then((response) => {
         if (response.status === 200) {
           setLogs(response.data.logs)
@@ -75,14 +88,14 @@ function Log() {
     return checkedIds
   }
 
-  const [open, setOpen] = useState<boolean>(false)
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   const handleDelete = async (arrIds: Array<string>) => {
     if (arrIds.length === 0) {
       toast.warning('Select a row to delete, please.')
     } else {
       setArrayIds(arrIds)
-      setOpen(true)
+      setOpenDialog(true)
     }
   }
 
@@ -126,7 +139,46 @@ function Log() {
 
   const handleSort = (sortByField: string) => {
     setSortBy(sortByField)
-    setOrderBy((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    if (sortByField === sortBy) {
+      setOrderBy((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setOrderBy('desc')
+    }
+  }
+
+  const [openModal, setOpenModal] = useState<boolean>(false)
+
+  const columns = [
+    { header: 'Id', key: '_id', width: 20 },
+    { header: 'Name', key: 'name', width: 30 },
+    { header: 'Method', key: 'method', width: 30 },
+    { header: 'Status', key: 'status', width: 30 },
+    { header: 'Url', key: 'url', width: 30 },
+    { header: 'User', key: 'user', width: 30 },
+    { header: 'Error Message', key: 'errorMessage', width: 30 },
+    { header: 'Content', key: 'content', width: 30 },
+    { header: 'Created At', key: 'createdAt', width: 30 }
+  ]
+
+  const getLogDetails = async (id: string) => {
+    await getLogDetail(id, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setLogDetail(response.data.log)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+  }
+
+  const handleView = (id: string) => {
+    if (!id) {
+      toast.warning('Select a row to delete, please.')
+    } else {
+      getLogDetails(id)
+      setOpenModal(true)
+    }
   }
 
   return (
@@ -134,29 +186,16 @@ function Log() {
       <div className='inline-flex justify-end rounded-md shadow-sm' role='group'>
         <button
           type='button'
-          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
-        >
-          <svg
-            className='w-3 h-3 mr-2'
-            aria-hidden='true'
-            xmlns='http://www.w3.org/2000/svg'
-            fill='currentColor'
-            viewBox='0 0 20 20'
-          >
-            <path d='M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z' />
-          </svg>
-          Profile
-        </button>
-        <button
-          type='button'
           onClick={() => handleDelete(getCheckedInputIds())}
-          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
+          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <BsTrash className='w-3 h-3 mr-2' style={{ strokeWidth: '0.5' }} />
           Delete
         </button>
         <button
           type='button'
+          disabled={!logs.length}
+          onClick={() => generateExcel(columns, logs, 'Log Sheet', 'Log')}
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <svg
@@ -186,12 +225,12 @@ function Log() {
             </SelectCustom>
           </div>
           <div className='grid grid-cols-3 gap-10'>
-            <DateTimePickerCustom value={startDay} setValue={setStartDay} label='Choose the name'>
+            <DateTimePickerCustom value={startDay} setValue={setStartDay} label='Choose the start day'>
               Start Day
             </DateTimePickerCustom>
-            <SelectCustom arrValue={arrLogMethods} label='Choose the method' value={method} setValue={setMethod}>
-              Method
-            </SelectCustom>
+            <DateTimePickerCustom value={endDay} setValue={setEndDay} label='Choose the end day'>
+              End Day
+            </DateTimePickerCustom>
             <SelectCustom arrValue={arrLimits} label='Choose the dispaly limit' value={limit} setValue={setLimit}>
               Display Limit
             </SelectCustom>
@@ -341,7 +380,12 @@ function Log() {
                   </td>
                   <td className='px-6 py-4'>{timeAgo(new Date(log.createdAt))}</td>
                   <td className='flex items-center px-6 py-4 space-x-3'>
-                    <span className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>Edit</span>
+                    <span
+                      onClick={() => handleView(log._id)}
+                      className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                    >
+                      View
+                    </span>
                     <span
                       onClick={() => handleDelete([log._id])}
                       className='font-medium text-red-600 cursor-pointer dark:text-red-500 hover:underline'
@@ -406,7 +450,112 @@ function Log() {
           </ul>
         </nav>
       </div>
-      <DialogCustom open={open} setOpen={setOpen} onAgree={() => handleConfirmDelete(arrayIds)} onCancel={() => {}} />
+      <DialogCustom
+        open={openDialog}
+        setOpen={setOpenDialog}
+        onAgree={() => handleConfirmDelete(arrayIds)}
+        onCancel={() => {}}
+      />
+      <ModalCustom open={openModal} setOpen={setOpenModal}>
+        <div
+          id='readProductModal'
+          tabIndex={-1}
+          aria-hidden='true'
+          className='hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full'
+        >
+          <div className='relative p-4 w-full max-w-xl h-full md:h-auto'>
+            <div className='relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5'>
+              <div className='flex justify-between mb-4 rounded-t sm:mb-5'>
+                <div className='text-lg text-gray-900 md:text-xl dark:text-white'>
+                  <h3 className='font-semibold text-center'>Log Details</h3>
+                  <p className='font-bold'>$2999</p>
+                </div>
+                <div>
+                  <button
+                    type='button'
+                    className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex dark:hover:bg-gray-600 dark:hover:text-white'
+                    data-modal-toggle='readProductModal'
+                  >
+                    <svg
+                      aria-hidden='true'
+                      className='w-5 h-5'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span className='sr-only'>Close modal</span>
+                  </button>
+                </div>
+              </div>
+              <dl>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Details</dt>
+                <dd className='mb-4 font-light text-gray-500 sm:mb-5 dark:text-gray-400'>
+                  Standard glass ,3.8GHz 8-core 10th-generation Intel Core i7 processor, Turbo Boost up to 5.0GHz, 16GB
+                  2666MHz DDR4 memory, Radeon Pro 5500 XT with 8GB of GDDR6 memory, 256GB SSD storage, Gigabit Ethernet,
+                  Magic Mouse 2, Magic Keyboard - US.
+                </dd>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Category</dt>
+                <dd className='mb-4 font-light text-gray-500 sm:mb-5 dark:text-gray-400'>Electronics/PC</dd>
+              </dl>
+              <div className='flex justify-between items-center'>
+                <div className='flex items-center space-x-3 sm:space-x-4'>
+                  <button
+                    type='button'
+                    className='text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                  >
+                    <svg
+                      aria-hidden='true'
+                      className='mr-1 -ml-1 w-5 h-5'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path d='M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z' />
+                      <path
+                        fillRule='evenodd'
+                        d='M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    Edit
+                  </button>
+                  <button
+                    type='button'
+                    className='py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700'
+                  >
+                    Preview
+                  </button>
+                </div>
+                <button
+                  type='button'
+                  className='inline-flex items-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900'
+                >
+                  <svg
+                    aria-hidden='true'
+                    className='w-5 h-5 mr-1.5 -ml-1'
+                    fill='currentColor'
+                    viewBox='0 0 20 20'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ModalCustom>
     </div>
   )
 }
