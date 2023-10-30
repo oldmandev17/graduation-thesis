@@ -1,5 +1,4 @@
-import mongoose from 'mongoose'
-import { IUser } from './userModel'
+import { IUser } from './user'
 
 export enum LogName {
   CREATE_CATEGORY = 'CREATE_CATEGORY',
@@ -31,52 +30,14 @@ export enum LogMethod {
   DELETE = 'DELETE'
 }
 
-export interface ILog extends mongoose.Document {
+export interface ILog {
+  _id: string
   user?: IUser
   name: LogName
   method: LogMethod
   status: LogStatus
   url: string
   errorMessage?: string
-  content?: object
+  content?: JSON
   createdAt: Date
 }
-
-const logSchema: mongoose.Schema = new mongoose.Schema<ILog>({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user'
-  },
-  name: {
-    type: String,
-    enum: Object.values(LogName),
-    required: true
-  },
-  method: {
-    type: String,
-    enum: Object.values(LogMethod),
-    required: true
-  },
-  status: {
-    type: String,
-    enum: Object.values(LogStatus),
-    required: true
-  },
-  url: {
-    type: String,
-    required: true
-  },
-  errorMessage: {
-    type: String
-  },
-  content: {
-    type: Object
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-})
-
-const Log: mongoose.Model<ILog> = mongoose.model<ILog>('log', logSchema)
-export default Log

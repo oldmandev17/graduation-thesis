@@ -1,14 +1,14 @@
 import ThemeSwitcher from 'components/common/ThemeSwitcher'
+import { SiFiverr } from 'react-icons/si'
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 function HeaderAuth() {
   return (
-    <nav className='bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700'>
+    <nav className='px-4 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
       <div className='flex flex-wrap items-center justify-between'>
         <div className='flex items-center justify-start'>
           <a href='https://flowbite.com' className='flex items-center justify-between mr-4'>
-            <img src='https://flowbite.s3.amazonaws.com/logo.svg' className='h-8 mr-3' alt='Freelancer Logo' />
-            <span className='self-center text-2xl font-semibold whitespace-nowrap dark:text-white'>Freelancer</span>
+            <SiFiverr className='w-20 h-[72px] dark:fill-white fill-black' />
           </a>
         </div>
         <div className='flex items-center lg:order-2'>

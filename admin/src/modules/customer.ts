@@ -1,1 +1,1 @@
-export interface Customer {}
+export interface ICustomer {}

@@ -68,7 +68,10 @@ function ThemeSwitcher() {
   }
 
   return (
-    <FormControlLabel control={<MaterialUISwitch sx={{ m: 1 }} onClick={toggleDarkMode} defaultChecked />} label='' />
+    <FormControlLabel
+      control={<MaterialUISwitch sx={{ m: 1 }} onClick={toggleDarkMode} checked={darkMode} />}
+      label=''
+    />
   )
 }
 

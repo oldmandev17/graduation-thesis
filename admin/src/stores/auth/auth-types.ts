@@ -1,7 +1,7 @@
-import { User } from 'modules/user'
+import { IUser } from 'modules/user'
 
 export interface AuthState {
-  user?: User
+  user?: IUser
   accessToken?: string | null
   redirect?: boolean
 }
@@ -12,7 +12,7 @@ export interface LogInPayload {
 }
 
 export interface UpdateUserPayload {
-  user?: User
+  user?: IUser
   accessToken?: string | null
 }
 

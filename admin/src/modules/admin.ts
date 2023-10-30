@@ -1,1 +1,1 @@
-export interface Admin {}
+export interface IAdmin {}

@@ -4,7 +4,7 @@ function FooterAuth() {
       <p className='mb-4 text-sm text-center text-gray-500 dark:text-gray-400 sm:mb-0'>
         &copy; 2023{' '}
         <a href='https://flowbite.com/' className='hover:underline' target='_blank' rel='noreferrer'>
-          Freelancer.com
+          fiverr.com
         </a>
         . All rights reserved.
       </p>

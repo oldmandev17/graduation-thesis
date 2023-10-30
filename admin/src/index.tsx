@@ -3,6 +3,7 @@ import RequiredAuth from 'pages/auth/RequiredAuth'
 import { ReactNode, Suspense, lazy, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
+import { IoCloseSharp } from 'react-icons/io5'
 import { Provider } from 'react-redux'
 import { Outlet, RouterProvider, createBrowserRouter, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
@@ -22,6 +23,7 @@ const GigPage = lazy(() => import('pages/admin/Gig'))
 const OrderPage = lazy(() => import('pages/admin/Order'))
 const SettingPage = lazy(() => import('pages/admin/Setting'))
 const UserPage = lazy(() => import('pages/admin/User'))
+const MessagePage = lazy(() => import('pages/admin/Message'))
 
 const NotFoundPage = lazy(() => import('pages/admin/NotFound'))
 
@@ -90,6 +92,10 @@ const router = createBrowserRouter([
               {
                 path: '/user',
                 element: <UserPage />
+              },
+              {
+                path: '/message',
+                element: <MessagePage />
               }
             ]
           }
@@ -104,15 +110,15 @@ const router = createBrowserRouter([
             element: <LogInPage />
           },
           {
-            path: '/auth/forgotPassword',
+            path: '/auth/forgot-password',
             element: <ForgotPasswordPage />
           },
           {
-            path: '/auth/resetPassword',
+            path: '/auth/reset-password',
             element: <ResetPasswordPage />
           },
           {
-            path: '/auth/unAuthorize',
+            path: '/auth/un-authorize',
             element: <UnAuthorizePage />
           }
         ]
@@ -128,7 +134,11 @@ createRoot(container).render(
         <App>
           <RouterProvider router={router} />
         </App>
-        <ToastContainer />
+        <ToastContainer
+          position='bottom-right'
+          toastClassName='text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border border-gray-400 dark:text-gray-500'
+          closeButton={<IoCloseSharp />}
+        />
       </Suspense>
     </HelmetProvider>
   </Provider>

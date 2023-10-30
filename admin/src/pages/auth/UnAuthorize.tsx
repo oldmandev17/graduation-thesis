@@ -1,3 +1,5 @@
+import { SiFiverr } from 'react-icons/si'
+import { TbBrandFiverr } from 'react-icons/tb'
 import { useNavigate } from 'react-router-dom'
 
 function UnAuthorize() {
@@ -5,14 +7,10 @@ function UnAuthorize() {
 
   return (
     <section>
-      <div className='flex flex-col items-center justify-center px-6 mx-auto py-36 '>
-        <a href='/' className='flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white'>
-          <img
-            className='w-8 h-8 mr-2'
-            src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg'
-            alt='logo'
-          />
-          Freelancer
+      <div className='flex flex-col items-center justify-center px-6 py-32 mx-auto '>
+        <a href='/' className='flex items-center gap-3 mb-6 text-gray-900 fot-semibold te-xt-2xl dark:text-white'>
+          <TbBrandFiverr className='w-10 h-10 p-2 bg-green-400 rounded-full fill-white' />
+          <SiFiverr className='w-20 h-20 dark:fill-white fill-black' />
         </a>
         <div className='w-full p-6 bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md dark:bg-gray-800 dark:border-gray-700 sm:p-8'>
           <h2 className='mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white'>

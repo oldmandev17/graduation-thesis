@@ -63,7 +63,7 @@ export const sendResetEmail = async (_id: string, email: string, res: any, next:
       html: `<p>We heard that your lost the password.</p><p>Don't worry, use the link below to reset it.</p><p>This link <b>expires in 60 minutes.</b></p><p>Press <a href=${
         [UserRole.ADMIN, UserRole.MANAGER].every((item) => user?.role.includes(item))
           ? process.env.URL_ADMIN
-          : process.env.URL_CLIENT + '/resetPassword/' + _id + '/' + resetString
+          : process.env.URL_CLIENT + '/auth/reset-password/' + _id + '/' + resetString
       }>here</a> to procced.</p>`
     }
 
@@ -88,7 +88,7 @@ export const sendPasswordEmail = async (_id: string, email: string, password: st
       to: email,
       subject: 'Send Password',
       html: `<p>Verify your email address to complete the signup and login into your account</p>.<p>Your password <b>${password}</b>.</p><p>Press <a href=${
-        process.env.URL_ADMIN + '/login'
+        process.env.URL_ADMIN + '/auth/login'
       }>here</a> to login.</p>`
     }
 

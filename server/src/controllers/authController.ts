@@ -165,25 +165,8 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
     if (!userExist) throw httpError.NotFound()
     const accessToken = await signAccessToken(userId, userExist.role)
     const newRefreshToken = await signRefreshToken(userId)
-    logger({
-      user: userExist?._id,
-      name: LogName.REFRESH_TOKEN_USER,
-      method: LogMethod.POST,
-      status: LogStatus.SUCCESS,
-      url: req.originalUrl,
-      errorMessage: '',
-      content: ''
-    })
     res.status(200).json({ accessToken, refreshToken: newRefreshToken })
   } catch (error: any) {
-    logger({
-      name: LogName.REFRESH_TOKEN_USER,
-      method: LogMethod.POST,
-      status: LogStatus.ERROR,
-      url: req.originalUrl,
-      errorMessage: error.message,
-      content: ''
-    })
     next(error)
   }
 }
@@ -224,15 +207,6 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       _id: req.payload.userId
     })
     if (!userExist) throw httpError.NotFound()
-    logger({
-      user: userExist?._id,
-      name: LogName.GET_PROFILE_USER,
-      method: LogMethod.GET,
-      status: LogStatus.SUCCESS,
-      url: req.originalUrl,
-      errorMessage: '',
-      content: ''
-    })
 
     delete userExist?.password
 
@@ -240,14 +214,6 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       profile: userExist
     })
   } catch (error: any) {
-    logger({
-      name: LogName.GET_PROFILE_USER,
-      method: LogMethod.GET,
-      status: LogStatus.ERROR,
-      url: req.originalUrl,
-      errorMessage: error.message,
-      content: ''
-    })
     next(error)
   }
 }
@@ -479,26 +445,8 @@ export const getAllUser = async (req: Request, res: Response, next: NextFunction
     const filteredCount = users.length
     apiFeature.sorting().pagination()
     users = await apiFeature.query.clone()
-    logger({
-      user: req.payload.userId,
-      name: LogName.GET_ALL_USER,
-      method: LogMethod.GET,
-      status: LogStatus.SUCCESS,
-      url: req.originalUrl,
-      errorMessage: '',
-      content: req.body
-    })
     res.status(200).json({ users, filteredCount })
   } catch (error: any) {
-    logger({
-      user: req.payload.userId,
-      name: LogName.GET_ALL_USER,
-      method: LogMethod.GET,
-      status: LogStatus.ERROR,
-      url: req.originalUrl,
-      errorMessage: error.message,
-      content: req.body
-    })
     next(error)
   }
 }

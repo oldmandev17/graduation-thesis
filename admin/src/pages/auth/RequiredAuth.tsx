@@ -16,7 +16,7 @@ function RequiredAuth({ allowPermissions = [] }: { allowPermissions: Array<strin
   return userPermissions.find((p) => allowPermissions?.includes(p)) || allowPermissions.length <= 0 ? (
     <Outlet />
   ) : user && user._id ? (
-    <Navigate to='/auth/unAuthorize' state={{ from: location }} replace />
+    <Navigate to='/auth/un-authorize' state={{ from: location }} replace />
   ) : (
     <Navigate to='/auth/login' state={{ from: location }} replace />
   )

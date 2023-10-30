@@ -5,6 +5,7 @@
 import { ClickAwayListener, Grow, Paper, Popper } from '@mui/material'
 import ThemeSwitcher from 'components/common/ThemeSwitcher'
 import { useEffect, useRef, useState } from 'react'
+import { SiFiverr } from 'react-icons/si'
 import { authLogout } from 'stores/auth/auth-slice'
 import { useAppDispatch, useAppSelector } from 'stores/hooks'
 import { getToken } from 'utils/auth'
@@ -70,7 +71,7 @@ function HeaderAdmin() {
   const { refreshToken } = getToken()
 
   return (
-    <nav className='bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50'>
+    <nav className='fixed top-0 left-0 right-0 z-50 px-4 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
       <div className='flex flex-wrap items-center justify-between'>
         <div className='flex items-center justify-start'>
           <button
@@ -108,9 +109,8 @@ function HeaderAdmin() {
             </svg>
             <span className='sr-only'>Toggle sidebar</span>
           </button>
-          <a href='https://flowbite.com' className='flex items-center justify-between mr-4'>
-            <img src='https://flowbite.s3.amazonaws.com/logo.svg' className='h-8 mr-3' alt='Flowbite Logo' />
-            <span className='self-center text-2xl font-semibold whitespace-nowrap dark:text-white'>Flowbite</span>
+          <a href='/' className='flex items-center justify-between mr-4'>
+            <SiFiverr className='w-20 h-[72px] dark:fill-white fill-black' />
           </a>
           <form action='/#' method='GET' className='hidden md:block md:pl-2'>
             <label htmlFor='topbar-search' className='sr-only'>

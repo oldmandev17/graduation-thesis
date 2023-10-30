@@ -11,7 +11,7 @@ function Authentication() {
 
   useEffect(() => {
     if (user && user._id) {
-      navigate('/dashboard')
+      navigate('/overview')
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
