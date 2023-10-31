@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt'
 import { NextFunction } from 'express'
 import mongoose from 'mongoose'
-import { IAdmin } from './adminModel'
-import { ICustomer } from './customerModel'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -40,13 +38,11 @@ export interface IUser extends mongoose.Document {
   verify: boolean
   role: UserRole[]
   status: UserStatus
-  admin?: IAdmin
-  customer?: ICustomer
   createdAt: Date
-  createdBy?: IAdmin
+  createdBy?: IUser
   updatedAt?: Date
   updatedAdminAt?: Date
-  updatedAdminBy?: IAdmin
+  updatedAdminBy?: IUser
 }
 
 const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
@@ -94,21 +90,13 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     enum: Object.values(UserStatus),
     default: UserStatus.ACTIVE
   },
-  admin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin'
-  },
-  customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer'
-  },
   createdAt: {
     type: Date,
     default: Date.now
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin'
+    ref: 'user'
   },
   updatedAt: {
     type: Date
@@ -118,7 +106,7 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
   },
   updatedAdminBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin'
+    ref: 'user'
   }
 })
 

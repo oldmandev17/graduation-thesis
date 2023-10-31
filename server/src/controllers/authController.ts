@@ -3,8 +3,6 @@ import { NextFunction, Request, Response } from 'express'
 import httpError from 'http-errors'
 import client from 'src/helpers/initRedis'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middlewares/jwtHelper'
-import Admin from 'src/models/adminModel'
-import Customer from 'src/models/customerModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import User, { IUser, UserProvider, UserRole } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
@@ -32,13 +30,11 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       provider: UserProvider.EMAIL
     })
     if (userExist.length) throw httpError.Conflict()
-    const newCustomer = await Customer.create({})
     const newUser = await User.create({
       name: result.name,
       email: result.email,
       password: result.password,
-      provider: UserProvider.EMAIL,
-      customer: newCustomer._id
+      provider: UserProvider.EMAIL
     })
     logger({
       user: newUser?._id,
@@ -227,14 +223,12 @@ export async function createUser(req: Request, res: Response, next: NextFunction
       provider: UserProvider.EMAIL
     })
     if (userExist.length) throw httpError.Conflict()
-    const newAdmin = await Admin.create({})
     const newUser = await User.create({
       name: result.name,
       email: result.email,
       password: randomPassword,
       role: [UserRole.MANAGER],
-      provider: UserProvider.EMAIL,
-      admin: newAdmin
+      provider: UserProvider.EMAIL
     })
     logger({
       user: newUser?._id,

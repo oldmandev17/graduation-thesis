@@ -132,7 +132,9 @@ export const updateCategoryStatus = async (req: Request, res: Response, next: Ne
 
 export const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const apiFeature = new APIFeature(Category.find(), req.query).search().filter()
+    const apiFeature = new APIFeature(Category.find().populate('createdBy').populate('updatedBy'), req.query)
+      .search()
+      .filter()
     let categories: ICategory[] = await apiFeature.query
     const filteredCount = categories.length
     apiFeature.sorting().pagination()

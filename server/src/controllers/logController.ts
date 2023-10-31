@@ -19,14 +19,14 @@ export async function getAllLog(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export async function getLogDetail(req:Request,res:Response,next:NextFunction) {
+export async function getLogDetail(req: Request, res: Response, next: NextFunction) {
   try {
-    const logExist = await Log.findOne({_id:req.params.id})
-    if(!logExist) {
+    const logExist = await Log.findOne({ _id: req.params.id }).populate('user')
+    if (!logExist) {
       throw httpError.NotFound()
     }
-    res.status(200).json({log: logExist})
-  } catch (error:any) {
+    res.status(200).json({ log: logExist })
+  } catch (error: any) {
     next(error)
   }
 }

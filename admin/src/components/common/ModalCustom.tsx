@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal } from '@mui/material'
+import { Dialog } from '@mui/material'
 
 interface IModalCustom {
   open: boolean
@@ -13,14 +13,14 @@ function ModalCustom({ open, setOpen, children }: IModalCustom) {
   }
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={handleClose}
       aria-labelledby='modal-modal-title'
       aria-describedby='modal-modal-description'
     >
       {children}
-    </Modal>
+    </Dialog>
   )
 }
 

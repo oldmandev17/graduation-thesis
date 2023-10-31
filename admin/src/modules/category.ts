@@ -1,4 +1,4 @@
-import { IAdmin } from './admin'
+import { IUser } from './user'
 
 export enum CategoryStatus {
   ACTIVE = 'ACTIVE',
@@ -12,7 +12,7 @@ export interface ICategory {
   image: string
   status: CategoryStatus
   createdAt: Date
-  createdBy: IAdmin
+  createdBy: IUser
   updatedAt?: Date
-  updatedBy?: IAdmin
+  updatedBy?: IUser
 }

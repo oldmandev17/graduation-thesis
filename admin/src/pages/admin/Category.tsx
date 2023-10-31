@@ -327,9 +327,9 @@ function Category() {
                   </td>
                   <td className='px-6 py-4'>{category.status}</td>
                   <td className='px-6 py-4'>{timeAgo(new Date(category.createdAt))}</td>
-                  {/* <td className='px-6 py-4'>{category.createdBy}</td> */}
+                  <td className='px-6 py-4'>{category.createdBy.name}</td>
                   <td className='px-6 py-4'>{category?.updatedAt && timeAgo(new Date(category.updatedAt))}</td>
-                  {/* <td className='px-6 py-4'>{category.updatedBy}</td> */}
+                  <td className='px-6 py-4'>{category && category.updatedBy?.name}</td>
                   <td className='flex items-center px-6 py-4 space-x-3'>
                     <span className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>Edit</span>
                     <span

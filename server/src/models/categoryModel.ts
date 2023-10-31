@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { IAdmin } from './adminModel'
+import { IUser } from './userModel'
 
 export enum CategoryStatus {
   ACTIVE = 'ACTIVE',
@@ -12,9 +12,9 @@ export interface ICategory extends mongoose.Document {
   image: string
   status: CategoryStatus
   createdAt: Date
-  createdBy: IAdmin
+  createdBy: IUser
   updatedAt?: Date
-  updatedBy?: IAdmin
+  updatedBy?: IUser
 }
 
 const categorySchema: mongoose.Schema = new mongoose.Schema<ICategory>({
@@ -37,7 +37,7 @@ const categorySchema: mongoose.Schema = new mongoose.Schema<ICategory>({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin',
+    ref: 'user',
     required: true
   },
   updatedAt: {
@@ -45,7 +45,7 @@ const categorySchema: mongoose.Schema = new mongoose.Schema<ICategory>({
   },
   updatedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin'
+    ref: 'user'
   }
 })
 

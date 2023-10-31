@@ -1,6 +1,3 @@
-import { IAdmin } from './admin'
-import { ICustomer } from './customer'
-
 export enum UserRole {
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
@@ -37,11 +34,11 @@ export interface IUser {
   verify: boolean
   role: Array<UserRole>
   status: UserStatus
-  admin?: IAdmin
-  customer?: ICustomer
+  admin?: IUser
+  customer?: IUser
   createdAt: Date
-  createdBy?: IAdmin
+  createdBy?: IUser
   updatedAt?: Date
   updatedAdminAt?: Date
-  updatedAdminBy?: IAdmin
+  updatedAdminBy?: IUser
 }

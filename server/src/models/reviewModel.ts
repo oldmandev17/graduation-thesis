@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { ICustomer } from './customerModel'
+import { IUser } from './userModel'
 import { IGig } from './gigModel'
 
 export enum ReviewStatus {
@@ -13,7 +13,7 @@ export interface IReview extends mongoose.Document {
   reviewText?: string
   rating: number
   status: ReviewStatus
-  reviewer: ICustomer
+  reviewer: IUser
   gig: IGig
   createdAt: Date
 }
@@ -33,7 +33,7 @@ const reviewSchema: mongoose.Schema = new mongoose.Schema<IReview>({
   },
   reviewer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer',
+    ref: 'user',
     required: true
   },
   gig: {

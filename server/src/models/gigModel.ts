@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
-import { IAdmin } from './adminModel'
+import { IUser } from './userModel'
 import { ICategory } from './categoryModel'
-import { ICustomer } from './customerModel'
 import { IOrder } from './orderModel'
 import { IReview } from './reviewModel'
 
@@ -26,11 +25,11 @@ export interface IGig extends mongoose.Document {
   reviews: Array<IReview>
   orders: Array<IOrder>
   createdAt: Date
-  createdBy: ICustomer
+  createdBy: IUser
   updatedCustomerAt?: Date
-  updatedCustomerBy?: ICustomer
+  updatedCustomerBy?: IUser
   updatedAdminAt?: Date
-  updatedAdminBy?: IAdmin
+  updatedAdminBy?: IUser
 }
 
 const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
@@ -94,7 +93,7 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer',
+    ref: 'user',
     required: true
   },
   updatedCustomerAt: {
@@ -102,14 +101,14 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   },
   updatedCustomerBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer'
+    ref: 'user'
   },
   updatedAdminAt: {
     type: Date
   },
   updatedAdminBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin'
+    ref: 'user'
   }
 })
 

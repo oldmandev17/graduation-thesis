@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
-import { IAdmin } from './adminModel'
-import { ICustomer } from './customerModel'
+import { IUser } from './userModel'
 import { IGig } from './gigModel'
 import { IMessage } from './messageModel'
 
@@ -18,11 +17,11 @@ export interface IOrder extends mongoose.Document {
   messages: Array<IMessage>
   gig: IGig
   createdAt: Date
-  createdBy: ICustomer
+  createdBy: IUser
   updatedCustomerAt?: Date
-  updatedCustomerBy?: ICustomer
+  updatedCustomerBy?: IUser
   updatedAdminAt?: Date
-  updatedAdminBy?: IAdmin
+  updatedAdminBy?: IUser
 }
 
 const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
@@ -57,7 +56,7 @@ const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer',
+    ref: 'user',
     required: true
   },
   updatedCustomerAt: {
@@ -65,14 +64,14 @@ const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
   },
   updatedCustomerBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer'
+    ref: 'user'
   },
   updatedAdminAt: {
     type: Date
   },
   updatedAdminBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'admin'
+    ref: 'user'
   }
 })
 

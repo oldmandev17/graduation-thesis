@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { ICustomer } from './customerModel'
+import { IUser } from './userModel'
 
 export enum MessageType {
   TEXT = 'TEXT',
@@ -15,8 +15,8 @@ export interface IMessage extends mongoose.Document {
   message: string
   type: MessageType
   status: MessageStatus
-  sender: ICustomer
-  reciever: ICustomer
+  sender: IUser
+  reciever: IUser
   createdAt: Date
 }
 
@@ -37,12 +37,12 @@ const messageSchem = new mongoose.Schema<IMessage>({
   },
   sender: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer',
+    ref: 'user',
     required: true
   },
   reciever: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customer',
+    ref: 'user',
     required: true
   },
   createdAt: {
