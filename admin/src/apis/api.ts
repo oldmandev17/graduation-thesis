@@ -1,5 +1,5 @@
 import { LogMethod, LogName, LogStatus } from 'modules/log'
-import { CategoryStatus } from 'modules/category'
+import { ServiceStatus } from 'modules/service'
 import { axiosJson } from './axios'
 
 function getAllLog(
@@ -27,16 +27,6 @@ function getAllLog(
   })
 }
 
-function getLogDetail(id: string, accessToken: string | undefined) {
-  const url = `/log/${id}`
-  return axiosJson.get(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
-    }
-  })
-}
-
 function deleteLog(arrIds: Array<string>, accessToken: string | undefined) {
   const url = '/log'
   return axiosJson.delete(url, {
@@ -48,10 +38,10 @@ function deleteLog(arrIds: Array<string>, accessToken: string | undefined) {
   })
 }
 
-function getAllCategory(
+function getAllService(
   page: number,
   limit: number,
-  status: CategoryStatus | null,
+  status: ServiceStatus | null,
   keyword: string,
   sortBy: string,
   orderBy: string,
@@ -59,7 +49,7 @@ function getAllCategory(
   endDay: Date,
   accessToken: string | undefined
 ) {
-  let url = `/category?createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}&&sortBy=${sortBy}&&orderBy=${orderBy}`
+  let url = `/service?createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}&&sortBy=${sortBy}&&orderBy=${orderBy}`
   if (page && limit) url += `&&page=${page}&&limit=${limit}`
   if (status) url += `&&status=${status}`
   if (keyword) url += `&&keyword=${keyword}`
@@ -71,8 +61,8 @@ function getAllCategory(
   })
 }
 
-function deleteCategory(arrIds: Array<string>, accessToken: string | undefined) {
-  const url = '/category'
+function deleteService(arrIds: Array<string>, accessToken: string | undefined) {
+  const url = '/service'
   return axiosJson.delete(url, {
     data: [...arrIds],
     headers: {
@@ -88,4 +78,4 @@ function getAllUser(status: LogStatus) {
   return axiosJson.get(url)
 }
 
-export { getAllLog, getAllUser, deleteLog, getAllCategory, deleteCategory, getLogDetail }
+export { getAllLog, getAllUser, deleteLog, getAllService, deleteService }

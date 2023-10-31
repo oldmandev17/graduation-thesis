@@ -1,16 +1,16 @@
 import { IUser } from './user'
 
-export enum CategoryStatus {
+export enum ServiceStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED'
 }
 
-export interface ICategory {
+export interface IService {
   _id: string
   name: string
   image: string
-  status: CategoryStatus
+  status: ServiceStatus
   createdAt: Date
   createdBy: IUser
   updatedAt?: Date

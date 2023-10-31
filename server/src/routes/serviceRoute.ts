@@ -1,35 +1,35 @@
 import { Router } from 'express'
 import {
-  createCategory,
-  getAllCategory,
-  updateCategory,
-  updateCategoryStatus
-} from 'src/controllers/categoryController'
+  createService,
+  getAllService,
+  updateService,
+  updateServiceStatus
+} from 'src/controllers/serviceController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'
 
-const categoryRoutes = Router()
+const serviceRoutes = Router()
 
-categoryRoutes
+serviceRoutes
   .route('/create')
   .post(
     verifyAccessToken,
     authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]),
-    upload('category').single('image'),
-    createCategory
+    upload('service').single('image'),
+    createService
   )
-categoryRoutes
+serviceRoutes
   .route('/update/:id')
   .put(
     verifyAccessToken,
     authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]),
     upload('category').single('image'),
-    updateCategory
+    updateService
   )
-categoryRoutes
+serviceRoutes
   .route('/update')
-  .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateCategoryStatus)
-categoryRoutes.route('/').get(getAllCategory)
+  .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateServiceStatus)
+serviceRoutes.route('/').get(getAllService)
 
-export default categoryRoutes
+export default serviceRoutes

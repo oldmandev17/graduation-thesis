@@ -18,7 +18,7 @@ const AuthenticationLayout = lazy(() => import('layouts/Authentication'))
 const OverviewPage = lazy(() => import('pages/admin/Overview'))
 const LogPage = lazy(() => import('pages/admin/Log'))
 const AccountPage = lazy(() => import('pages/admin/Account'))
-const CategoryPage = lazy(() => import('pages/admin/Category'))
+const ServicePage = lazy(() => import('pages/admin/Service'))
 const GigPage = lazy(() => import('pages/admin/Gig'))
 const OrderPage = lazy(() => import('pages/admin/Order'))
 const SettingPage = lazy(() => import('pages/admin/Setting'))
@@ -70,8 +70,8 @@ const router = createBrowserRouter([
                 element: <AccountPage />
               },
               {
-                path: '/category',
-                element: <CategoryPage />
+                path: '/service',
+                element: <ServicePage />
               },
               {
                 path: '/gig',
@@ -114,8 +114,8 @@ const router = createBrowserRouter([
             element: <AccountPage />
           },
           {
-            path: '/test/category',
-            element: <CategoryPage />
+            path: '/test/service',
+            element: <ServicePage />
           },
           {
             path: '/test/gig',

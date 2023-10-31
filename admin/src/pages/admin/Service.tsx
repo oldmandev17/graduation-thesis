@@ -3,15 +3,16 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-underscore-dangle */
-import { deleteCategory, getAllCategory } from 'apis/api'
-import { arrCategoryStatus, arrLimits } from 'assets/data'
+import { deleteService, getAllService } from 'apis/api'
+import { arrServiceStatus, arrLimits } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import DialogCustom from 'components/common/DialogCustom'
+import ModalCustom from 'components/common/ModalCustom'
 import SearchCustom from 'components/common/SearchCustom'
 import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
-import { CategoryStatus, ICategory } from 'modules/category'
+import { IService, ServiceStatus } from 'modules/service'
 import React, { useCallback, useEffect, useState } from 'react'
 import { BsTrash } from 'react-icons/bs'
 import { HiOutlineViewGridAdd } from 'react-icons/hi'
@@ -20,14 +21,15 @@ import { getToken } from 'utils/auth'
 import generateExcel from 'utils/generateExcel'
 import timeAgo from 'utils/timeAgo'
 
-function Category() {
+function Service() {
   const date = new Date()
-  const [categories, setCategories] = useState<Array<ICategory>>([])
+  const [services, setServices] = useState<Array<IService>>([])
+  const [serviceDetail, setServiceDetail] = useState<IService>()
   const [startDay, setStartDay] = useState<Date>(date)
   const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
   const [orderBy, setOrderBy] = useState<string>('desc')
-  const [status, setStatus] = useState<CategoryStatus | null>(null)
+  const [status, setStatus] = useState<ServiceStatus | null>(null)
   const [keyword, setKeyword] = useState<string>('')
   const keywordDebounce = useDebounce(keyword, 500)
   const [page, setPage] = useState<number>(1)
@@ -38,9 +40,9 @@ function Category() {
 
   const { accessToken } = getToken()
 
-  const getAllCategories = useCallback(async () => {
+  const getAllServices = useCallback(async () => {
     endDay.setHours(0, 0, 0, 0)
-    await getAllCategory(
+    await getAllService(
       page,
       limit,
       status,
@@ -53,7 +55,7 @@ function Category() {
     )
       .then((response) => {
         if (response.status === 200) {
-          setCategories(response.data.categories)
+          setServices(response.data.services)
           setCount(Math.ceil(response.data.filteredCount / limit))
           setFilteredCount(response.data.filteredCount)
         }
@@ -65,8 +67,8 @@ function Category() {
   }, [endDay, keywordDebounce, orderBy, sortBy, startDay, status, page, limit])
 
   useEffect(() => {
-    getAllCategories()
-  }, [getAllCategories])
+    getAllServices()
+  }, [getAllServices])
 
   const handleCheckAll = () => {
     document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').forEach((input) => {
@@ -87,14 +89,14 @@ function Category() {
     return checkedIds
   }
 
-  const [open, setOpen] = useState<boolean>(false)
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   const handleDelete = async (arrIds: Array<string>) => {
     if (arrIds.length === 0) {
       toast.warning('Select a row to delete, please.')
     } else {
       setArrayIds(arrIds)
-      setOpen(true)
+      setOpenDialog(true)
     }
   }
 
@@ -102,11 +104,11 @@ function Category() {
     if (arrIds.length === 0) {
       toast.warning('Select a row to delete, please.')
     } else {
-      await deleteCategory(arrIds, accessToken)
+      await deleteService(arrIds, accessToken)
         .then((response) => {
           if (response.status === 204) {
             toast.success('Deletion Successful')
-            getAllCategories()
+            getAllServices()
             document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').forEach((input) => {
               if (input) {
                 // eslint-disable-next-line no-param-reassign
@@ -128,7 +130,7 @@ function Category() {
   const handleCheckElement = () => {
     const checkedAll = document.querySelector<HTMLInputElement>('input[id=checkbox-all-search]')
     if (checkedAll) {
-      if (getCheckedInputIds().length === categories.length) {
+      if (getCheckedInputIds().length === services.length) {
         checkedAll.checked = true
       } else {
         checkedAll.checked = false
@@ -147,6 +149,17 @@ function Category() {
 
   const columns = [{ header: 'Name', key: 'name', width: 30 }]
 
+  const [openModal, setOpenModal] = useState<boolean>(true)
+
+  const handleEdit = (service: IService) => {
+    if (!service) {
+      toast.warning('Select a row to edit, please.')
+    } else {
+      setServiceDetail(service)
+      setOpenModal(true)
+    }
+  }
+
   return (
     <div className='flex flex-col gap-5'>
       <div className='inline-flex justify-end rounded-md shadow-sm' role='group'>
@@ -155,7 +168,7 @@ function Category() {
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <HiOutlineViewGridAdd className='w-[14px] h-[14px] mr-2' style={{ strokeWidth: '2.5' }} />
-          Add Category
+          Add Service
         </button>
         <button
           type='button'
@@ -167,8 +180,8 @@ function Category() {
         </button>
         <button
           type='button'
-          disabled={!categories.length}
-          onClick={() => generateExcel(columns, categories, 'Log Sheet', 'Log')}
+          disabled={!services.length}
+          onClick={() => generateExcel(columns, services, 'Service Sheet', 'Service')}
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <svg
@@ -184,7 +197,7 @@ function Category() {
           Exports
         </button>
       </div>
-      <AccordionCustom title='Refine Categories: Curate Your Records with Precision.'>
+      <AccordionCustom title='Refine Services: Curate Your Records with Precision.'>
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-3 gap-10'>
             <div className='col-span-2'>
@@ -192,7 +205,7 @@ function Category() {
                 Search By Name
               </SearchCustom>
             </div>
-            <SelectCustom arrValue={arrCategoryStatus} label='Choose the status' value={status} setValue={setStatus}>
+            <SelectCustom arrValue={arrServiceStatus} label='Choose the status' value={status} setValue={setStatus}>
               Status
             </SelectCustom>
           </div>
@@ -302,38 +315,43 @@ function Category() {
             </tr>
           </thead>
           <tbody>
-            {categories.length ? (
-              categories.map((category: ICategory) => (
+            {services.length ? (
+              services.map((service: IService) => (
                 <tr
-                  key={category._id}
+                  key={service._id}
                   className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                 >
                   <td className='w-4 p-4'>
                     <div className='flex items-center'>
                       <input
                         onClick={handleCheckElement}
-                        id={category._id}
+                        id={service._id}
                         name='checkbox-table-search'
                         type='checkbox'
                         className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                       />
-                      <label htmlFor={category._id} className='sr-only'>
+                      <label htmlFor={service._id} className='sr-only'>
                         checkbox
                       </label>
                     </div>
                   </td>
                   <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                    {category.name}
+                    {service.name}
                   </td>
-                  <td className='px-6 py-4'>{category.status}</td>
-                  <td className='px-6 py-4'>{timeAgo(new Date(category.createdAt))}</td>
-                  <td className='px-6 py-4'>{category.createdBy.name}</td>
-                  <td className='px-6 py-4'>{category?.updatedAt && timeAgo(new Date(category.updatedAt))}</td>
-                  <td className='px-6 py-4'>{category && category.updatedBy?.name}</td>
+                  <td className='px-6 py-4'>{service.status}</td>
+                  <td className='px-6 py-4'>{timeAgo(new Date(service.createdAt))}</td>
+                  <td className='px-6 py-4'>{service.createdBy.name}</td>
+                  <td className='px-6 py-4'>{service?.updatedAt && timeAgo(new Date(service.updatedAt))}</td>
+                  <td className='px-6 py-4'>{service && service.updatedBy?.name}</td>
                   <td className='flex items-center px-6 py-4 space-x-3'>
-                    <span className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>Edit</span>
                     <span
-                      onClick={() => handleDelete([category._id])}
+                      onClick={() => handleEdit(service)}
+                      className='font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline'
+                    >
+                      Edit
+                    </span>
+                    <span
+                      onClick={() => handleDelete([service._id])}
                       className='font-medium text-red-600 cursor-pointer dark:text-red-500 hover:underline'
                     >
                       Remove
@@ -353,11 +371,9 @@ function Category() {
             Showing{' '}
             <span className='font-semibold text-gray-900 dark:text-white'>
               {`${filteredCount === 0 ? '0' : limit * (page - 1) + 1} - 
-          ${
-            limit * page < (filteredCount || categories.length) ? limit * page : filteredCount || categories.length
-          }`}{' '}
+          ${limit * page < (filteredCount || services.length) ? limit * page : filteredCount || services.length}`}{' '}
             </span>{' '}
-            of <span className='font-semibold text-gray-900 dark:text-white'>{filteredCount || categories.length}</span>
+            of <span className='font-semibold text-gray-900 dark:text-white'>{filteredCount || services.length}</span>
           </span>
           <ul className='inline-flex h-8 -space-x-px text-sm'>
             <li>
@@ -398,9 +414,146 @@ function Category() {
           </ul>
         </nav>
       </div>
-      <DialogCustom open={open} setOpen={setOpen} onAgree={() => handleConfirmDelete(arrayIds)} onCancel={() => {}} />
+      <DialogCustom
+        open={openDialog}
+        setOpen={setOpenDialog}
+        onAgree={() => handleConfirmDelete(arrayIds)}
+        onCancel={() => {}}
+      />
+      <ModalCustom open={openModal} setOpen={setOpenModal}>
+        <div className='relative w-full h-full max-w-2xl md:h-auto'>
+          <div className='relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5'>
+            <div className='flex justify-between mb-4 rounded-t sm:mb-5'>
+              <div className='text-lg text-gray-900 md:text-xl dark:text-white'>
+                <h3 className='ftext-center ont-semibold '>Service Details</h3>
+              </div>
+              <div>
+                <button
+                  type='button'
+                  onClick={() => setOpenModal(false)}
+                  className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex dark:hover:bg-gray-600 dark:hover:text-white'
+                  data-modal-toggle='readProductModal'
+                >
+                  <svg
+                    aria-hidden='true'
+                    className='w-5 h-5'
+                    fill='currentColor'
+                    viewBox='0 0 20 20'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                  <span className='sr-only'>Close modal</span>
+                </button>
+              </div>
+            </div>
+            <dl className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3'>
+              <div>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Name</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* {logDetail?.name} */}
+                </dd>
+              </div>
+              <div>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Method</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* {logDetail?.method} */}
+                </dd>
+              </div>
+              <div>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Status</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* {logDetail?.status} */}
+                </dd>
+              </div>
+              <div>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Url</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* {logDetail?.url} */}
+                </dd>
+              </div>
+              <div>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>User</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* {logDetail && logDetail.user?.name} */}
+                </dd>
+              </div>
+              <div>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Created At</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* {moment(logDetail?.createdAt).format('MM/DD/YYYY HH:MM:SS')} */}
+                </dd>
+              </div>
+              <div className='sm:col-span-2 md:col-span-3'>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>User</dt>
+                <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* <pre>{JSON.stringify(logDetail?.user, null, 2)}</pre> */}
+                </dd>
+              </div>
+              <div className='sm:col-span-2 md:col-span-3'>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Content</dt>
+                <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {/* <pre>{JSON.stringify(logDetail?.content, null, 2)}</pre> */}
+                </dd>
+              </div>
+              <div className='sm:col-span-2 md:col-span-3'>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Error Message</dt>
+                <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50 min-h-[40px]'>
+                  {/* {logDetail?.errorMessage} */}
+                </dd>
+              </div>
+            </dl>
+            <div className='flex items-center justify-between'>
+              <button
+                type='button'
+                className='text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+              >
+                <svg
+                  aria-hidden='true'
+                  className='mr-1 -ml-1 w-5 h-5'
+                  fill='currentColor'
+                  viewBox='0 0 20 20'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path d='M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z' />
+                  <path
+                    fillRule='evenodd'
+                    d='M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+                Edit
+              </button>
+              <button
+                type='button'
+                // onClick={() => handleDelete([logDetail?._id as string])}
+                className='inline-flex items-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900'
+              >
+                <svg
+                  aria-hidden='true'
+                  className='w-5 h-5 mr-1.5 -ml-1'
+                  fill='currentColor'
+                  viewBox='0 0 20 20'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </ModalCustom>
     </div>
   )
 }
 
-export default Category
+export default Service

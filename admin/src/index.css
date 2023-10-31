@@ -13,8 +13,23 @@
 
 .MuiInputBase-input {
   padding: 8.5px !important;
+  height: 100% !important;
 }
 
 .MuiOutlinedInput-notchedOutline {
   display: none !important;
+}
+
+.MuiInputBase-root {
+  height: 100% !important;
+  color: inherit !important;
+  font-size: inherit !important;
+}
+
+.MuiInputAdornment-root {
+  color: inherit !important;
+}
+
+.MuiButtonBase-root{
+  color: inherit !important;
 }

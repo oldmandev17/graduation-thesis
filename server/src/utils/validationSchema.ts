@@ -13,11 +13,12 @@ export const authLoginSchema = Joi.object({
   password: Joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/))
 })
 
-export const categogySchema = Joi.object({
-  name: Joi.string().required()
+export const serviceSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().required(),
 })
 
-export const categoryStatusSchema = Joi.array().items(Joi.string())
+export const serviceStatusSchema = Joi.array().items(Joi.string())
 
 export const logDeleteSchema = Joi.array().items(Joi.string())
 
@@ -28,7 +29,7 @@ export const userCreateSchema = Joi.object({
 
 export const userDeleteSchema = Joi.array().items(Joi.string())
 
-export const categoryDeleteSchema = Joi.array().items(Joi.string())
+export const serviceDeleteSchema = Joi.array().items(Joi.string())
 
 export const userUpdateSchema = Joi.object({
   name: Joi.string(),

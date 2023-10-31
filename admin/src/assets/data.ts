@@ -1,4 +1,4 @@
-import { CategoryStatus } from 'modules/category'
+import { ServiceStatus } from 'modules/service'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
 
 const arrLogMethods = [
@@ -121,19 +121,19 @@ const arrLimits = [
   }
 ]
 
-const arrCategoryStatus = [
+const arrServiceStatus = [
   {
     label: 'ACTIVE',
-    value: CategoryStatus.ACTIVE
+    value: ServiceStatus.ACTIVE
   },
   {
     label: 'INACTIVE',
-    value: CategoryStatus.INACTIVE
+    value: ServiceStatus.INACTIVE
   },
   {
     label: 'DELETED',
-    value: CategoryStatus.DELETED
+    value: ServiceStatus.DELETED
   }
 ]
 
-export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits, arrCategoryStatus }
+export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits, arrServiceStatus }

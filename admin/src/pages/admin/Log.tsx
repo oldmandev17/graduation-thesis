@@ -4,7 +4,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { deleteLog, getAllLog, getLogDetail } from 'apis/api'
+import { deleteLog, getAllLog } from 'apis/api'
 import { arrLimits, arrLogMethods, arrLogNames, arrLogStatus } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
@@ -162,23 +162,11 @@ function Log() {
     { header: 'Created At', key: 'createdAt', width: 30 }
   ]
 
-  const getLogDetails = async (id: string) => {
-    await getLogDetail(id, accessToken)
-      .then((response) => {
-        if (response.status === 200) {
-          setLogDetail(response.data.log)
-        }
-      })
-      .catch((error: any) => {
-        toast.error(error.response.data.error.message)
-      })
-  }
-
-  const handleView = (id: string) => {
-    if (!id) {
-      toast.warning('Select a row to delete, please.')
+  const handleView = (log: ILog) => {
+    if (!log) {
+      toast.warning('Select a row to view, please.')
     } else {
-      getLogDetails(id)
+      setLogDetail(log)
       setOpenModal(true)
     }
   }
@@ -383,7 +371,7 @@ function Log() {
                   <td className='px-6 py-4'>{timeAgo(new Date(log.createdAt))}</td>
                   <td className='flex items-center px-6 py-4 space-x-3'>
                     <span
-                      onClick={() => handleView(log._id)}
+                      onClick={() => handleView(log)}
                       className='font-medium text-blue-600 cursor-pointer dark:text-blue-500 hover:underline'
                     >
                       View

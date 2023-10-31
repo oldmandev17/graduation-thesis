@@ -28,7 +28,11 @@ function DateTimePickerCustom({
         className='block w-full text-sm text-gray-900 border border-l-2 border-gray-300 rounded-r-lg bg-gray-50 border-l-gray-100 dark:border-l-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
       >
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker defaultValue={dayjs(value)} onChange={(val) => setValue(val)} className='!w-full' />
+          <DatePicker
+            defaultValue={dayjs(value)}
+            onChange={(val) => setValue(val)}
+            className='!w-full !text-inherit !h-full'
+          />
         </LocalizationProvider>
       </div>
     </div>

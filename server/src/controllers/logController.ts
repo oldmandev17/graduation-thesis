@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import Log, { ILog, LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import APIFeature from 'src/utils/apiFeature'
-import httpError from 'http-errors'
 import { logger } from 'src/utils/logger'
 import { logDeleteSchema } from 'src/utils/validationSchema'
 
@@ -14,18 +13,6 @@ export async function getAllLog(req: Request, res: Response, next: NextFunction)
     logs = await apiFeature.query.clone()
 
     res.status(200).json({ logs, filteredCount })
-  } catch (error: any) {
-    next(error)
-  }
-}
-
-export async function getLogDetail(req: Request, res: Response, next: NextFunction) {
-  try {
-    const logExist = await Log.findOne({ _id: req.params.id }).populate('user')
-    if (!logExist) {
-      throw httpError.NotFound()
-    }
-    res.status(200).json({ log: logExist })
   } catch (error: any) {
     next(error)
   }
