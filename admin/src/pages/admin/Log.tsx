@@ -18,6 +18,7 @@ import { BsTrash } from 'react-icons/bs'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import generateExcel from 'utils/generateExcel'
+import sortByField from 'utils/sortByField'
 import timeAgo from 'utils/timeAgo'
 
 function Log() {
@@ -139,9 +140,9 @@ function Log() {
     }
   }
 
-  const handleSort = (sortByField: string) => {
-    setSortBy(sortByField)
-    if (sortByField === sortBy) {
+  const handleSort = (sortByNameField: string) => {
+    setSortBy(sortByNameField)
+    if (sortByNameField === sortBy) {
       setOrderBy((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
       setOrderBy('desc')
@@ -204,13 +205,28 @@ function Log() {
       <AccordionCustom title='Refine Logs: Curate Your Records with Precision.'>
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-3 gap-10'>
-            <SelectCustom arrValue={arrLogNames} label='Choose the name' value={name} setValue={setName}>
+            <SelectCustom
+              arrValue={sortByField(arrLogNames, 'label')}
+              label='Choose the name'
+              value={name}
+              setValue={setName}
+            >
               Name
             </SelectCustom>
-            <SelectCustom arrValue={arrLogMethods} label='Choose the method' value={method} setValue={setMethod}>
+            <SelectCustom
+              arrValue={sortByField(arrLogMethods, 'label')}
+              label='Choose the method'
+              value={method}
+              setValue={setMethod}
+            >
               Method
             </SelectCustom>
-            <SelectCustom arrValue={arrLogStatus} label='Choose the status' value={status} setValue={setStatus}>
+            <SelectCustom
+              arrValue={sortByField(arrLogStatus, 'label')}
+              label='Choose the status'
+              value={status}
+              setValue={setStatus}
+            >
               Status
             </SelectCustom>
           </div>
@@ -496,16 +512,10 @@ function Log() {
                   {logDetail?.status}
                 </dd>
               </div>
-              <div>
+              <div className='sm:col-span-2 md:col-span-2'>
                 <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Url</dt>
                 <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
                   {logDetail?.url}
-                </dd>
-              </div>
-              <div>
-                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>User</dt>
-                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                  {logDetail && logDetail.user?.name}
                 </dd>
               </div>
               <div>

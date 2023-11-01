@@ -33,8 +33,8 @@ const arrLogStatus = [
 
 const arrLogNames = [
   {
-    label: 'CREATE_CATEGORY',
-    value: LogName.CREATE_CATEGORY
+    label: 'CREATE_SERVICE',
+    value: LogName.CREATE_SERVICE
   },
   {
     label: 'CREATE_USER',
@@ -65,12 +65,12 @@ const arrLogNames = [
     value: LogName.VERIFY_EMAIL_USER
   },
   {
-    label: 'UPDATE_CATEGORY',
-    value: LogName.UPDATE_CATEGORY
+    label: 'UPDATE_SERVICE',
+    value: LogName.UPDATE_SERVICE
   },
   {
-    label: 'UPDATE_CATEGORY_STATUS',
-    value: LogName.UPDATE_CATEGORY_STATUS
+    label: 'UPDATE_SERVICE_STATUS',
+    value: LogName.UPDATE_SERVICE_STATUS
   },
   {
     label: 'UPDATE_USER',
@@ -89,8 +89,8 @@ const arrLogNames = [
     value: LogName.DELETE_USERS
   },
   {
-    label: 'DELETE_CATEGORIES',
-    value: LogName.DELETE_CATEGORIES
+    label: 'DELETE_SERVICES',
+    value: LogName.DELETE_SERVICES
   }
 ]
 

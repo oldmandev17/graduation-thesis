@@ -1,10 +1,5 @@
 import { Router } from 'express'
-import {
-  createService,
-  getAllService,
-  updateService,
-  updateServiceStatus
-} from 'src/controllers/serviceController'
+import { createService, getAllService, updateService, updateServiceStatus } from 'src/controllers/serviceController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'
@@ -24,7 +19,7 @@ serviceRoutes
   .put(
     verifyAccessToken,
     authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]),
-    upload('category').single('image'),
+    upload('service').single('image'),
     updateService
   )
 serviceRoutes

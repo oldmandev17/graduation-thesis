@@ -9,10 +9,11 @@ export enum ServiceStatus {
 
 export interface IService extends mongoose.Document {
   name: string
-  description:string
+  description: string
   image: string
   status: ServiceStatus
   level: number
+  slug: string
   subServices: Array<IService>
   createdAt: Date
   createdBy: IUser
@@ -25,7 +26,7 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<IService>({
     type: String,
     required: true
   },
-  description:{
+  description: {
     type: String,
     required: true
   },
@@ -38,14 +39,19 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<IService>({
     enum: Object.values(ServiceStatus),
     default: ServiceStatus.ACTIVE
   },
-  level:{
-    type:Number,
-    default:1
+  level: {
+    type: Number,
+    default: 1
   },
-  subServices:[
+  slug: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  subServices: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'service',
+      ref: 'service'
     }
   ],
   createdAt: {

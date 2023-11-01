@@ -15,7 +15,7 @@ export const authLoginSchema = Joi.object({
 
 export const serviceSchema = Joi.object({
   name: Joi.string().required(),
-  description: Joi.string().required(),
+  description: Joi.string().required()
 })
 
 export const serviceStatusSchema = Joi.array().items(Joi.string())
