@@ -25,6 +25,7 @@ function Service() {
   const date = new Date()
   const [services, setServices] = useState<Array<IService>>([])
   const [serviceDetail, setServiceDetail] = useState<IService>()
+  const [parent, setParent] = useState<string>('')
   const [startDay, setStartDay] = useState<Date>(date)
   const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
@@ -200,22 +201,28 @@ function Service() {
       <AccordionCustom title='Refine Services: Curate Your Records with Precision.'>
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-3 gap-10'>
-            <div className='col-span-2'>
-              <SearchCustom value={keyword} setValue={setKeyword} label='Search by name'>
-                Search By Name
-              </SearchCustom>
-            </div>
+            <SelectCustom arrValue={arrServiceStatus} label='Choose the grand parent' value={status} setValue={setStatus}>
+              Grand Parent
+            </SelectCustom>
+            <SelectCustom arrValue={arrServiceStatus} label='Choose the status' value={status} setValue={setStatus}>
+              Parent
+            </SelectCustom>
+            <SearchCustom value={keyword} setValue={setKeyword} label='Search by name'>
+              Search By Name
+            </SearchCustom>
+          </div>
+          <div className='grid grid-cols-3 gap-10'>
             <SelectCustom arrValue={arrServiceStatus} label='Choose the status' value={status} setValue={setStatus}>
               Status
             </SelectCustom>
-          </div>
-          <div className='grid grid-cols-3 gap-10'>
             <DateTimePickerCustom value={startDay} setValue={setStartDay} label='Choose the start day'>
               Start Day
             </DateTimePickerCustom>
             <DateTimePickerCustom value={endDay} setValue={setEndDay} label='Choose the end day'>
               End Day
             </DateTimePickerCustom>
+          </div>
+          <div className='grid grid-cols-3 gap-10'>
             <SelectCustom arrValue={arrLimits} label='Choose the dispaly limit' value={limit} setValue={setLimit}>
               Display Limit
             </SelectCustom>
