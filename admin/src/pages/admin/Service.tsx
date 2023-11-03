@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-underscore-dangle */
-import { deleteService, getAllService } from 'apis/api'
-import { arrServiceStatus, arrLimits } from 'assets/data'
+import { deleteService, getAllService, updateServiceStatus } from 'apis/api'
+import { arrLimits, arrServiceLevel, arrServiceStatus } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import DialogCustom from 'components/common/DialogCustom'
@@ -13,7 +14,7 @@ import SearchCustom from 'components/common/SearchCustom'
 import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
 import { IService, ServiceStatus } from 'modules/service'
-import React, { useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, Fragment, useCallback, useEffect, useState } from 'react'
 import { BsTrash } from 'react-icons/bs'
 import { HiOutlineViewGridAdd } from 'react-icons/hi'
 import { toast } from 'react-toastify'
@@ -24,8 +25,15 @@ import timeAgo from 'utils/timeAgo'
 function Service() {
   const date = new Date()
   const [services, setServices] = useState<Array<IService>>([])
-  const [serviceDetail, setServiceDetail] = useState<IService>()
-  const [parent, setParent] = useState<string>('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [serviceId, setServiceId] = useState<string>()
+  const [service, setService] = useState<string>('')
+  const [parentService, setParentService] = useState<string>('')
+  const [parentServiceTemp, setParentServiceTemp] = useState<string>('')
+  const [serviceTemp, setServiceTemp] = useState<string>('')
+  const [serviceKey, setServiceKey] = useState<string>('')
+  const [arrParentService, setArrParentService] = useState<Array<{ label: string; value: string }>>([])
+  const [arrService, setArrService] = useState<Array<{ label: string; value: string }>>([])
   const [startDay, setStartDay] = useState<Date>(date)
   const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
@@ -38,6 +46,9 @@ function Service() {
   const [count, setCount] = useState<number>(0)
   const [filteredCount, setFilteredCount] = useState<number>(0)
   const [arrayIds, setArrayIds] = useState<Array<string>>([])
+  const [show, setShow] = useState<string>()
+  const [showSub, setShowSub] = useState<string>()
+  const [level, setLevel] = useState<number>()
 
   const { accessToken } = getToken()
 
@@ -52,6 +63,8 @@ function Service() {
       orderBy,
       startDay,
       new Date(endDay.getTime() + 24 * 60 * 60 * 1000),
+      serviceKey,
+      level,
       accessToken
     )
       .then((response) => {
@@ -59,13 +72,29 @@ function Service() {
           setServices(response.data.services)
           setCount(Math.ceil(response.data.filteredCount / limit))
           setFilteredCount(response.data.filteredCount)
+          if (response.data.arrParentService.length > 0)
+            setArrParentService([...response.data.arrParentService, { label: 'Show all', value: '' }])
+          if (response.data.arrService.length > 0)
+            setArrService([...response.data.arrService, { label: 'Show all', value: '' }])
         }
       })
+      .finally(() => setParentServiceTemp(parentService))
       .catch((error: any) => {
         toast.error(error.response.data.error.message)
       })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endDay, keywordDebounce, orderBy, sortBy, startDay, status, page, limit])
+  }, [endDay, keywordDebounce, orderBy, sortBy, startDay, status, page, limit, level, serviceKey])
+
+  useEffect(() => {
+    if (parentService !== parentServiceTemp) {
+      setServiceKey(parentService)
+    } else if (service !== serviceTemp) {
+      setServiceKey(service)
+    }
+    setParentServiceTemp(parentService)
+    setServiceTemp(service)
+  }, [parentService, service, parentServiceTemp, serviceTemp])
 
   useEffect(() => {
     getAllServices()
@@ -73,8 +102,9 @@ function Service() {
 
   const handleCheckAll = () => {
     document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').forEach((input) => {
+      const checkedAll = document.querySelector<HTMLInputElement>('input[id=checkbox-all-search]')
       // eslint-disable-next-line no-param-reassign
-      input.checked = !input.checked // Toggle the checked state
+      input.checked = checkedAll?.checked as boolean
     })
   }
 
@@ -108,7 +138,7 @@ function Service() {
       await deleteService(arrIds, accessToken)
         .then((response) => {
           if (response.status === 204) {
-            toast.success('Deletion Successful')
+            toast.success('Delete Completed Successfully!')
             getAllServices()
             document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').forEach((input) => {
               if (input) {
@@ -131,7 +161,10 @@ function Service() {
   const handleCheckElement = () => {
     const checkedAll = document.querySelector<HTMLInputElement>('input[id=checkbox-all-search]')
     if (checkedAll) {
-      if (getCheckedInputIds().length === services.length) {
+      if (
+        getCheckedInputIds().length ===
+        document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').length
+      ) {
         checkedAll.checked = true
       } else {
         checkedAll.checked = false
@@ -150,14 +183,31 @@ function Service() {
 
   const columns = [{ header: 'Name', key: 'name', width: 30 }]
 
-  const [openModal, setOpenModal] = useState<boolean>(true)
+  const [openModal, setOpenModal] = useState<boolean>(false)
 
-  const handleEdit = (service: IService) => {
-    if (!service) {
+  const handleEdit = (id: string) => {
+    if (!id) {
       toast.warning('Select a row to edit, please.')
     } else {
-      setServiceDetail(service)
+      setServiceId(id)
       setOpenModal(true)
+    }
+  }
+
+  const handleUpdateStatus = async (event: ChangeEvent<HTMLSelectElement>) => {
+    if (getCheckedInputIds().length < 1) {
+      toast.warning('Select a row to edit, please.')
+    } else {
+      await updateServiceStatus(getCheckedInputIds(), event.target.value, accessToken)
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success('Update Completed Successfully!')
+            getAllServices()
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error.response.data.error.message)
+        })
     }
   }
 
@@ -201,15 +251,20 @@ function Service() {
       <AccordionCustom title='Refine Services: Curate Your Records with Precision.'>
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-3 gap-10'>
-            <SelectCustom arrValue={arrServiceStatus} label='Choose the grand parent' value={status} setValue={setStatus}>
-              Grand Parent
-            </SelectCustom>
-            <SelectCustom arrValue={arrServiceStatus} label='Choose the status' value={status} setValue={setStatus}>
-              Parent
-            </SelectCustom>
             <SearchCustom value={keyword} setValue={setKeyword} label='Search by name'>
               Search By Name
             </SearchCustom>
+            <SelectCustom
+              arrValue={arrParentService}
+              label='Choose the parent service'
+              value={parentService}
+              setValue={setParentService}
+            >
+              Parent Service
+            </SelectCustom>
+            <SelectCustom arrValue={arrService} label='Choose the service' value={service} setValue={setService}>
+              Service
+            </SelectCustom>
           </div>
           <div className='grid grid-cols-3 gap-10'>
             <SelectCustom arrValue={arrServiceStatus} label='Choose the status' value={status} setValue={setStatus}>
@@ -223,9 +278,32 @@ function Service() {
             </DateTimePickerCustom>
           </div>
           <div className='grid grid-cols-3 gap-10'>
+            <SelectCustom arrValue={arrServiceLevel} label='Choose the level' value={level} setValue={setLevel}>
+              Level
+            </SelectCustom>
             <SelectCustom arrValue={arrLimits} label='Choose the dispaly limit' value={limit} setValue={setLimit}>
               Display Limit
             </SelectCustom>
+            <div className='flex'>
+              <div className='flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600'>
+                Update Status
+              </div>
+              <label htmlFor='states' className='sr-only'>
+                update Status
+              </label>
+              <select
+                id='states'
+                onChange={handleUpdateStatus}
+                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg border-l-gray-100 dark:border-l-gray-700 border-l-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              >
+                {arrServiceStatus?.length &&
+                  arrServiceStatus.map((val, index) => (
+                    <option key={val.value + index} value={val.value}>
+                      {val.label}
+                    </option>
+                  ))}
+              </select>
+            </div>
           </div>
         </div>
       </AccordionCustom>
@@ -280,8 +358,8 @@ function Service() {
               </th>
               <th scope='col' className='px-6 py-3'>
                 <div className='flex items-center'>
-                  Created At
-                  <button type='button' onClick={() => handleSort('createdAt')}>
+                  Level
+                  <button type='button' onClick={() => handleSort('level')}>
                     <svg
                       className='w-3 h-3 ml-1.5'
                       aria-hidden='true'
@@ -295,7 +373,23 @@ function Service() {
                 </div>
               </th>
               <th scope='col' className='px-6 py-3'>
-                <div className='flex items-center'>Created By</div>
+                <div className='flex items-center'>Description</div>
+              </th>
+              <th scope='col' className='px-6 py-3'>
+                <div className='flex items-center'>
+                  Created At
+                  <button type='button' onClick={() => handleSort('createdAt')}>
+                    <svg
+                      className='w-3 h-3 ml-1.5'
+                      aria-hidden='true'
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path d='M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z' />
+                    </svg>
+                  </button>
+                </div>
               </th>
               <th scope='col' className='px-6 py-3'>
                 <div className='flex items-center'>
@@ -314,57 +408,166 @@ function Service() {
                 </div>
               </th>
               <th scope='col' className='px-6 py-3'>
-                <div className='flex items-center'>Updated By</div>
-              </th>
-              <th scope='col' className='px-6 py-3'>
                 <div className='flex items-center'>Action</div>
               </th>
             </tr>
           </thead>
           <tbody>
-            {services.length ? (
+            {services?.length > 0 ? (
               services.map((service: IService) => (
-                <tr
-                  key={service._id}
-                  className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                >
-                  <td className='w-4 p-4'>
-                    <div className='flex items-center'>
-                      <input
-                        onClick={handleCheckElement}
-                        id={service._id}
-                        name='checkbox-table-search'
-                        type='checkbox'
-                        className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-                      />
-                      <label htmlFor={service._id} className='sr-only'>
-                        checkbox
-                      </label>
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                    {service.name}
-                  </td>
-                  <td className='px-6 py-4'>{service.status}</td>
-                  <td className='px-6 py-4'>{timeAgo(new Date(service.createdAt))}</td>
-                  <td className='px-6 py-4'>{service.createdBy.name}</td>
-                  <td className='px-6 py-4'>{service?.updatedAt && timeAgo(new Date(service.updatedAt))}</td>
-                  <td className='px-6 py-4'>{service && service.updatedBy?.name}</td>
-                  <td className='flex items-center px-6 py-4 space-x-3'>
-                    <span
-                      onClick={() => handleEdit(service)}
-                      className='font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline'
-                    >
-                      Edit
-                    </span>
-                    <span
-                      onClick={() => handleDelete([service._id])}
-                      className='font-medium text-red-600 cursor-pointer dark:text-red-500 hover:underline'
-                    >
-                      Remove
-                    </span>
-                  </td>
-                </tr>
+                <Fragment key={service._id}>
+                  <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
+                    <td className='w-4 p-4'>
+                      <div className='flex items-center'>
+                        <input
+                          onClick={handleCheckElement}
+                          id={service._id}
+                          name='checkbox-table-search'
+                          type='checkbox'
+                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        />
+                        <label htmlFor={service._id} className='sr-only'>
+                          checkbox
+                        </label>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                      {service.name}
+                    </td>
+                    <td className='px-6 py-4'>{service.status}</td>
+                    <td className='px-6 py-4'>{service.level}</td>
+                    <td className='px-6 py-4'>{service.description}</td>
+                    <td className='px-6 py-4'>{timeAgo(new Date(service.createdAt))}</td>
+                    <td className='px-6 py-4'>{service?.updatedAt && timeAgo(new Date(service.updatedAt))}</td>
+                    <td className='flex flex-row items-center px-6 py-4 space-x-3 justify-between'>
+                      <span
+                        onClick={() => handleEdit(service._id)}
+                        className='font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline'
+                      >
+                        Edit
+                      </span>
+                      {service.subServices?.length > 0 && (
+                        <span onClick={() => setShow(service._id === show ? '' : service._id)}>
+                          <svg
+                            aria-hidden='true'
+                            className={`w-6 h-6 cursor-pointer ${
+                              service._id === show ? 'rotate-180 transition-all' : ''
+                            }`}
+                            fill='currentColor'
+                            viewBox='0 0 20 20'
+                            xmlns='http://www.w3.org/2000/svg'
+                          >
+                            <path
+                              fillRule='evenodd'
+                              d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+                              clipRule='evenodd'
+                            />
+                          </svg>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                  {service.subServices?.length > 0 &&
+                    show === service._id &&
+                    service.subServices.map((subService: IService) => (
+                      <Fragment key={service._id + subService._id}>
+                        <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
+                          <td className='w-4 p-4'>
+                            <div className='flex items-center'>
+                              <input
+                                onClick={handleCheckElement}
+                                id={subService._id}
+                                name='checkbox-table-search'
+                                type='checkbox'
+                                className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                              />
+                              <label htmlFor={subService._id} className='sr-only'>
+                                checkbox
+                              </label>
+                            </div>
+                          </td>
+                          <td className='px-6 py-4 pl-20 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                            {subService.name}
+                          </td>
+                          <td className='px-6 py-4'>{subService.status}</td>
+                          <td className='px-6 py-4'>{subService.level}</td>
+                          <td className='px-6 py-4'>{subService.description}</td>
+                          <td className='px-6 py-4'>{timeAgo(new Date(subService.createdAt))}</td>
+                          <td className='px-6 py-4'>
+                            {subService?.updatedAt && timeAgo(new Date(subService.updatedAt))}
+                          </td>
+                          <td className='flex items-center flex-row justify-between px-6 py-4 space-x-3'>
+                            <span
+                              onClick={() => handleEdit(subService._id)}
+                              className='font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline'
+                            >
+                              Edit
+                            </span>
+                            {subService.subServices?.length > 0 && (
+                              <span onClick={() => setShowSub(subService._id === showSub ? '' : subService._id)}>
+                                <svg
+                                  aria-hidden='true'
+                                  className={`w-6 h-6 cursor-pointer ${
+                                    subService._id === showSub ? 'rotate-180 transition-all' : ''
+                                  }`}
+                                  fill='currentColor'
+                                  viewBox='0 0 20 20'
+                                  xmlns='http://www.w3.org/2000/svg'
+                                >
+                                  <path
+                                    fillRule='evenodd'
+                                    d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+                                    clipRule='evenodd'
+                                  />
+                                </svg>
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                        {subService.subServices?.length > 0 &&
+                          subService._id === showSub &&
+                          subService.subServices.map((subSubService: IService) => (
+                            <tr
+                              key={service._id + subService._id + subSubService._id}
+                              className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                            >
+                              <td className='w-4 p-4'>
+                                <div className='flex items-center'>
+                                  <input
+                                    onClick={handleCheckElement}
+                                    id={subSubService._id}
+                                    name='checkbox-table-search'
+                                    type='checkbox'
+                                    className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                                  />
+                                  <label htmlFor={subSubService._id} className='sr-only'>
+                                    checkbox
+                                  </label>
+                                </div>
+                              </td>
+                              <td className='px-6 py-4 pl-36 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                                {subSubService.name}
+                              </td>
+                              <td className='px-6 py-4'>{subSubService.status}</td>
+                              <td className='px-6 py-4'>{subSubService.level}</td>
+                              <td className='px-6 py-4'>{subSubService.description}</td>
+                              <td className='px-6 py-4'>{timeAgo(new Date(subSubService.createdAt))}</td>
+                              <td className='px-6 py-4'>
+                                {subSubService?.updatedAt && timeAgo(new Date(subSubService.updatedAt))}
+                              </td>
+                              <td className='flex items-center px-6 py-4 space-x-3'>
+                                <span
+                                  onClick={() => handleEdit(subSubService._id)}
+                                  className='font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline'
+                                >
+                                  Edit
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                      </Fragment>
+                    ))}
+                </Fragment>
               ))
             ) : (
               <tr>

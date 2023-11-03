@@ -47,13 +47,27 @@ function getAllService(
   orderBy: string,
   startDay: Date,
   endDay: Date,
+  parent: string,
+  level: number | undefined,
   accessToken: string | undefined
 ) {
   let url = `/service?createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}&&sortBy=${sortBy}&&orderBy=${orderBy}`
   if (page && limit) url += `&&page=${page}&&limit=${limit}`
   if (status) url += `&&status=${status}`
   if (keyword) url += `&&keyword=${keyword}`
+  if (parent) url += `&&parent=${parent}`
+  if (level) url += `&&level=${level}`
   return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function updateServiceStatus(arrIds: Array<string>, status: string, accessToken: string | undefined) {
+  const url = `/service/update?status=${status}`
+  return axiosJson.put(url, [...arrIds], {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`
@@ -78,4 +92,4 @@ function getAllUser(status: LogStatus) {
   return axiosJson.get(url)
 }
 
-export { getAllLog, getAllUser, deleteLog, getAllService, deleteService }
+export { getAllLog, getAllUser, deleteLog, getAllService, deleteService, updateServiceStatus }

@@ -11,7 +11,6 @@ import { serviceDeleteSchema, serviceSchema, serviceStatusSchema } from 'src/uti
 interface ServiceQuery {
   status?: ServiceStatus
   parent?: string
-  subParent?: string
 }
 
 export async function createService(req: Request, res: Response, next: NextFunction) {
@@ -211,7 +210,7 @@ export const updateServiceStatus = async (req: Request, res: Response, next: Nex
 
 export const getAllService = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { parent, subParent, ...restQuery } = req.query as unknown as ServiceQuery
+    const { parent, ...restQuery } = req.query as unknown as ServiceQuery
 
     const query = Service.find()
       .populate('createdBy')
@@ -220,17 +219,9 @@ export const getAllService = async (req: Request, res: Response, next: NextFunct
         path: 'subServices',
         populate: { path: 'subServices', populate: { path: 'subServices' } }
       })
-
     if (parent) {
       query.where({
         _id: parent
-      })
-    }
-
-    if (parent && subParent) {
-      query.where({
-        _id: parent,
-        subServices: subParent
       })
     }
 
@@ -239,7 +230,21 @@ export const getAllService = async (req: Request, res: Response, next: NextFunct
     const filteredCount = services.length
     apiFeature.sorting().pagination()
     services = await apiFeature.query.clone()
-    res.status(200).json({ services, filteredCount })
+    const arrParentService: { label: string; value: any }[] = []
+    const arrService: { label: string; value: any }[] = []
+    services.map((parentService: IService) => {
+      arrParentService.push({
+        label: parentService.name,
+        value: parentService._id
+      })
+      parentService.subServices.map((service: IService) => {
+        arrService.push({
+          label: service.name,
+          value: service._id
+        })
+      })
+    })
+    res.status(200).json({ services, filteredCount, arrParentService, arrService })
   } catch (error: any) {
     next(error)
   }

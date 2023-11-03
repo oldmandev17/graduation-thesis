@@ -31,6 +31,21 @@ const arrLogStatus = [
   }
 ]
 
+const arrServiceLevel = [
+  {
+    label: 'Level 1',
+    value: 1
+  },
+  {
+    label: 'Level 2',
+    value: 2
+  },
+  {
+    label: 'Level 3',
+    value: 3
+  }
+]
+
 const arrLogNames = [
   {
     label: 'CREATE_SERVICE',
@@ -136,4 +151,4 @@ const arrServiceStatus = [
   }
 ]
 
-export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits, arrServiceStatus }
+export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits, arrServiceStatus, arrServiceLevel }
