@@ -462,8 +462,8 @@ function Log() {
         onAgree={() => handleConfirmDelete(arrayIds)}
         onCancel={() => {}}
       />
-      <ModalCustom open={openModal} setOpen={setOpenModal}>
-        <div className='relative w-full h-full max-w-2xl md:h-auto'>
+      <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
+        <div className='relative w-full h-full max-w-4xl md:h-auto'>
           <div className='relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5'>
             <div className='flex justify-between mb-4 rounded-t sm:mb-5'>
               <div className='text-lg text-gray-900 md:text-xl dark:text-white'>
@@ -494,10 +494,16 @@ function Log() {
               </div>
             </div>
             <dl className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3'>
-              <div>
+              <div className='sm:col-span-2 md:col-span-3'>
                 <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Name</dt>
                 <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
                   {logDetail?.name}
+                </dd>
+              </div>
+              <div className='sm:col-span-2 md:col-span-3'>
+                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Url</dt>
+                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                  {logDetail?.url}
                 </dd>
               </div>
               <div>
@@ -512,35 +518,34 @@ function Log() {
                   {logDetail?.status}
                 </dd>
               </div>
-              <div className='sm:col-span-2 md:col-span-2'>
-                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Url</dt>
-                <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                  {logDetail?.url}
-                </dd>
-              </div>
+
               <div>
                 <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Created At</dt>
                 <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
                   {moment(logDetail?.createdAt).format('MM/DD/YYYY HH:MM:SS')}
                 </dd>
               </div>
-              <div className='sm:col-span-2 md:col-span-3'>
-                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>User</dt>
-                <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                  <pre>{JSON.stringify(logDetail?.user, null, 2)}</pre>
-                </dd>
-              </div>
-              <div className='sm:col-span-2 md:col-span-3'>
-                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Content</dt>
-                <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                  <pre>{JSON.stringify(logDetail?.content, null, 2)}</pre>
-                </dd>
-              </div>
-              <div className='sm:col-span-2 md:col-span-3'>
-                <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Error Message</dt>
-                <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50 min-h-[40px]'>
-                  {logDetail?.errorMessage}
-                </dd>
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 sm:col-span-2 md:col-span-3'>
+                <div>
+                  <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>User</dt>
+                  <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                    <pre>{JSON.stringify(logDetail?.user, null, 2)}</pre>
+                  </dd>
+                </div>
+                <div>
+                  <div>
+                    <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Content</dt>
+                    <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
+                      <pre>{JSON.stringify(logDetail?.content, null, 2)}</pre>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Error Message</dt>
+                    <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50 min-h-[40px]'>
+                      {logDetail?.errorMessage}
+                    </dd>
+                  </div>
+                </div>
               </div>
             </dl>
             <div className='flex items-center justify-end'>

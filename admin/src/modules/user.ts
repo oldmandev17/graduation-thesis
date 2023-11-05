@@ -34,8 +34,6 @@ export interface IUser {
   verify: boolean
   role: Array<UserRole>
   status: UserStatus
-  admin?: IUser
-  customer?: IUser
   createdAt: Date
   createdBy?: IUser
   updatedAt?: Date

@@ -1,3 +1,4 @@
+import { IGig } from './gig'
 import { IUser } from './user'
 
 export enum ServiceStatus {
@@ -13,6 +14,7 @@ export interface IService {
   description: string
   level: number
   subServices: Array<IService>
+  gigs: Array<IGig>
   status: ServiceStatus
   createdAt: Date
   createdBy: IUser

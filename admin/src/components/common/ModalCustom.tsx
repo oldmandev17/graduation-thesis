@@ -5,11 +5,13 @@ interface IModalCustom {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: any
+  onCancel: () => void
 }
 
-function ModalCustom({ open, setOpen, children }: IModalCustom) {
+function ModalCustom({ open, setOpen, children, onCancel }: IModalCustom) {
   const handleClose = () => {
     setOpen(false)
+    onCancel()
   }
 
   return (

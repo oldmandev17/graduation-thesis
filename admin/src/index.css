@@ -33,3 +33,7 @@
 .MuiButtonBase-root{
   color: inherit !important;
 }
+
+.MuiDialog-paper {
+  max-width: max-content !important;
+}

@@ -1,6 +1,8 @@
+import axios from 'axios'
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
+import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Service, { IService, ServiceStatus } from 'src/models/serviceModel'
 import APIFeature from 'src/utils/apiFeature'
@@ -23,6 +25,7 @@ export async function createService(req: Request, res: Response, next: NextFunct
       image: file.path,
       description: result.description,
       name: result.name,
+      status: result.status,
       slug,
       level: 1,
       createdBy: req.payload.userId
@@ -83,7 +86,7 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
     let service = await Service.findOneAndUpdate(
       { _id: req.params.id },
       {
-        image: file?.path,
+        image: file ? file.path : serviceExist.image,
         name: result.name,
         description: result.description,
         slug,
@@ -93,17 +96,17 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
       },
       { new: true }
     )
+    if (parent === req.params.id) {
+      throw httpError.Conflict()
+    }
+    const currentParentService = await Service.findOne({ subServices: req.params.id })
+    if (currentParentService) {
+      currentParentService.subServices = currentParentService.subServices.filter(
+        (service) => String(service._id) !== req.params.id
+      )
+      await currentParentService.save()
+    }
     if (parent) {
-      if (parent === req.params.id) {
-        throw httpError.Conflict()
-      }
-      const currentParentService = await Service.findOne({ subServices: req.params.id })
-      if (currentParentService) {
-        currentParentService.subServices = currentParentService.subServices.filter(
-          (service) => String(service._id) !== req.params.id
-        )
-        await currentParentService.save()
-      }
       const newParentService = await Service.findOne({ _id: parent })
       if (newParentService) {
         newParentService.subServices.push(service?._id)
@@ -213,8 +216,8 @@ export const getAllService = async (req: Request, res: Response, next: NextFunct
     const { parent, ...restQuery } = req.query as unknown as ServiceQuery
 
     const query = Service.find()
-      .populate('createdBy')
-      .populate('updatedBy')
+      .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
+      .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })
       .populate({
         path: 'subServices',
         populate: { path: 'subServices', populate: { path: 'subServices' } }
@@ -254,7 +257,18 @@ export async function deleteServices(req: Request, res: Response, next: NextFunc
   try {
     const result = await serviceDeleteSchema.validateAsync(req.body)
     result.forEach(async (id: string) => {
+      const serviceExist = await Service.findOne({ _id: id })
+      if (serviceExist && existsSync(serviceExist?.image)) {
+        unlinkSync(serviceExist?.image)
+      }
       await Service.deleteOne({ _id: id })
+      const currentParentService = await Service.findOne({ subServices: req.params.id })
+      if (currentParentService) {
+        currentParentService.subServices = currentParentService.subServices.filter(
+          (service) => String(service._id) !== req.params.id
+        )
+        await currentParentService.save()
+      }
     })
     logger({
       user: req.payload.userId,
@@ -276,6 +290,23 @@ export async function deleteServices(req: Request, res: Response, next: NextFunc
       errorMessage: error.message,
       content: req.body
     })
+    next(error)
+  }
+}
+
+export async function getServiceDetail(req: Request, res: Response, next: NextFunction) {
+  try {
+    const serviceExist = await Service.findOne({ _id: req.params.id })
+      .populate('subServices')
+      .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
+      .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })
+    if (!serviceExist) {
+      throw httpError.NotFound()
+    }
+    const gigs: IGig[] = await Gig.find({ service: req.params.id })
+    serviceExist.gigs = gigs
+    res.status(200).json({ service: serviceExist })
+  } catch (error) {
     next(error)
   }
 }

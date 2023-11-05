@@ -6,7 +6,12 @@ import { logDeleteSchema } from 'src/utils/validationSchema'
 
 export async function getAllLog(req: Request, res: Response, next: NextFunction) {
   try {
-    const apiFeature = new APIFeature(Log.find().populate('user'), req.query).search().filter()
+    const apiFeature = new APIFeature(
+      Log.find().populate({ path: 'user', select: '_id name email phone provider verify role status' }),
+      req.query
+    )
+      .search()
+      .filter()
     let logs: ILog[] = await apiFeature.query
     const filteredCount = logs.length
     apiFeature.sorting().pagination()

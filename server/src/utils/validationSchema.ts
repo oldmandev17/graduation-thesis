@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { ServiceStatus } from 'src/models/serviceModel'
 import { UserGender, UserRole, UserStatus } from 'src/models/userModel'
 
 export const authRegisterSchema = Joi.object({
@@ -15,7 +16,9 @@ export const authLoginSchema = Joi.object({
 
 export const serviceSchema = Joi.object({
   name: Joi.string().required(),
-  description: Joi.string().required()
+  description: Joi.string().required(),
+  status: Joi.string().valid(...Object.values(ServiceStatus)),
+  image: Joi.binary()
 })
 
 export const serviceStatusSchema = Joi.array().items(Joi.string())

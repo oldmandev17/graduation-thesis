@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import { IUser } from './userModel'
+import { IGig } from './gigModel'
 
 export enum ServiceStatus {
   ACTIVE = 'ACTIVE',
@@ -15,6 +16,7 @@ export interface IService extends mongoose.Document {
   level: number
   slug: string
   subServices: Array<IService>
+  gigs: Array<IGig>
   createdAt: Date
   createdBy: IUser
   updatedAt?: Date

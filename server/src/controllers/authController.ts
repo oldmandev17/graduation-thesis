@@ -434,7 +434,14 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 
 export const getAllUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const apiFeature = new APIFeature(User.find(), req.query).search().filter()
+    const apiFeature = new APIFeature(
+      User.find()
+        .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
+        .populate({ path: 'updatedAdminBy', select: '_id name email phone provider verify role status' }),
+      req.query
+    )
+      .search()
+      .filter()
     let users: IUser[] = await apiFeature.query
     const filteredCount = users.length
     apiFeature.sorting().pagination()

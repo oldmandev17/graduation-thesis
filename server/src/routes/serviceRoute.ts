@@ -1,5 +1,12 @@
 import { Router } from 'express'
-import { createService, getAllService, updateService, updateServiceStatus } from 'src/controllers/serviceController'
+import {
+  createService,
+  deleteServices,
+  getAllService,
+  getServiceDetail,
+  updateService,
+  updateServiceStatus
+} from 'src/controllers/serviceController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'
@@ -25,6 +32,8 @@ serviceRoutes
 serviceRoutes
   .route('/update')
   .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateServiceStatus)
+serviceRoutes.route('/').delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), deleteServices)
 serviceRoutes.route('/').get(getAllService)
+serviceRoutes.route('/:id').get(getServiceDetail)
 
 export default serviceRoutes
