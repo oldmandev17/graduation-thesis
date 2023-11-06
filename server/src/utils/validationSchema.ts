@@ -67,3 +67,5 @@ export const authResetPasswordSchema = Joi.object({
   password: Joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
   confirmPassword: Joi.ref('password')
 })
+
+export const gigSchema = Joi.object({})
