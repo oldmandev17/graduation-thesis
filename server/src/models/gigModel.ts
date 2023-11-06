@@ -1,18 +1,20 @@
 import mongoose from 'mongoose'
-import { IUser } from './userModel'
-import { IService } from './serviceModel'
 import { IOrder } from './orderModel'
 import { IReview } from './reviewModel'
+import { IService } from './serviceModel'
+import { IUser } from './userModel'
 
 export enum GigStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED',
-  BANNED = 'BANNED'
+  BANNED = 'BANNED',
+  WAITING = 'WAITING'
 }
 
 export interface IGig extends mongoose.Document {
   name: string
+  slug: string
   description: string
   deliveryTime: number
   revisions: number
@@ -36,6 +38,11 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   name: {
     type: String,
     required: true
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true
   },
   description: {
     type: String,

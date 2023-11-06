@@ -80,9 +80,9 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
     })
     if (!serviceExist) throw httpError.NotFound()
     else {
-      if (existsSync(serviceExist?.image)) unlinkSync(serviceExist?.image)
+      if (file && existsSync(serviceExist?.image)) unlinkSync(serviceExist?.image)
     }
-    const slug = await createUniqueSlug(Service, result.name)
+    const slug = await createUniqueSlug(Service, result.name, serviceExist.slug)
     let service = await Service.findOneAndUpdate(
       { _id: req.params.id },
       {
