@@ -156,7 +156,7 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
       errorMessage: '',
       content: req.body
     })
-    res.status(200).json()
+    res.sendStatus(200);
   } catch (error: any) {
     logger({
       user: req.payload.userId,
@@ -279,7 +279,7 @@ export async function deleteServices(req: Request, res: Response, next: NextFunc
       errorMessage: '',
       content: req.body
     })
-    res.status(204).send()
+    res.sendStatus(204)
   } catch (error: any) {
     logger({
       user: req.payload.userId,
@@ -296,7 +296,13 @@ export async function deleteServices(req: Request, res: Response, next: NextFunc
 
 export async function getServiceDetail(req: Request, res: Response, next: NextFunction) {
   try {
-    const serviceExist = await Service.findOne({ _id: req.params.id })
+    const queryField: any={}
+    if (req.params.id) {
+      queryField._id= req.params.id
+    } else {
+      queryField.slug = req.params.slug
+    }
+    const serviceExist = await Service.findOne(queryField)
       .populate('subServices')
       .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
       .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })

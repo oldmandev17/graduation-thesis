@@ -269,7 +269,7 @@ export async function deleteUsers(req: Request, res: Response, next: NextFunctio
       errorMessage: '',
       content: req.body
     })
-    res.status(204).send()
+    res.sendStatus(204)
   } catch (error: any) {
     logger({
       user: req.payload.userId,

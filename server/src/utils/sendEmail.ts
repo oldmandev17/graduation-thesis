@@ -40,7 +40,7 @@ export const sendVerificationEmail = async (_id: string, email: string, res: any
 
     await transporter.sendMail(mailOptions)
 
-    res.status(200).send()
+    res.sendStatus(200)
   } catch (error: any) {
     next(error)
   }
@@ -75,7 +75,7 @@ export const sendResetEmail = async (_id: string, email: string, res: any, next:
 
     await transporter.sendMail(mailOptions)
 
-    res.status(200).send()
+    res.sendStatus(200)
   } catch (error: any) {
     next(error)
   }
@@ -103,7 +103,7 @@ export const sendPasswordEmail = async (_id: string, email: string, password: st
       }
     )
 
-    res.status(200).send()
+    res.sendStatus(200)
   } catch (error: any) {
     next(error)
   }

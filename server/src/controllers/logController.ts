@@ -38,7 +38,7 @@ export async function deleteLogs(req: Request, res: Response, next: NextFunction
       errorMessage: '',
       content: req.body
     })
-    res.status(204).send()
+    res.sendStatus(204)
   } catch (error: any) {
     logger({
       user: req.payload.userId,

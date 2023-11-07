@@ -83,3 +83,11 @@ export const gigSchema = Joi.object({
 })
 
 export const gigStatusSchema = Joi.array().items(Joi.string())
+
+export const gigDeleteSchema = Joi.array().items(Joi.string())
+
+export const orderSchema = Joi.object({})
+
+export const orderStatusSchema= Joi.array().items(Joi.string())
+
+export const orderDeleteSchema = Joi.array().items(Joi.string())
