@@ -22,7 +22,8 @@ const ServicePage = lazy(() => import('pages/admin/Service'))
 const GigPage = lazy(() => import('pages/admin/Gig'))
 const OrderPage = lazy(() => import('pages/admin/Order'))
 const SettingPage = lazy(() => import('pages/admin/Setting'))
-const UserPage = lazy(() => import('pages/admin/User'))
+const UserPage = lazy(() => import('pages/admin/user/User'))
+const UserDetailPage = lazy(()=> import('pages/admin/user/UserDetail'))
 const MessagePage = lazy(() => import('pages/admin/Message'))
 
 const NotFoundPage = lazy(() => import('pages/admin/NotFound'))
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
                 element: <UserPage />
               },
               {
+                path: '/user-detail/:id',
+                element: <UserDetailPage />
+              },
+              {
                 path: '/message',
                 element: <MessagePage />
               }
@@ -136,6 +141,10 @@ const router = createBrowserRouter([
           {
             path: '/test/user',
             element: <UserPage />
+          },
+          {
+            path: '/test/user-detail/:id',
+            element: <UserDetailPage />
           },
           {
             path: '/test/message',

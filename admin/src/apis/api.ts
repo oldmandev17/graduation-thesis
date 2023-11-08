@@ -1,7 +1,7 @@
 import { LogMethod, LogName, LogStatus } from 'modules/log'
 import { ServiceStatus } from 'modules/service'
-import { axiosFormData, axiosJson } from './axios'
 import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
+import { axiosFormData, axiosJson } from './axios'
 
 function getAllLog(
   page: number,
