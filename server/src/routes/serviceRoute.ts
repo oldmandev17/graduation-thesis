@@ -35,5 +35,6 @@ serviceRoutes
 serviceRoutes.route('/').delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), deleteServices)
 serviceRoutes.route('/').get(getAllService)
 serviceRoutes.route('/:id').get(getServiceDetail)
+serviceRoutes.route('/:slug').get(getServiceDetail)
 
 export default serviceRoutes

@@ -77,9 +77,9 @@ export const gigSchema = Joi.object({
   features: Joi.array().items(Joi.string()).required(),
   price: Joi.number().required(),
   shortDesc: Joi.string().required(),
-  images: Joi.array().items(Joi.string()).required(),
+  images: Joi.array().items(Joi.string()),
   service: Joi.string().required(),
-  status: Joi.string().allow(null).valid(Object.values(GigStatus))
+  status: Joi.any().valid(Object.values(GigStatus))
 })
 
 export const gigStatusSchema = Joi.array().items(Joi.string())
@@ -88,6 +88,6 @@ export const gigDeleteSchema = Joi.array().items(Joi.string())
 
 export const orderSchema = Joi.object({})
 
-export const orderStatusSchema= Joi.array().items(Joi.string())
+export const orderStatusSchema = Joi.array().items(Joi.string())
 
 export const orderDeleteSchema = Joi.array().items(Joi.string())

@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express'
 import authRouter from './routes/authRoute'
 import serviceRoutes from './routes/serviceRoute'
 import logRoutes from './routes/logRoute'
+import gigRoutes from './routes/gigRoute'
 
 // Use redis cluter
 require('src/helpers/initRedis')
@@ -54,6 +55,7 @@ app.use(morgan('dev'))
 app.use('/api/auth', authRouter)
 app.use('/api/service', serviceRoutes)
 app.use('/api/log', logRoutes)
+app.use('/api/gig', gigRoutes)
 // Swagger Page
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 // Documentation in JSON format
