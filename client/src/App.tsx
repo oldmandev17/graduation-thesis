@@ -1,25 +1,27 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import SellerOnboardLayout from "layout/SellerOnboardLayout";
+import AuthenticationLayout from "layout/AuthenticationLayout";
+import LandingLayout from "layout/LandingLayout";
+import ForgotPasswordPage from "pages/ForgotPasswordPage";
+import LandingPage from "pages/LandingPage";
+import SignupPage from "pages/SignupPage";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<AuthenticationLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Route>
+      <Route path="/" element={<LandingLayout />}>
+        <Route path="/landing" element={<LandingPage />} />
+      </Route>
+      <Route path="/" element={<SellerOnboardLayout />}>
+        <Route path="/landing" element={<LandingPage />} />
+      </Route>
+      <Route path="/login/forgotpassword" element={<ForgotPasswordPage />} />
+    </Routes>
   );
 }
 
