@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
+import { ICategory } from './categoryModel'
 import { IOrder } from './orderModel'
 import { IReview } from './reviewModel'
-import { IService } from './serviceModel'
 import { IUser } from './userModel'
 
 export enum GigStatus {
@@ -23,7 +23,7 @@ export interface IGig extends mongoose.Document {
   shortDesc: string
   images: Array<string>
   status: GigStatus
-  service: IService
+  category: ICategory
   reviews: Array<IReview>
   orders: Array<IOrder>
   createdAt: Date
@@ -64,10 +64,6 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
     type: Number,
     required: true
   },
-  shortDesc: {
-    type: String,
-    required: true
-  },
   images: {
     type: [String],
     required: true
@@ -77,9 +73,9 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
     enum: Object.values(GigStatus),
     default: GigStatus.ACTIVE
   },
-  service: {
+  category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'service',
+    ref: 'category',
     required: true
   },
   reviews: [

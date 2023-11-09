@@ -1,4 +1,4 @@
-import { ServiceStatus } from 'modules/service'
+import { CategoryStatus } from 'modules/category'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
 
 const arrLogMethods = [
@@ -31,7 +31,7 @@ const arrLogStatus = [
   }
 ]
 
-const arrServiceLevel = [
+const arrCategoryLevel = [
   {
     label: 'Level 1',
     value: 1
@@ -48,8 +48,8 @@ const arrServiceLevel = [
 
 const arrLogNames = [
   {
-    label: 'CREATE_SERVICE',
-    value: LogName.CREATE_SERVICE
+    label: 'CREATE_CATEGORY',
+    value: LogName.CREATE_CATEGORY
   },
   {
     label: 'CREATE_USER',
@@ -80,12 +80,12 @@ const arrLogNames = [
     value: LogName.VERIFY_EMAIL_USER
   },
   {
-    label: 'UPDATE_SERVICE',
-    value: LogName.UPDATE_SERVICE
+    label: 'UPDATE_CATEGORY',
+    value: LogName.UPDATE_CATEGORY
   },
   {
-    label: 'UPDATE_SERVICE_STATUS',
-    value: LogName.UPDATE_SERVICE_STATUS
+    label: 'UPDATE_CATEGORY_STATUS',
+    value: LogName.UPDATE_CATEGORY_STATUS
   },
   {
     label: 'UPDATE_USER',
@@ -104,8 +104,8 @@ const arrLogNames = [
     value: LogName.DELETE_USERS
   },
   {
-    label: 'DELETE_SERVICES',
-    value: LogName.DELETE_SERVICES
+    label: 'DELETE_CATEGORIES',
+    value: LogName.DELETE_CATEGORIES
   }
 ]
 
@@ -136,19 +136,19 @@ const arrLimits = [
   }
 ]
 
-const arrServiceStatus = [
+const arrCategoryStatus = [
   {
     label: 'ACTIVE',
-    value: ServiceStatus.ACTIVE
+    value: CategoryStatus.ACTIVE
   },
   {
     label: 'INACTIVE',
-    value: ServiceStatus.INACTIVE
+    value: CategoryStatus.INACTIVE
   },
   {
     label: 'DELETED',
-    value: ServiceStatus.DELETED
+    value: CategoryStatus.DELETED
   }
 ]
 
-export { arrLogMethods, arrLogNames, arrLogStatus, arrLimits, arrServiceStatus, arrServiceLevel }
+export { arrLimits, arrLogMethods, arrLogNames, arrLogStatus, arrCategoryLevel, arrCategoryStatus }

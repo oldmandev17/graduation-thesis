@@ -1,21 +1,21 @@
 import { IGig } from './gig'
 import { IUser } from './user'
 
-export enum ServiceStatus {
+export enum CategoryStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED'
 }
 
-export interface IService {
+export interface ICategory {
   _id: string
   name: string
   image: string
   description: string
   level: number
-  subServices: Array<IService>
+  subCategories: Array<ICategory>
   gigs: Array<IGig>
-  status: ServiceStatus
+  status: CategoryStatus
   createdAt: Date
   createdBy: IUser
   updatedAt?: Date

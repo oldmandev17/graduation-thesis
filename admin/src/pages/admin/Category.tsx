@@ -7,14 +7,14 @@
 /* eslint-disable no-underscore-dangle */
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
-  createService,
-  deleteService,
-  getAllService,
-  getServiceDetail,
-  updateService,
-  updateServiceStatus
+  createCategory,
+  deleteCategory,
+  getAllCategory,
+  getCategoryDetail,
+  updateCategory,
+  updateCategoryStatus
 } from 'apis/api'
-import { arrLimits, arrServiceLevel, arrServiceStatus } from 'assets/data'
+import { arrLimits, arrCategoryLevel, arrCategoryStatus } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import DialogCustom from 'components/common/DialogCustom'
@@ -23,7 +23,7 @@ import ModalCustom from 'components/common/ModalCustom'
 import SearchCustom from 'components/common/SearchCustom'
 import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
-import { IService, ServiceStatus } from 'modules/service'
+import { ICategory, CategoryStatus } from 'modules/category'
 import moment from 'moment'
 import { ChangeEvent, Fragment, useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -34,18 +34,18 @@ import generateExcel from 'utils/generateExcel'
 import timeAgo from 'utils/timeAgo'
 import * as Yup from 'yup'
 
-const serviceSchema = Yup.object().shape({
+const categorySchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
   description: Yup.string().required('Description is required'),
   image: Yup.mixed().required('Image is required'),
-  status: Yup.string().oneOf(Object.values(ServiceStatus), 'Invalid status').required('Status is required'),
+  status: Yup.string().oneOf(Object.values(CategoryStatus), 'Invalid status').required('Status is required'),
   level: Yup.number(),
   parent: Yup.string()
 })
 
-function Service() {
+function Category() {
   const formHandler = useForm({
-    resolver: yupResolver(serviceSchema),
+    resolver: yupResolver(categorySchema),
     mode: 'onSubmit'
   })
   const {
@@ -59,22 +59,22 @@ function Service() {
   } = formHandler
   const date = new Date()
   const [mode, setMode] = useState<string>('create')
-  const [services, setServices] = useState<Array<IService>>([])
-  const [serviceDetail, setServiceDetail] = useState<IService>()
-  const [service, setService] = useState<string>('')
-  const [parentService, setParentService] = useState<string>('')
-  const [parentServiceTemp, setParentServiceTemp] = useState<string>('')
-  const [serviceLevel1, setServiceLevel1] = useState<Array<{ label: string; value: string }>>([])
-  const [serviceLevel2, setServiceLevel2] = useState<Array<{ label: string; value: string }>>([])
-  const [serviceTemp, setServiceTemp] = useState<string>('')
-  const [serviceKey, setServiceKey] = useState<string>('')
-  const [arrParentService, setArrParentService] = useState<Array<{ label: string; value: string }>>([])
-  const [arrService, setArrService] = useState<Array<{ label: string; value: string }>>([])
+  const [categories, setCategories] = useState<Array<ICategory>>([])
+  const [categoryDetail, setCategoryDetail] = useState<ICategory>()
+  const [category, setCategory] = useState<string>('')
+  const [parentCategory, setParentCategory] = useState<string>('')
+  const [parentCategoryTemp, setParentCategoryTemp] = useState<string>('')
+  const [categoryLevel1, setCategoryLevel1] = useState<Array<{ label: string; value: string }>>([])
+  const [categoryLevel2, setCategoryLevel2] = useState<Array<{ label: string; value: string }>>([])
+  const [categoryTemp, setCategoryTemp] = useState<string>('')
+  const [categoryKey, setCategoryKey] = useState<string>('')
+  const [arrParentCategory, setArrParentCategory] = useState<Array<{ label: string; value: string }>>([])
+  const [arrCategory, setArrCategory] = useState<Array<{ label: string; value: string }>>([])
   const [startDay, setStartDay] = useState<Date>(date)
   const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
   const [orderBy, setOrderBy] = useState<string>('desc')
-  const [status, setStatus] = useState<ServiceStatus | null>(null)
+  const [status, setStatus] = useState<CategoryStatus | null>(null)
   const [keyword, setKeyword] = useState<string>('')
   const keywordDebounce = useDebounce(keyword, 500)
   const [page, setPage] = useState<number>(1)
@@ -89,11 +89,11 @@ function Service() {
 
   const { accessToken } = getToken()
 
-  const getServices = async (serId: string) => {
-    await getAllService(null, null, null, '', 'name', 'desc', null, null, serId, 1, accessToken).then((response) => {
+  const getCategories = async (serId: string) => {
+    await getAllCategory(null, null, null, '', 'name', 'desc', null, null, serId, 1, accessToken).then((response) => {
       if (response.status === 200) {
-        setServiceLevel1([...response.data.arrParentService, { label: 'Show all', value: '' }])
-        setServiceLevel2([...response.data.arrService, { label: 'Show all', value: '' }])
+        setCategoryLevel1([...response.data.arrParentCategory, { label: 'Show all', value: '' }])
+        setCategoryLevel2([...response.data.arrCategory, { label: 'Show all', value: '' }])
       }
     })
   }
@@ -101,7 +101,7 @@ function Service() {
   const [serId, setSerId] = useState<string>('')
 
   useEffect(() => {
-    getServices(serId)
+    getCategories(serId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serId])
 
@@ -112,9 +112,9 @@ function Service() {
     }
   }, [errors])
 
-  const getAllServices = useCallback(async () => {
+  const getAllCategories = useCallback(async () => {
     endDay.setHours(0, 0, 0, 0)
-    await getAllService(
+    await getAllCategory(
       page,
       limit,
       status,
@@ -123,42 +123,42 @@ function Service() {
       orderBy,
       startDay,
       new Date(endDay.getTime() + 24 * 60 * 60 * 1000),
-      serviceKey,
+      categoryKey,
       level,
       accessToken
     )
       .then((response) => {
         if (response.status === 200) {
-          setServices(response.data.services)
+          setCategories(response.data.categories)
           setCount(Math.ceil(response.data.filteredCount / limit))
           setFilteredCount(response.data.filteredCount)
-          if (response.data.arrParentService.length > 0)
-            setArrParentService([...response.data.arrParentService, { label: 'Show all', value: '' }])
-          if (response.data.arrService.length > 0)
-            setArrService([...response.data.arrService, { label: 'Show all', value: '' }])
+          if (response.data.arrParentCategory.length > 0)
+            setArrParentCategory([...response.data.arrParentCategory, { label: 'Show all', value: '' }])
+          if (response.data.arrCategory.length > 0)
+            setArrCategory([...response.data.arrCategory, { label: 'Show all', value: '' }])
         }
       })
-      .finally(() => setParentServiceTemp(parentService))
+      .finally(() => setParentCategoryTemp(parentCategory))
       .catch((error: any) => {
         toast.error(error.response.data.error.message)
       })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endDay, keywordDebounce, orderBy, sortBy, startDay, status, page, limit, level, serviceKey])
+  }, [endDay, keywordDebounce, orderBy, sortBy, startDay, status, page, limit, level, categoryKey])
 
   useEffect(() => {
-    if (parentService !== parentServiceTemp) {
-      setServiceKey(parentService)
-    } else if (service !== serviceTemp) {
-      setServiceKey(service)
+    if (parentCategory !== parentCategoryTemp) {
+      setCategoryKey(parentCategory)
+    } else if (category !== categoryTemp) {
+      setCategoryKey(category)
     }
-    setParentServiceTemp(parentService)
-    setServiceTemp(service)
-  }, [parentService, service, parentServiceTemp, serviceTemp])
+    setParentCategoryTemp(parentCategory)
+    setCategoryTemp(category)
+  }, [parentCategory, category, parentCategoryTemp, categoryTemp])
 
   useEffect(() => {
-    getAllServices()
-  }, [getAllServices])
+    getAllCategories()
+  }, [getAllCategories])
 
   const handleCheckAll = () => {
     document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').forEach((input) => {
@@ -195,11 +195,11 @@ function Service() {
     if (arrIds.length === 0) {
       toast.warning('Select a row to delete, please.')
     } else {
-      await deleteService(arrIds, accessToken)
+      await deleteCategory(arrIds, accessToken)
         .then((response) => {
           if (response.status === 204) {
             toast.success('Delete Completed Successfully!')
-            getAllServices()
+            getAllCategories()
             reset()
             setOpenModal(false)
             document.querySelectorAll<HTMLInputElement>('input[name=checkbox-table-search]').forEach((input) => {
@@ -260,10 +260,10 @@ function Service() {
       toast.warning('Select a row to edit, please.')
     } else {
       setMode('update')
-      await getServiceDetail(id, accessToken)
+      await getCategoryDetail(id, accessToken)
         .then((response) => {
           if (response.status === 200) {
-            setServiceDetail(response.data.service)
+            setCategoryDetail(response.data.category)
           }
         })
         .catch((error: any) => {
@@ -277,11 +277,11 @@ function Service() {
     if (getCheckedInputIds().length < 1) {
       toast.warning('Select a row to edit, please.')
     } else {
-      await updateServiceStatus(getCheckedInputIds(), event.target.value, accessToken)
+      await updateCategoryStatus(getCheckedInputIds(), event.target.value, accessToken)
         .then((response) => {
           if (response.status === 200) {
             toast.success('Update Completed Successfully!')
-            getAllServices()
+            getAllCategories()
           }
         })
         .catch((error: any) => {
@@ -290,17 +290,17 @@ function Service() {
     }
   }
 
-  const createOrUpdateService = async (values: any) => {
+  const createOrUpdateCategory = async (values: any) => {
     const { parent, level, ...data } = values
     if (Number(getValues('level')) > 1 && !getValues('parent')) {
       toast.warning('Parent is required')
     } else if (mode === 'create') {
-      await createService(parent, data, accessToken)
+      await createCategory(parent, data, accessToken)
         .then((response) => {
           if (response.status === 201) {
             toast.success('Create Completed Successfully!')
-            getAllServices()
-            getServices('')
+            getAllCategories()
+            getCategories('')
             setOpenModal(false)
             reset()
           }
@@ -309,12 +309,12 @@ function Service() {
           toast.error(error.response.data.error.message)
         })
     } else {
-      await updateService(serviceDetail?._id, parent, data, accessToken)
+      await updateCategory(categoryDetail?._id, parent, data, accessToken)
         .then((response) => {
           if (response.status === 200) {
             toast.success('Update Completed Successfully!')
-            getAllServices()
-            getServices('')
+            getAllCategories()
+            getCategories('')
             setOpenModal(false)
             reset()
           }
@@ -325,36 +325,36 @@ function Service() {
     }
   }
 
-  const handleAddService = () => {
+  const handleAddCategory = () => {
     setOpenModal(true)
     setMode('create')
   }
 
   useEffect(() => {
-    if (mode === 'update' && serviceDetail) {
-      setValue('image', serviceDetail?.image)
-      setValue('name', serviceDetail?.name)
-      setValue('description', serviceDetail?.description)
-      setValue('status', serviceDetail?.status)
-      setValue('level', serviceDetail?.level)
+    if (mode === 'update' && categoryDetail) {
+      setValue('image', categoryDetail?.image)
+      setValue('name', categoryDetail?.name)
+      setValue('description', categoryDetail?.description)
+      setValue('status', categoryDetail?.status)
+      setValue('level', categoryDetail?.level)
     }
-  }, [mode, serviceDetail, setValue])
+  }, [mode, categoryDetail, setValue])
 
   return (
     <div className='flex flex-col gap-5'>
       <div className='inline-flex justify-end rounded-md shadow-sm' role='group'>
         <button
-          onClick={handleAddService}
+          onClick={handleAddCategory}
           type='button'
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <HiOutlineViewGridAdd className='w-[14px] h-[14px] mr-2' style={{ strokeWidth: '2.5' }} />
-          Add Service
+          Add Category
         </button>
         <button
           type='button'
-          disabled={!services.length}
-          onClick={() => generateExcel(columns, services, 'Service Sheet', 'Service')}
+          disabled={!categories.length}
+          onClick={() => generateExcel(columns, categories, 'Category Sheet', 'Category')}
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <svg
@@ -370,26 +370,26 @@ function Service() {
           Exports
         </button>
       </div>
-      <AccordionCustom title='Refine Services: Curate Your Records with Precision.'>
+      <AccordionCustom title='Refine Categories: Curate Your Records with Precision.'>
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-3 gap-10'>
             <SearchCustom value={keyword} setValue={setKeyword} label='Search by name'>
               Search By Name
             </SearchCustom>
             <SelectCustom
-              arrValue={arrParentService}
-              label='Choose the parent service'
-              value={parentService}
-              setValue={setParentService}
+              arrValue={arrParentCategory}
+              label='Choose the parent category'
+              value={parentCategory}
+              setValue={setParentCategory}
             >
-              Parent Service
+              Parent Category
             </SelectCustom>
-            <SelectCustom arrValue={arrService} label='Choose the service' value={service} setValue={setService}>
-              Service
+            <SelectCustom arrValue={arrCategory} label='Choose the category' value={category} setValue={setCategory}>
+              Category
             </SelectCustom>
           </div>
           <div className='grid grid-cols-3 gap-10'>
-            <SelectCustom arrValue={arrServiceStatus} label='Choose the status' value={status} setValue={setStatus}>
+            <SelectCustom arrValue={arrCategoryStatus} label='Choose the status' value={status} setValue={setStatus}>
               Status
             </SelectCustom>
             <DateTimePickerCustom value={startDay} setValue={setStartDay} label='Choose the start day'>
@@ -400,7 +400,7 @@ function Service() {
             </DateTimePickerCustom>
           </div>
           <div className='grid grid-cols-3 gap-10'>
-            <SelectCustom arrValue={arrServiceLevel} label='Choose the level' value={level} setValue={setLevel}>
+            <SelectCustom arrValue={arrCategoryLevel} label='Choose the level' value={level} setValue={setLevel}>
               Level
             </SelectCustom>
             <SelectCustom arrValue={arrLimits} label='Choose the dispaly limit' value={limit} setValue={setLimit}>
@@ -418,8 +418,8 @@ function Service() {
                 onChange={handleUpdateStatus}
                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg border-l-gray-100 dark:border-l-gray-700 border-l-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
               >
-                {arrServiceStatus?.length &&
-                  arrServiceStatus.map((val, index) => (
+                {arrCategoryStatus?.length &&
+                  arrCategoryStatus.map((val, index) => (
                     <option key={val.value + index} value={val.value}>
                       {val.label}
                     </option>
@@ -535,45 +535,45 @@ function Service() {
             </tr>
           </thead>
           <tbody>
-            {services?.length > 0 ? (
-              services.map((service: IService) => (
-                <Fragment key={service._id}>
+            {categories?.length > 0 ? (
+              categories.map((category: ICategory) => (
+                <Fragment key={category._id}>
                   <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
                     <td className='w-4 p-4'>
                       <div className='flex items-center'>
                         <input
                           onClick={handleCheckElement}
-                          id={service._id}
+                          id={category._id}
                           name='checkbox-table-search'
                           type='checkbox'
                           className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                         />
-                        <label htmlFor={service._id} className='sr-only'>
+                        <label htmlFor={category._id} className='sr-only'>
                           checkbox
                         </label>
                       </div>
                     </td>
                     <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                      {service.name}
+                      {category.name}
                     </td>
-                    <td className='px-6 py-4'>{service.status}</td>
-                    <td className='px-6 py-4'>{service.level}</td>
-                    <td className='px-6 py-4'>{service.description}</td>
-                    <td className='px-6 py-4'>{timeAgo(new Date(service.createdAt))}</td>
-                    <td className='px-6 py-4'>{service?.updatedAt && timeAgo(new Date(service.updatedAt))}</td>
+                    <td className='px-6 py-4'>{category.status}</td>
+                    <td className='px-6 py-4'>{category.level}</td>
+                    <td className='px-6 py-4'>{category.description}</td>
+                    <td className='px-6 py-4'>{timeAgo(new Date(category.createdAt))}</td>
+                    <td className='px-6 py-4'>{category?.updatedAt && timeAgo(new Date(category.updatedAt))}</td>
                     <td className='flex flex-row items-center justify-between px-6 py-4 space-x-3'>
                       <span
-                        onClick={() => handleEdit(service._id)}
+                        onClick={() => handleEdit(category._id)}
                         className='font-medium text-blue-600 cursor-pointer dark:text-blue-500 hover:underline'
                       >
                         Edit
                       </span>
-                      {service.subServices?.length > 0 && (
-                        <span onClick={() => setShow(service._id === show ? '' : service._id)}>
+                      {category.subCategories?.length > 0 && (
+                        <span onClick={() => setShow(category._id === show ? '' : category._id)}>
                           <svg
                             aria-hidden='true'
                             className={`w-6 h-6 cursor-pointer ${
-                              service._id === show ? 'rotate-180 transition-all' : ''
+                              category._id === show ? 'rotate-180 transition-all' : ''
                             }`}
                             fill='currentColor'
                             viewBox='0 0 20 20'
@@ -589,48 +589,48 @@ function Service() {
                       )}
                     </td>
                   </tr>
-                  {service.subServices?.length > 0 &&
-                    show === service._id &&
-                    service.subServices.map((subService: IService) => (
-                      <Fragment key={service._id + subService._id}>
+                  {category.subCategories?.length > 0 &&
+                    show === category._id &&
+                    category.subCategories.map((subCategory: ICategory) => (
+                      <Fragment key={category._id + subCategory._id}>
                         <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
                           <td className='w-4 p-4'>
                             <div className='flex items-center'>
                               <input
                                 onClick={handleCheckElement}
-                                id={subService._id}
+                                id={subCategory._id}
                                 name='checkbox-table-search'
                                 type='checkbox'
                                 className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                               />
-                              <label htmlFor={subService._id} className='sr-only'>
+                              <label htmlFor={subCategory._id} className='sr-only'>
                                 checkbox
                               </label>
                             </div>
                           </td>
                           <td className='px-6 py-4 pl-20 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                            {subService.name}
+                            {subCategory.name}
                           </td>
-                          <td className='px-6 py-4'>{subService.status}</td>
-                          <td className='px-6 py-4'>{subService.level}</td>
-                          <td className='px-6 py-4'>{subService.description}</td>
-                          <td className='px-6 py-4'>{timeAgo(new Date(subService.createdAt))}</td>
+                          <td className='px-6 py-4'>{subCategory.status}</td>
+                          <td className='px-6 py-4'>{subCategory.level}</td>
+                          <td className='px-6 py-4'>{subCategory.description}</td>
+                          <td className='px-6 py-4'>{timeAgo(new Date(subCategory.createdAt))}</td>
                           <td className='px-6 py-4'>
-                            {subService?.updatedAt && timeAgo(new Date(subService.updatedAt))}
+                            {subCategory?.updatedAt && timeAgo(new Date(subCategory.updatedAt))}
                           </td>
                           <td className='flex flex-row items-center justify-between px-6 py-4 space-x-3'>
                             <span
-                              onClick={() => handleEdit(subService._id)}
+                              onClick={() => handleEdit(subCategory._id)}
                               className='font-medium text-blue-600 cursor-pointer dark:text-blue-500 hover:underline'
                             >
                               Edit
                             </span>
-                            {subService.subServices?.length > 0 && (
-                              <span onClick={() => setShowSub(subService._id === showSub ? '' : subService._id)}>
+                            {subCategory.subCategories?.length > 0 && (
+                              <span onClick={() => setShowSub(subCategory._id === showSub ? '' : subCategory._id)}>
                                 <svg
                                   aria-hidden='true'
                                   className={`w-6 h-6 cursor-pointer ${
-                                    subService._id === showSub ? 'rotate-180 transition-all' : ''
+                                    subCategory._id === showSub ? 'rotate-180 transition-all' : ''
                                   }`}
                                   fill='currentColor'
                                   viewBox='0 0 20 20'
@@ -646,40 +646,40 @@ function Service() {
                             )}
                           </td>
                         </tr>
-                        {subService.subServices?.length > 0 &&
-                          subService._id === showSub &&
-                          subService.subServices.map((subSubService: IService) => (
+                        {subCategory.subCategories?.length > 0 &&
+                          subCategory._id === showSub &&
+                          subCategory.subCategories.map((subSubCategory: ICategory) => (
                             <tr
-                              key={service._id + subService._id + subSubService._id}
+                              key={category._id + subCategory._id + subSubCategory._id}
                               className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                             >
                               <td className='w-4 p-4'>
                                 <div className='flex items-center'>
                                   <input
                                     onClick={handleCheckElement}
-                                    id={subSubService._id}
+                                    id={subSubCategory._id}
                                     name='checkbox-table-search'
                                     type='checkbox'
                                     className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                                   />
-                                  <label htmlFor={subSubService._id} className='sr-only'>
+                                  <label htmlFor={subSubCategory._id} className='sr-only'>
                                     checkbox
                                   </label>
                                 </div>
                               </td>
                               <td className='px-6 py-4 font-medium text-gray-900 pl-36 whitespace-nowrap dark:text-white'>
-                                {subSubService.name}
+                                {subSubCategory.name}
                               </td>
-                              <td className='px-6 py-4'>{subSubService.status}</td>
-                              <td className='px-6 py-4'>{subSubService.level}</td>
-                              <td className='px-6 py-4'>{subSubService.description}</td>
-                              <td className='px-6 py-4'>{timeAgo(new Date(subSubService.createdAt))}</td>
+                              <td className='px-6 py-4'>{subSubCategory.status}</td>
+                              <td className='px-6 py-4'>{subSubCategory.level}</td>
+                              <td className='px-6 py-4'>{subSubCategory.description}</td>
+                              <td className='px-6 py-4'>{timeAgo(new Date(subSubCategory.createdAt))}</td>
                               <td className='px-6 py-4'>
-                                {subSubService?.updatedAt && timeAgo(new Date(subSubService.updatedAt))}
+                                {subSubCategory?.updatedAt && timeAgo(new Date(subSubCategory.updatedAt))}
                               </td>
                               <td className='flex items-center px-6 py-4 space-x-3'>
                                 <span
-                                  onClick={() => handleEdit(subSubService._id)}
+                                  onClick={() => handleEdit(subSubCategory._id)}
                                   className='font-medium text-blue-600 cursor-pointer dark:text-blue-500 hover:underline'
                                 >
                                   Edit
@@ -703,9 +703,11 @@ function Service() {
             Showing{' '}
             <span className='font-semibold text-gray-900 dark:text-white'>
               {`${filteredCount === 0 ? '0' : limit * (page - 1) + 1} - 
-          ${limit * page < (filteredCount || services.length) ? limit * page : filteredCount || services.length}`}{' '}
+          ${
+            limit * page < (filteredCount || categories.length) ? limit * page : filteredCount || categories.length
+          }`}{' '}
             </span>{' '}
-            of <span className='font-semibold text-gray-900 dark:text-white'>{filteredCount || services.length}</span>
+            of <span className='font-semibold text-gray-900 dark:text-white'>{filteredCount || categories.length}</span>
           </span>
           <ul className='inline-flex h-8 -space-x-px text-sm'>
             <li>
@@ -755,13 +757,13 @@ function Service() {
       <ModalCustom onCancel={() => reset()} open={openModal} setOpen={setOpenModal}>
         <FormProvider {...formHandler}>
           <form
-            onSubmit={handleSubmit(createOrUpdateService)}
+            onSubmit={handleSubmit(createOrUpdateCategory)}
             className='relative w-full h-full max-w-4xl min-w-[768px] md:h-auto'
           >
             <div className='relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5'>
               <div className='flex justify-between mb-4 rounded-t sm:mb-5'>
                 <div className='text-lg text-gray-900 md:text-xl dark:text-white'>
-                  <h3 className='ftext-center ont-semibold '>Service Details</h3>
+                  <h3 className='ftext-center ont-semibold '>Category Details</h3>
                 </div>
                 <div>
                   <button
@@ -822,8 +824,8 @@ function Service() {
                     className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
                     {...register('status')}
                   >
-                    {arrServiceStatus.length > 0 &&
-                      arrServiceStatus.map((status) => (
+                    {arrCategoryStatus.length > 0 &&
+                      arrCategoryStatus.map((status) => (
                         <option key={status.value} value={status.value}>
                           {status.label}
                         </option>
@@ -837,10 +839,10 @@ function Service() {
                     {...register('level')}
                     defaultValue={mode === 'update' ? Number(getValues('level')) : 1}
                   >
-                    {arrServiceLevel.length > 0 &&
-                      arrServiceLevel.map((level) => {
-                        if (mode === 'update' && serviceDetail) {
-                          if (Number(level.value) <= serviceDetail?.level) {
+                    {arrCategoryLevel.length > 0 &&
+                      arrCategoryLevel.map((level) => {
+                        if (mode === 'update' && categoryDetail) {
+                          if (Number(level.value) <= categoryDetail?.level) {
                             return (
                               <option key={level.value} value={level.value}>
                                 {level.label}
@@ -860,30 +862,30 @@ function Service() {
                 {Number(watch('level')) === 3 && (
                   <>
                     <div>
-                      <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Parent Service</dt>
+                      <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Parent Category</dt>
                       <select
                         className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
                         onChange={(event: ChangeEvent<HTMLSelectElement>) => setSerId(event.target.value)}
                       >
-                        {serviceLevel1.length > 0 &&
-                          serviceLevel1.map((ser1) => (
-                            <option key={ser1.value} value={ser1.value}>
-                              {ser1.label}
+                        {categoryLevel1.length > 0 &&
+                          categoryLevel1.map((cat1) => (
+                            <option key={cat1.value} value={cat1.value}>
+                              {cat1.label}
                             </option>
                           ))}
                       </select>
                     </div>
                     <div>
-                      <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Service</dt>
+                      <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Category</dt>
                       <select
                         className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
                         {...register('parent')}
                         defaultValue=''
                       >
-                        {serviceLevel2.length > 0 &&
-                          serviceLevel2.map((ser2) => (
-                            <option key={ser2.value} value={ser2.value}>
-                              {ser2.label}
+                        {categoryLevel2.length > 0 &&
+                          categoryLevel2.map((cat2) => (
+                            <option key={cat2.value} value={cat2.value}>
+                              {cat2.label}
                             </option>
                           ))}
                       </select>
@@ -897,10 +899,10 @@ function Service() {
                       className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
                       {...register('parent')}
                     >
-                      {serviceLevel1.length > 0 &&
-                        serviceLevel1.map((ser1) => (
-                          <option key={ser1.value} value={ser1.value}>
-                            {ser1.label}
+                      {categoryLevel1.length > 0 &&
+                        categoryLevel1.map((cat1) => (
+                          <option key={cat1.value} value={cat1.value}>
+                            {cat1.label}
                           </option>
                         ))}
                     </select>
@@ -912,13 +914,13 @@ function Service() {
                       <div>
                         <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Created At</dt>
                         <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                          {moment(serviceDetail?.createdAt).format('MM/DD/YYYY HH:MM:SS')}
+                          {moment(categoryDetail?.createdAt).format('MM/DD/YYYY HH:MM:SS')}
                         </dd>
                       </div>
                       <div>
                         <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Created By</dt>
                         <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                          <pre>{JSON.stringify(serviceDetail?.createdBy, null, 2)}</pre>
+                          <pre>{JSON.stringify(categoryDetail?.createdBy, null, 2)}</pre>
                         </dd>
                       </div>
                     </div>
@@ -926,13 +928,13 @@ function Service() {
                       <div>
                         <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Updated At</dt>
                         <dd className='px-1 py-2 mb-4 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50 min-h-[40px]'>
-                          {serviceDetail?.updatedAt && moment(serviceDetail?.updatedAt).format('MM/DD/YYYY HH:MM:SS')}
+                          {categoryDetail?.updatedAt && moment(categoryDetail?.updatedAt).format('MM/DD/YYYY HH:MM:SS')}
                         </dd>
                       </div>
                       <div>
                         <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Updated By</dt>
                         <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50 min-h-[40px]'>
-                          <pre>{JSON.stringify(serviceDetail?.updatedBy, null, 2)}</pre>
+                          <pre>{JSON.stringify(categoryDetail?.updatedBy, null, 2)}</pre>
                         </dd>
                       </div>
                     </div>
@@ -961,12 +963,12 @@ function Service() {
                   {mode === 'update' ? 'Update' : 'Create'}
                 </button>
                 {mode === 'update' &&
-                  serviceDetail &&
-                  serviceDetail?.subServices?.length === 0 &&
-                  (serviceDetail?.gigs?.length === 0 || !serviceDetail.gigs) && (
+                  categoryDetail &&
+                  categoryDetail?.subCategories?.length === 0 &&
+                  (categoryDetail?.gigs?.length === 0 || !categoryDetail.gigs) && (
                     <button
                       type='button'
-                      onClick={() => handleDelete([serviceDetail?._id as string])}
+                      onClick={() => handleDelete([categoryDetail?._id as string])}
                       className='inline-flex items-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900'
                     >
                       <svg
@@ -994,4 +996,4 @@ function Service() {
   )
 }
 
-export default Service
+export default Category

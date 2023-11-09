@@ -5,9 +5,9 @@ import morgan from 'morgan'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import authRouter from './routes/authRoute'
-import serviceRoutes from './routes/serviceRoute'
-import logRoutes from './routes/logRoute'
+import categoryRoutes from './routes/categoryRoute'
 import gigRoutes from './routes/gigRoute'
+import logRoutes from './routes/logRoute'
 
 // Use redis cluter
 require('src/helpers/initRedis')
@@ -53,7 +53,7 @@ app.use('/uploads', express.static('./uploads'))
 app.use(express.json())
 app.use(morgan('dev'))
 app.use('/api/auth', authRouter)
-app.use('/api/service', serviceRoutes)
+app.use('/api/category', categoryRoutes)
 app.use('/api/log', logRoutes)
 app.use('/api/gig', gigRoutes)
 // Swagger Page

@@ -1,5 +1,5 @@
+import { CategoryStatus } from 'modules/category'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
-import { ServiceStatus } from 'modules/service'
 import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 import { axiosFormData, axiosJson } from './axios'
 
@@ -40,10 +40,10 @@ function deleteLog(arrIds: Array<string>, accessToken: string | undefined) {
   })
 }
 
-function getAllService(
+function getAllCategory(
   page: number | null,
   limit: number | null,
-  status: ServiceStatus | null,
+  status: CategoryStatus | null,
   keyword: string,
   sortBy: string,
   orderBy: string,
@@ -53,7 +53,7 @@ function getAllService(
   level: number | undefined,
   accessToken: string | undefined
 ) {
-  let url = `/service?sortBy=${sortBy}&&orderBy=${orderBy}`
+  let url = `/category?sortBy=${sortBy}&&orderBy=${orderBy}`
   if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
   if (page && limit) url += `&&page=${page}&&limit=${limit}`
   if (status) url += `&&status=${status}`
@@ -68,8 +68,8 @@ function getAllService(
   })
 }
 
-function updateServiceStatus(arrIds: Array<string>, status: string, accessToken: string | undefined) {
-  const url = `/service/update?status=${status}`
+function updateCategoryStatus(arrIds: Array<string>, status: string, accessToken: string | undefined) {
+  const url = `/category/update?status=${status}`
   return axiosJson.put(url, [...arrIds], {
     headers: {
       'Content-Type': 'application/json',
@@ -78,8 +78,8 @@ function updateServiceStatus(arrIds: Array<string>, status: string, accessToken:
   })
 }
 
-function deleteService(arrIds: Array<string>, accessToken: string | undefined) {
-  const url = '/service'
+function deleteCategory(arrIds: Array<string>, accessToken: string | undefined) {
+  const url = '/category'
   return axiosJson.delete(url, {
     data: [...arrIds],
     headers: {
@@ -89,8 +89,8 @@ function deleteService(arrIds: Array<string>, accessToken: string | undefined) {
   })
 }
 
-function getServiceDetail(id: string, accessToken: string | undefined) {
-  const url = `/service/${id}`
+function getCategoryDetail(id: string, accessToken: string | undefined) {
+  const url = `/category/id/${id}`
   return axiosJson.get(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -131,8 +131,8 @@ function getAllUser(
   })
 }
 
-function createService(parent: string | null, data: any, accessToken: string | undefined) {
-  let url = '/service/create'
+function createCategory(parent: string | null, data: any, accessToken: string | undefined) {
+  let url = '/category/create'
   if (parent) url += `?parent=${parent}`
   return axiosFormData.post(url, data, {
     headers: {
@@ -142,8 +142,8 @@ function createService(parent: string | null, data: any, accessToken: string | u
   })
 }
 
-function updateService(id: string | undefined, parent: string | null, data: any, accessToken: string | undefined) {
-  let url = `/service/update/${id}`
+function updateCategory(id: string | undefined, parent: string | null, data: any, accessToken: string | undefined) {
+  let url = `/category/update/${id}`
   if (parent) url += `?parent=${parent}`
   return axiosFormData.put(url, data, {
     headers: {
@@ -154,13 +154,13 @@ function updateService(id: string | undefined, parent: string | null, data: any,
 }
 
 export {
+  createCategory,
+  deleteCategory,
   deleteLog,
-  deleteService,
+  getAllCategory,
   getAllLog,
-  getAllService,
   getAllUser,
-  getServiceDetail,
-  updateServiceStatus,
-  createService,
-  updateService
+  getCategoryDetail,
+  updateCategory,
+  updateCategoryStatus
 }

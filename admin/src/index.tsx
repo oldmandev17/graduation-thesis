@@ -18,12 +18,12 @@ const AuthenticationLayout = lazy(() => import('layouts/Authentication'))
 const OverviewPage = lazy(() => import('pages/admin/Overview'))
 const LogPage = lazy(() => import('pages/admin/Log'))
 const AccountPage = lazy(() => import('pages/admin/Account'))
-const ServicePage = lazy(() => import('pages/admin/Service'))
+const CategoryPage = lazy(() => import('pages/admin/Category'))
 const GigPage = lazy(() => import('pages/admin/Gig'))
 const OrderPage = lazy(() => import('pages/admin/Order'))
 const SettingPage = lazy(() => import('pages/admin/Setting'))
 const UserPage = lazy(() => import('pages/admin/user/User'))
-const UserDetailPage = lazy(()=> import('pages/admin/user/UserDetail'))
+const UserDetailPage = lazy(() => import('pages/admin/user/UserDetail'))
 const MessagePage = lazy(() => import('pages/admin/Message'))
 
 const NotFoundPage = lazy(() => import('pages/admin/NotFound'))
@@ -71,8 +71,8 @@ const router = createBrowserRouter([
                 element: <AccountPage />
               },
               {
-                path: '/service',
-                element: <ServicePage />
+                path: '/category',
+                element: <CategoryPage />
               },
               {
                 path: '/gig',
@@ -119,8 +119,8 @@ const router = createBrowserRouter([
             element: <AccountPage />
           },
           {
-            path: '/test/service',
-            element: <ServicePage />
+            path: '/test/category',
+            element: <CategoryPage />
           },
           {
             path: '/test/gig',

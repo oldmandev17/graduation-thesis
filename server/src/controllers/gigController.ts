@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
+import Service from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import { UserRole } from 'src/models/userModel'
@@ -18,6 +19,13 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
   try {
     const files = req.files as Express.Multer.File[]
     const result = await gigSchema.validateAsync(req.body)
+    const serviceExist = await Service.findOne({ _id: result.service })
+    if (!serviceExist) {
+      throw httpError.NotFound()
+    }
+    if (serviceExist.level !== 3) {
+      throw httpError.NotAcceptable()
+    }
     const slug = await createUniqueSlug(Gig, result.name)
     const images: string[] = []
     files.map((file) => images.push(file.path))

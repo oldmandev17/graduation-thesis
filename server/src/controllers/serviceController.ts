@@ -1,27 +1,26 @@
-import axios from 'axios'
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
+import Category, { CategoryStatus, ICategory } from 'src/models/categoryModel'
 import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
-import Service, { IService, ServiceStatus } from 'src/models/serviceModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { logger } from 'src/utils/logger'
-import { serviceDeleteSchema, serviceSchema, serviceStatusSchema } from 'src/utils/validationSchema'
+import { categoryDeleteSchema, categorySchema, categoryStatusSchema } from 'src/utils/validationSchema'
 
-interface ServiceQuery {
-  status?: ServiceStatus
+interface CategoryQuery {
+  status?: CategoryStatus
   parent?: string
 }
 
-export async function createService(req: Request, res: Response, next: NextFunction) {
+export async function createCategory(req: Request, res: Response, next: NextFunction) {
   try {
     const file = req.file as Express.Multer.File
-    const result = await serviceSchema.validateAsync(req.body)
-    const slug = await createUniqueSlug(Service, result.name)
-    const { parent } = req.query as unknown as ServiceQuery
-    const service = new Service({
+    const result = await categorySchema.validateAsync(req.body)
+    const slug = await createUniqueSlug(Category, result.name)
+    const { parent } = req.query as unknown as CategoryQuery
+    const category = new Category({
       image: file.path,
       description: result.description,
       name: result.name,
@@ -32,33 +31,33 @@ export async function createService(req: Request, res: Response, next: NextFunct
     })
 
     if (parent) {
-      const parentService = await Service.findOne({ _id: parent })
-      if (!parentService) {
+      const parentCategory = await Category.findOne({ _id: parent })
+      if (!parentCategory) {
         throw httpError.NotFound()
       }
-      const level = parentService.level + 1
+      const level = parentCategory.level + 1
       if (level > 3) {
         throw httpError.NotAcceptable()
       }
-      service.level = level
-      parentService.subServices.push(service)
-      await parentService.save()
+      category.level = level
+      parentCategory.subCategories.push(category)
+      await parentCategory.save()
     }
-    await service.save()
+    await category.save()
     logger({
       user: req.payload.userId,
-      name: LogName.CREATE_SERVICE,
+      name: LogName.CREATE_CATEGORY,
       method: LogMethod.POST,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
       errorMessage: '',
       content: req.body
     })
-    res.status(201).json({ service })
+    res.status(201).json({ category })
   } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: LogName.CREATE_SERVICE,
+      name: LogName.CREATE_CATEGORY,
       method: LogMethod.POST,
       status: LogStatus.ERROR,
       url: req.originalUrl,
@@ -70,23 +69,23 @@ export async function createService(req: Request, res: Response, next: NextFunct
   }
 }
 
-export const updateService = async (req: Request, res: Response, next: NextFunction) => {
+export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const file = req.file as Express.Multer.File
-    const { parent } = req.query as unknown as ServiceQuery
-    const result = await serviceSchema.validateAsync(req.body)
-    const serviceExist = await Service.findOne({
+    const { parent } = req.query as unknown as CategoryQuery
+    const result = await categorySchema.validateAsync(req.body)
+    const categoryExist = await Category.findOne({
       _id: req.params.id
     })
-    if (!serviceExist) throw httpError.NotFound()
+    if (!categoryExist) throw httpError.NotFound()
     else {
-      if (file && existsSync(serviceExist?.image)) unlinkSync(serviceExist?.image)
+      if (file && existsSync(categoryExist?.image)) unlinkSync(categoryExist?.image)
     }
-    const slug = await createUniqueSlug(Service, result.name, serviceExist.slug)
-    let service = await Service.findOneAndUpdate(
+    const slug = await createUniqueSlug(Category, result.name, categoryExist.slug)
+    let category = await Category.findOneAndUpdate(
       { _id: req.params.id },
       {
-        image: file ? file.path : serviceExist.image,
+        image: file ? file.path : categoryExist.image,
         name: result.name,
         description: result.description,
         slug,
@@ -99,22 +98,22 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
     if (parent === req.params.id) {
       throw httpError.Conflict()
     }
-    const currentParentService = await Service.findOne({ subServices: req.params.id })
-    if (currentParentService) {
-      currentParentService.subServices = currentParentService.subServices.filter(
-        (service) => String(service._id) !== req.params.id
+    const currentParentCategory = await Category.findOne({ subCategories: req.params.id })
+    if (currentParentCategory) {
+      currentParentCategory.subCategories = currentParentCategory.subCategories.filter(
+        (category) => String(category._id) !== req.params.id
       )
-      await currentParentService.save()
+      await currentParentCategory.save()
     }
     if (parent) {
-      const newParentService = await Service.findOne({ _id: parent })
-      if (newParentService) {
-        newParentService.subServices.push(service?._id)
-        await newParentService.save()
-        service = await Service.findOneAndUpdate(
+      const newParentCategory = await Category.findOne({ _id: parent })
+      if (newParentCategory) {
+        newParentCategory.subCategories.push(category?._id)
+        await newParentCategory.save()
+        category = await Category.findOneAndUpdate(
           { _id: req.params.id },
           {
-            level: newParentService.level + 1,
+            level: newParentCategory.level + 1,
             updatedAt: Date.now(),
             updatedBy: req.payload.userId
           },
@@ -122,15 +121,15 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
         )
       }
       const maxLevel = 3
-      const updateServiceLevels = async (serviceId: string, currentLevel: number) => {
-        const subService = await Service.findOne({ _id: serviceId })
-        if (!subService) {
+      const updateCategoryLevels = async (categoryId: string, currentLevel: number) => {
+        const subCategory = await Category.findOne({ _id: categoryId })
+        if (!subCategory) {
           return
         }
 
         if (currentLevel <= maxLevel) {
-          await Service.updateOne(
-            { _id: subService._id },
+          await Category.updateOne(
+            { _id: subCategory._id },
             {
               level: currentLevel,
               updatedAt: Date.now(),
@@ -138,57 +137,18 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
             }
           )
 
-          subService.subServices.forEach(async (subService) => {
-            await updateServiceLevels(subService._id, currentLevel + 1)
+          subCategory.subCategories.forEach(async (subCategory) => {
+            await updateCategoryLevels(subCategory._id, currentLevel + 1)
           })
         }
       }
-      service?.subServices.forEach(async (subService) => {
-        await updateServiceLevels(subService._id, (service?.level as number) + 1)
+      category?.subCategories.forEach(async (subCategory) => {
+        await updateCategoryLevels(subCategory._id, (category?.level as number) + 1)
       })
     }
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_SERVICE,
-      method: LogMethod.PUT,
-      status: LogStatus.SUCCESS,
-      url: req.originalUrl,
-      errorMessage: '',
-      content: req.body
-    })
-    res.sendStatus(200);
-  } catch (error: any) {
-    logger({
-      user: req.payload.userId,
-      name: LogName.UPDATE_SERVICE,
-      method: LogMethod.PUT,
-      status: LogStatus.ERROR,
-      url: req.originalUrl,
-      errorMessage: error.message,
-      content: req.body
-    })
-    if (error.isJoi === true) error.status = 422
-    next(error)
-  }
-}
-
-export const updateServiceStatus = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await serviceStatusSchema.validateAsync(req.body)
-    const { status } = req.query as unknown as ServiceQuery
-    result.forEach(async (id: string) => {
-      await Service.updateOne(
-        { _id: id },
-        {
-          status,
-          updatedAt: Date.now(),
-          updatedBy: req.payload.userId
-        }
-      )
-    })
-    logger({
-      user: req.payload.userId,
-      name: LogName.UPDATE_SERVICE_STATUS,
+      name: LogName.UPDATE_CATEGORY,
       method: LogMethod.PUT,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
@@ -199,7 +159,7 @@ export const updateServiceStatus = async (req: Request, res: Response, next: Nex
   } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_SERVICE_STATUS,
+      name: LogName.UPDATE_CATEGORY,
       method: LogMethod.PUT,
       status: LogStatus.ERROR,
       url: req.originalUrl,
@@ -211,16 +171,55 @@ export const updateServiceStatus = async (req: Request, res: Response, next: Nex
   }
 }
 
-export const getAllService = async (req: Request, res: Response, next: NextFunction) => {
+export const updateCategoryStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { parent, ...restQuery } = req.query as unknown as ServiceQuery
+    const result = await categoryStatusSchema.validateAsync(req.body)
+    const { status } = req.query as unknown as CategoryQuery
+    result.forEach(async (id: string) => {
+      await Category.updateOne(
+        { _id: id },
+        {
+          status,
+          updatedAt: Date.now(),
+          updatedBy: req.payload.userId
+        }
+      )
+    })
+    logger({
+      user: req.payload.userId,
+      name: LogName.UPDATE_CATEGORY_STATUS,
+      method: LogMethod.PUT,
+      status: LogStatus.SUCCESS,
+      url: req.originalUrl,
+      errorMessage: '',
+      content: req.body
+    })
+    res.sendStatus(200)
+  } catch (error: any) {
+    logger({
+      user: req.payload.userId,
+      name: LogName.UPDATE_CATEGORY_STATUS,
+      method: LogMethod.PUT,
+      status: LogStatus.ERROR,
+      url: req.originalUrl,
+      errorMessage: error.message,
+      content: req.body
+    })
+    if (error.isJoi === true) error.status = 422
+    next(error)
+  }
+}
 
-    const query = Service.find()
+export const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { parent, ...restQuery } = req.query as unknown as CategoryQuery
+
+    const query = Category.find()
       .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
       .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })
       .populate({
-        path: 'subServices',
-        populate: { path: 'subServices', populate: { path: 'subServices' } }
+        path: 'subCategories',
+        populate: { path: 'subCategories', populate: { path: 'subCategories' } }
       })
     if (parent) {
       query.where({
@@ -229,50 +228,50 @@ export const getAllService = async (req: Request, res: Response, next: NextFunct
     }
 
     const apiFeature = new APIFeature(query, restQuery).search().filter()
-    let services: IService[] = await apiFeature.query
-    const filteredCount = services.length
+    let categories: ICategory[] = await apiFeature.query
+    const filteredCount = categories.length
     apiFeature.sorting().pagination()
-    services = await apiFeature.query.clone()
-    const arrParentService: { label: string; value: any }[] = []
-    const arrService: { label: string; value: any }[] = []
-    services.map((parentService: IService) => {
-      arrParentService.push({
-        label: parentService.name,
-        value: parentService._id
+    categories = await apiFeature.query.clone()
+    const arrParentCategory: { label: string; value: any }[] = []
+    const arrCategory: { label: string; value: any }[] = []
+    categories.map((parentCategory: ICategory) => {
+      arrParentCategory.push({
+        label: parentCategory.name,
+        value: parentCategory._id
       })
-      parentService.subServices.map((service: IService) => {
-        arrService.push({
-          label: service.name,
-          value: service._id
+      parentCategory.subCategories.map((category: ICategory) => {
+        arrCategory.push({
+          label: category.name,
+          value: category._id
         })
       })
     })
-    res.status(200).json({ services, filteredCount, arrParentService, arrService })
+    res.status(200).json({ categories, filteredCount, arrParentCategory, arrCategory })
   } catch (error: any) {
     next(error)
   }
 }
 
-export async function deleteServices(req: Request, res: Response, next: NextFunction) {
+export async function deleteCategories(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await serviceDeleteSchema.validateAsync(req.body)
+    const result = await categoryDeleteSchema.validateAsync(req.body)
     result.forEach(async (id: string) => {
-      const serviceExist = await Service.findOne({ _id: id })
-      if (serviceExist && existsSync(serviceExist?.image)) {
-        unlinkSync(serviceExist?.image)
+      const categoryExist = await Category.findOne({ _id: id })
+      if (categoryExist && existsSync(categoryExist?.image)) {
+        unlinkSync(categoryExist?.image)
       }
-      await Service.deleteOne({ _id: id })
-      const currentParentService = await Service.findOne({ subServices: req.params.id })
-      if (currentParentService) {
-        currentParentService.subServices = currentParentService.subServices.filter(
-          (service) => String(service._id) !== req.params.id
+      await Category.deleteOne({ _id: id })
+      const currentParentCategory = await Category.findOne({ subCategories: req.params.id })
+      if (currentParentCategory) {
+        currentParentCategory.subCategories = currentParentCategory.subCategories.filter(
+          (category) => String(category._id) !== req.params.id
         )
-        await currentParentService.save()
+        await currentParentCategory.save()
       }
     })
     logger({
       user: req.payload.userId,
-      name: LogName.DELETE_SERVICES,
+      name: LogName.DELETE_CATEGORIES,
       method: LogMethod.DELETE,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
@@ -283,7 +282,7 @@ export async function deleteServices(req: Request, res: Response, next: NextFunc
   } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: LogName.DELETE_SERVICES,
+      name: LogName.DELETE_CATEGORIES,
       method: LogMethod.DELETE,
       status: LogStatus.ERROR,
       url: req.originalUrl,
@@ -294,24 +293,24 @@ export async function deleteServices(req: Request, res: Response, next: NextFunc
   }
 }
 
-export async function getServiceDetail(req: Request, res: Response, next: NextFunction) {
+export async function getCategoryDetail(req: Request, res: Response, next: NextFunction) {
   try {
-    const queryField: any={}
+    const queryField: any = {}
     if (req.params.id) {
-      queryField._id= req.params.id
+      queryField._id = req.params.id
     } else {
       queryField.slug = req.params.slug
     }
-    const serviceExist = await Service.findOne(queryField)
-      .populate('subServices')
+    const categoryExist = await Category.findOne(queryField)
+      .populate('subCategories')
       .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
       .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })
-    if (!serviceExist) {
+    if (!categoryExist) {
       throw httpError.NotFound()
     }
-    const gigs: IGig[] = await Gig.find({ service: req.params.id })
-    serviceExist.gigs = gigs
-    res.status(200).json({ service: serviceExist })
+    const gigs: IGig[] = await Gig.find({ category: req.params.id })
+    categoryExist.gigs = gigs
+    res.status(200).json({ category: categoryExist })
   } catch (error) {
     next(error)
   }

@@ -1,6 +1,6 @@
 import Joi from 'joi'
+import { CategoryStatus } from 'src/models/categoryModel'
 import { GigStatus } from 'src/models/gigModel'
-import { ServiceStatus } from 'src/models/serviceModel'
 import { UserGender, UserRole, UserStatus } from 'src/models/userModel'
 
 export const authRegisterSchema = Joi.object({
@@ -15,14 +15,14 @@ export const authLoginSchema = Joi.object({
   password: Joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/))
 })
 
-export const serviceSchema = Joi.object({
+export const categorySchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
-  status: Joi.string().valid(...Object.values(ServiceStatus)),
+  status: Joi.string().valid(...Object.values(CategoryStatus)),
   image: Joi.binary()
 })
 
-export const serviceStatusSchema = Joi.array().items(Joi.string())
+export const categoryStatusSchema = Joi.array().items(Joi.string())
 
 export const logDeleteSchema = Joi.array().items(Joi.string())
 
@@ -33,7 +33,7 @@ export const userCreateSchema = Joi.object({
 
 export const userDeleteSchema = Joi.array().items(Joi.string())
 
-export const serviceDeleteSchema = Joi.array().items(Joi.string())
+export const categoryDeleteSchema = Joi.array().items(Joi.string())
 
 export const userUpdateSchema = Joi.object({
   name: Joi.string(),
@@ -74,19 +74,23 @@ export const gigSchema = Joi.object({
   description: Joi.string().required(),
   deliveryTime: Joi.number().required(),
   revisions: Joi.number().required(),
-  features: Joi.array().items(Joi.string()).required(),
+  features: Joi.array().items(Joi.string()),
   price: Joi.number().required(),
   shortDesc: Joi.string().required(),
   images: Joi.array().items(Joi.string()),
   service: Joi.string().required(),
-  status: Joi.any().valid(Object.values(GigStatus))
+  status: Joi.string()
+    .valid(...Object.values(GigStatus))
+    .optional()
 })
 
 export const gigStatusSchema = Joi.array().items(Joi.string())
 
 export const gigDeleteSchema = Joi.array().items(Joi.string())
 
-export const orderSchema = Joi.object({})
+export const orderSchema = Joi.object({
+  name: Joi.string()
+})
 
 export const orderStatusSchema = Joi.array().items(Joi.string())
 

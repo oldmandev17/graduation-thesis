@@ -1,21 +1,21 @@
 import mongoose from 'mongoose'
-import { IUser } from './userModel'
 import { IGig } from './gigModel'
+import { IUser } from './userModel'
 
-export enum ServiceStatus {
+export enum CategoryStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED'
 }
 
-export interface IService extends mongoose.Document {
+export interface ICategory extends mongoose.Document {
   name: string
   description: string
   image: string
-  status: ServiceStatus
+  status: CategoryStatus
   level: number
   slug: string
-  subServices: Array<IService>
+  subCategories: Array<ICategory>
   gigs: Array<IGig>
   createdAt: Date
   createdBy: IUser
@@ -23,7 +23,7 @@ export interface IService extends mongoose.Document {
   updatedBy?: IUser
 }
 
-const serviceSchema: mongoose.Schema = new mongoose.Schema<IService>({
+const serviceSchema: mongoose.Schema = new mongoose.Schema<ICategory>({
   name: {
     type: String,
     required: true
@@ -38,8 +38,8 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<IService>({
   },
   status: {
     type: String,
-    enum: Object.values(ServiceStatus),
-    default: ServiceStatus.ACTIVE
+    enum: Object.values(CategoryStatus),
+    default: CategoryStatus.ACTIVE
   },
   level: {
     type: Number,
@@ -50,10 +50,10 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<IService>({
     required: true,
     unique: true
   },
-  subServices: [
+  subCategories: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'service'
+      ref: 'category'
     }
   ],
   createdAt: {
@@ -74,5 +74,5 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<IService>({
   }
 })
 
-const Service: mongoose.Model<IService> = mongoose.model<IService>('service', serviceSchema)
-export default Service
+const Category: mongoose.Model<ICategory> = mongoose.model<ICategory>('category', serviceSchema)
+export default Category
