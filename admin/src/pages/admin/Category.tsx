@@ -14,7 +14,7 @@ import {
   updateCategory,
   updateCategoryStatus
 } from 'apis/api'
-import { arrLimits, arrCategoryLevel, arrCategoryStatus } from 'assets/data'
+import { arrCategoryLevel, arrCategoryStatus, arrLimits } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import DialogCustom from 'components/common/DialogCustom'
@@ -23,7 +23,7 @@ import ModalCustom from 'components/common/ModalCustom'
 import SearchCustom from 'components/common/SearchCustom'
 import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
-import { ICategory, CategoryStatus } from 'modules/category'
+import { CategoryStatus, ICategory } from 'modules/category'
 import moment from 'moment'
 import { ChangeEvent, Fragment, useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -86,8 +86,24 @@ function Category() {
   const [showSub, setShowSub] = useState<string>()
   const [level, setLevel] = useState<number>()
   const [openModal, setOpenModal] = useState<boolean>(false)
-
   const { accessToken } = getToken()
+  const [features, setFeatures] = useState<Array<string>>([])
+
+  const handleAddFeature = () => {
+    const feature = document.getElementById('feature') as HTMLInputElement
+    if (feature && feature?.value !== '') {
+      setFeatures([...features, feature?.value])
+      feature.value = ''
+    } else {
+      toast.warning('Enter the feature, please.')
+    }
+  }
+
+  const handleRemoveFeature = (index: number) => {
+    const clonedFeatures = [...features]
+    clonedFeatures.splice(index, 1)
+    setFeatures(clonedFeatures)
+  }
 
   const getCategories = async (serId: string) => {
     await getAllCategory(null, null, null, '', 'name', 'desc', null, null, serId, 1, accessToken).then((response) => {
@@ -292,6 +308,7 @@ function Category() {
 
   const createOrUpdateCategory = async (values: any) => {
     const { parent, level, ...data } = values
+    data.features = features
     if (Number(getValues('level')) > 1 && !getValues('parent')) {
       toast.warning('Parent is required')
     } else if (mode === 'create') {
@@ -337,6 +354,7 @@ function Category() {
       setValue('description', categoryDetail?.description)
       setValue('status', categoryDetail?.status)
       setValue('level', categoryDetail?.level)
+      setFeatures(categoryDetail?.features)
     }
   }, [mode, categoryDetail, setValue])
 
@@ -889,6 +907,37 @@ function Category() {
                             </option>
                           ))}
                       </select>
+                    </div>
+                    <div className='sm:col-span-2 md:col-span-2'>
+                      <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Features</dt>
+                      <div className='relative w-full h-[43px] mb-4'>
+                        <input
+                          type='text'
+                          id='feature'
+                          className='h-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md dark:border-l-gray-700 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:hover:bg-bray-800 hover:bg-gray-100'
+                          placeholder='Enter the features'
+                        />
+                        <button
+                          type='button'
+                          onClick={handleAddFeature}
+                          className='absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-blue-700 rounded-r-md border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <ul className='flex flex-wrap gap-2'>
+                        {features.map((feature, index) => (
+                          <li
+                            key={index + feature}
+                            className='flex gap-2 items-center py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 hover:text-red-700 cursor-pointer hover:border-red-200'
+                          >
+                            <span className='text-gray-900'>{feature}</span>
+                            <span className='text-red-700 cursor-pointer' onClick={() => handleRemoveFeature(index)}>
+                              X
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </>
                 )}

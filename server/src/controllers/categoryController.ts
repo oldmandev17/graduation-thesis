@@ -25,6 +25,7 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
       description: result.description,
       name: result.name,
       status: result.status,
+      features: result.features,
       slug,
       level: 1,
       createdBy: req.payload.userId
@@ -88,6 +89,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
         image: file ? file.path : categoryExist.image,
         name: result.name,
         description: result.description,
+        features: result.features,
         slug,
         level: 1,
         updatedAt: Date.now(),

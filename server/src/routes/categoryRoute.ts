@@ -6,7 +6,7 @@ import {
   getCategoryDetail,
   updateCategory,
   updateCategoryStatus
-} from 'src/controllers/serviceController'
+} from 'src/controllers/categoryController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'

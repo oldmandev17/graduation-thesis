@@ -19,7 +19,8 @@ export const categorySchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
   status: Joi.string().valid(...Object.values(CategoryStatus)),
-  image: Joi.binary()
+  image: Joi.binary(),
+  features: Joi.array().items(Joi.string())
 })
 
 export const categoryStatusSchema = Joi.array().items(Joi.string())

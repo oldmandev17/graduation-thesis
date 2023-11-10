@@ -16,6 +16,7 @@ export interface ICategory extends mongoose.Document {
   level: number
   slug: string
   subCategories: Array<ICategory>
+  features: Array<string>
   gigs: Array<IGig>
   createdAt: Date
   createdBy: IUser
@@ -56,6 +57,9 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<ICategory>({
       ref: 'category'
     }
   ],
+  features: {
+    type: [String]
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -12,15 +12,27 @@ export enum GigStatus {
   WAITING = 'WAITING'
 }
 
+export enum GigPackageType {
+  BASIC = 'BASIC',
+  STANDARD = 'STANDARD',
+  PREMIUM = 'PREMIUM'
+}
+
+export interface Package {
+  type: GigPackageType
+  name: string
+  description: string
+  revisions: number
+  features: Array<string>
+  deliveryTime: number
+  price: number
+}
+
 export interface IGig extends mongoose.Document {
   name: string
   slug: string
   description: string
-  deliveryTime: number
-  revisions: number
-  features: Array<string>
-  price: number
-  shortDesc: string
+  packages: Array<Package>
   images: Array<string>
   status: GigStatus
   category: ICategory
@@ -48,22 +60,27 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
     type: String,
     required: true
   },
-  deliveryTime: {
-    type: Number,
-    required: true
-  },
-  revisions: {
-    type: Number,
-    required: true
-  },
-  features: {
-    type: [String],
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  },
+  packages: [
+    {
+      type: {
+        type: String,
+        enum: Object.values(GigPackageType),
+        required: true
+      },
+      name: {
+        type: String,
+        required: true
+      },
+      description: {
+        type: String,
+        required: true
+      },
+      revisions: {
+        type: Number,
+        required: true
+      }
+    }
+  ],
   images: {
     type: [String],
     required: true

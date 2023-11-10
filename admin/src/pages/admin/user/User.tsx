@@ -35,9 +35,9 @@ function User() {
 
   const columns = [{ header: 'Name', key: 'name', width: 30 }]
 
-  const { accessToken} = getToken()
+  const { accessToken } = getToken()
 
-  useEffect(()=>{},[errors])
+  useEffect(() => {}, [errors])
 
   const handleAddUser = () => {}
 

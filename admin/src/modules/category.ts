@@ -15,6 +15,7 @@ export interface ICategory {
   level: number
   subCategories: Array<ICategory>
   gigs: Array<IGig>
+  features: Array<string>
   status: CategoryStatus
   createdAt: Date
   createdBy: IUser
