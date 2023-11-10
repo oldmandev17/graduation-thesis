@@ -18,28 +18,39 @@ export enum GigPackageType {
   PREMIUM = 'PREMIUM'
 }
 
+export interface Feature {
+  name?: string
+  status?: boolean
+}
+
 export interface Package {
-  type: GigPackageType
-  name: string
-  description: string
-  revisions: number
-  features: Array<string>
-  deliveryTime: number
-  price: number
+  type?: GigPackageType
+  name?: string
+  description?: string
+  revisions?: number
+  features?: Array<Feature>
+  deliveryTime?: number
+  price?: number
+}
+
+export interface FAQ {
+  question?: string
+  answer?: string
 }
 
 export interface IGig extends mongoose.Document {
-  name: string
-  slug: string
-  description: string
-  packages: Array<Package>
-  images: Array<string>
-  status: GigStatus
-  category: ICategory
-  reviews: Array<IReview>
-  orders: Array<IOrder>
-  createdAt: Date
-  createdBy: IUser
+  name?: string
+  slug?: string
+  description?: string
+  packages?: Array<Package>
+  images?: Array<string>
+  status?: GigStatus
+  category?: ICategory
+  reviews?: Array<IReview>
+  orders?: Array<IOrder>
+  FAQs?: Array<FAQ>
+  createdAt?: Date
+  createdBy?: IUser
   updatedCustomerAt?: Date
   updatedCustomerBy?: IUser
   updatedAdminAt?: Date
@@ -48,42 +59,60 @@ export interface IGig extends mongoose.Document {
 
 const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   name: {
-    type: String,
-    required: true
+    type: String
   },
   slug: {
     type: String,
-    required: true,
     unique: true
   },
   description: {
-    type: String,
-    required: true
+    type: String
   },
   packages: [
     {
       type: {
         type: String,
-        enum: Object.values(GigPackageType),
-        required: true
+        enum: Object.values(GigPackageType)
       },
       name: {
-        type: String,
-        required: true
+        type: String
       },
       description: {
-        type: String,
-        required: true
+        type: String
       },
       revisions: {
-        type: Number,
-        required: true
+        type: Number
+      },
+      features: [
+        {
+          name: {
+            type: String
+          },
+          status: {
+            type: Boolean
+          }
+        }
+      ],
+      deliveryTime: {
+        type: Number
+      },
+      price: {
+        type: Number
+      }
+    }
+  ],
+  FAQs: [
+    {
+      question: {
+        type: String
+      },
+      answer: {
+        type: String
       }
     }
   ],
   images: {
-    type: [String],
-    required: true
+    type: [String]
   },
   status: {
     type: String,
@@ -92,8 +121,7 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'category',
-    required: true
+    ref: 'category'
   },
   reviews: [
     {
@@ -113,8 +141,7 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    required: true
+    ref: 'user'
   },
   updatedCustomerAt: {
     type: Date
