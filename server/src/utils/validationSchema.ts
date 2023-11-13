@@ -60,7 +60,8 @@ export const userUpdateSchema = Joi.object({
   ),
   status: Joi.string()
     .allow(null)
-    .valid(...Object.values(UserStatus))
+    .valid(...Object.values(UserStatus)),
+  avatar: Joi.binary()
 })
 
 export const authForgotPasswordSchema = Joi.object({
@@ -99,7 +100,7 @@ export const gigSchema = Joi.object({
       answer: Joi.string()
     })
   ),
-  images: Joi.array().items(Joi.string()),
+  images: Joi.array().items(Joi.binary()),
   category: Joi.string(),
   status: Joi.string()
     .valid(...Object.values(GigStatus))

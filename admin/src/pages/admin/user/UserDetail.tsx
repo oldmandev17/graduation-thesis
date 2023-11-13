@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/no-array-index-key */
@@ -17,13 +18,15 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import moment from 'moment'
+import { useDropzone } from 'react-dropzone'
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
   phone: Yup.string(),
   verify: Yup.boolean().required('Verify is required'),
   gender: Yup.string().oneOf(Object.values(UserGender)).nullable(),
-  status: Yup.string().oneOf(Object.values(UserStatus))
+  status: Yup.string().oneOf(Object.values(UserStatus)),
+  avatar: Yup.mixed()
 })
 
 function UserDetail() {
@@ -35,13 +38,39 @@ function UserDetail() {
     register,
     setValue,
     formState: { errors },
-    handleSubmit
+    handleSubmit,
+    unregister,
+    watch,
+    getValues
   } = formHandler
   const { id } = useParams<{ id?: string }>()
   const { accessToken } = getToken()
   const [user, setUser] = useState<IUser>()
   const [roles, setRoles] = useState<Array<UserRole>>([])
   const [birthday, setBirthday] = useState<string>()
+
+  const files = watch('avatar')
+
+  const onDrop = useCallback(
+    (droppedFiles: any) => {
+      setValue('avatar', droppedFiles[0], { shouldValidate: true })
+    },
+    [setValue]
+  )
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.jpeg', '.jpg', '.png']
+    }
+  })
+
+  useEffect(() => {
+    register('avatar')
+    return () => {
+      unregister('avatar')
+    }
+  }, [register, unregister])
 
   const handleAddRole = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target.value && !roles.includes(event.target.value as UserRole)) {
@@ -62,6 +91,7 @@ function UserDetail() {
     }
   }, [errors])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getUserDetails = useCallback(async () => {
     if (id)
       await getUserDetail(id, accessToken)
@@ -76,9 +106,9 @@ function UserDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  useEffect(() => {
-    getUserDetails()
-  }, [getUserDetails])
+  // useEffect(() => {
+  //   getUserDetails()
+  // }, [getUserDetails])
 
   useEffect(() => {
     if (user) {
@@ -98,8 +128,8 @@ function UserDetail() {
     <FormProvider {...formHandler}>
       <form className='' onSubmit={handleSubmit(handleUpdateUser)}>
         <div className='flex flex-row w-full gap-10'>
-          <h2 className='mb-4 text-xl font-bold text-gray-900 dark:text-white'>Update User</h2>
-          <div className='flex items-center w-full gap-3'>
+          <h2 className='mb-4 w-40 text-xl font-bold text-gray-900 dark:text-white'>Update User</h2>
+          <div className='flex items-center w-full gap-3 mb-4'>
             <input
               id='verify'
               type='checkbox'
@@ -220,22 +250,6 @@ function UserDetail() {
               )}
             </div>
             <div className='w-full'>
-              <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Email
-              </label>
-              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                {user?.email}
-              </div>
-            </div>
-            <div className='w-full'>
-              <label htmlFor='provider' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Provider
-              </label>
-              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                {user?.provider}
-              </div>
-            </div>
-            <div className='w-full'>
               <label htmlFor='createdAt' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
                 Created At
               </label>
@@ -268,7 +282,69 @@ function UserDetail() {
               </div>
             </div>
           </div>
-          <div className='grid col-span-1 gap-4 mb-4 sm:grid-cols-1 sm:gap-6 sm:mb-5'>123</div>
+          <div className='grid col-span-1 gap-4 mb-4 sm:grid-cols-1 sm:gap-6 sm:mb-5'>
+            <div className='flex items-center justify-center rounded-full'>
+              <div
+                {...getRootProps()}
+                className='flex flex-col items-center justify-center w-80 h-80 border-2 border-gray-300 border-dashed rounded-full cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600'
+              >
+                {files ? (
+                  <div className='w-80 h-80 rounded-full'>
+                    <img
+                      src={
+                        user?.avatar
+                          ? URL.createObjectURL(files)
+                          : typeof files !== 'string'
+                          ? URL.createObjectURL(files)
+                          : `${process.env.REACT_APP_URL_SERVER}/${getValues('avatar')}`
+                      }
+                      alt='Avatar'
+                      className='object-contain w-80 h-80 rounded-full mb-4'
+                    />
+                  </div>
+                ) : (
+                  <div className='flex flex-col items-center justify-center pt-5 pb-6'>
+                    <svg
+                      className='w-8 h-8 mb-4 text-gray-500 dark:text-gray-400'
+                      aria-hidden='true'
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 20 16'
+                    >
+                      <path
+                        stroke='currentColor'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2'
+                      />
+                    </svg>
+                    <p className='mb-2 text-sm text-gray-500 dark:text-gray-400'>
+                      <span className='font-semibold'>Click to upload</span> or drag and drop
+                    </p>
+                    <p className='text-xs text-gray-500 dark:text-gray-400'> PNG, JPG (MAX. 800x400px)</p>
+                  </div>
+                )}
+                <input {...getInputProps()} id='dropzone-file' type='file' className='hidden w-80 h-80 rounded-full' />
+              </div>
+            </div>
+            <div className='w-full'>
+              <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                Email
+              </label>
+              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                {user?.email}
+              </div>
+            </div>
+            <div className='w-full'>
+              <label htmlFor='provider' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                Provider
+              </label>
+              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                {user?.provider}
+              </div>
+            </div>
+          </div>
         </div>
         <div className='flex items-center space-x-4'>
           <button
