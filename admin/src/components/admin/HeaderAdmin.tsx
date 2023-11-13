@@ -640,11 +640,17 @@ function HeaderAdmin() {
             data-dropdown-toggle='profile-dropdown'
           >
             <span className='sr-only'>Open user menu</span>
-            <img
-              className='w-8 h-8 rounded-full'
-              src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gough.png'
-              alt='user'
-            />
+            {user?.avatar ? (
+              <img
+                className='w-8 h-8 rounded-full'
+                src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gough.png'
+                alt='user'
+              />
+            ) : (
+              <div className='relative flex items-center justify-center w-8 h-8 bg-purple-500 rounded-full'>
+                <span className='text-lg text-white'>{user && user?.email[0].toUpperCase()}</span>
+              </div>
+            )}
           </button>
           <Popper
             open={openProfile}

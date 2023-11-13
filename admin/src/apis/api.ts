@@ -110,11 +110,11 @@ function getAllUser(
   endDay: Date | null,
   gender: UserGender | null,
   provider: UserProvider | null,
-  verify: boolean | null,
-  role: UserRole | null,
+  verify: string | null,
+  role: Array<UserRole> | null,
   accessToken: string | undefined
 ) {
-  let url = `/user?sortBy=${sortBy}&&orderBy=${orderBy}`
+  let url = `/auth/admin?sortBy=${sortBy}&&orderBy=${orderBy}`
   if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
   if (page && limit) url += `&&page=${page}&&limit=${limit}`
   if (status) url += `&&status=${status}`
@@ -123,6 +123,36 @@ function getAllUser(
   if (provider) url += `&&provider=${provider}`
   if (verify) url += `&&verify=${verify}`
   if (role) url += `&&role=${role}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function updateUserStatus(arrIds: Array<string>, status: string, accessToken: string | undefined) {
+  const url = `/auth/admin/update-user?status=${status}`
+  return axiosJson.put(url, [...arrIds], {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function createUser(data: any, accessToken: string | undefined) {
+  const url = '/auth/admin/create-user'
+  return axiosJson.post(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getUserDetail(id: string | undefined, accessToken: string | undefined) {
+  const url = `/auth/admin/${id}`
   return axiosJson.get(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -162,5 +192,8 @@ export {
   getAllUser,
   getCategoryDetail,
   updateCategory,
-  updateCategoryStatus
+  updateCategoryStatus,
+  updateUserStatus,
+  createUser,
+  getUserDetail
 }

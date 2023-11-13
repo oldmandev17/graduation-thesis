@@ -2,11 +2,14 @@ import { NextFunction, Request, Response, Router } from 'express'
 import passport from 'passport'
 import {
   createUser,
+  getAllUser,
   getProfile,
+  getUserDetail,
   login,
   logout,
   refreshToken,
   register,
+  updateUserStatus,
   verifyEmail
 } from 'src/controllers/authController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
@@ -20,10 +23,13 @@ authRouter.route('/login').post(login)
 authRouter.route('/refresh-token').post(refreshToken)
 authRouter.route('/logout/:refreshToken').delete(logout)
 authRouter.route('/me').get(verifyAccessToken, getProfile)
+authRouter.route('/admin').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getAllUser)
 authRouter.route('/admin/create-user').post(verifyAccessToken, authorizeRoles([UserRole.ADMIN]), createUser)
-
+authRouter
+  .route('/admin/update-user')
+  .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateUserStatus)
+authRouter.route('/admin/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getUserDetail)
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
-
 authRouter.get(
   '/google/callback',
   (req: Request, res: Response, next: NextFunction) => {

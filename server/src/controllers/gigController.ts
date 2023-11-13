@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
-import Service from 'src/models/categoryModel'
+import Category from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import { UserRole } from 'src/models/userModel'
@@ -19,11 +19,11 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
   try {
     const files = req.files as Express.Multer.File[]
     const result = await gigSchema.validateAsync(req.body)
-    const serviceExist = await Service.findOne({ _id: result.service })
-    if (!serviceExist) {
+    const categoryExist = await Category.findOne({ _id: result.category })
+    if (!categoryExist) {
       throw httpError.NotFound()
     }
-    if (serviceExist.level !== 3) {
+    if (categoryExist.level !== 3) {
       throw httpError.NotAcceptable()
     }
     const slug = await createUniqueSlug(Gig, result.name)
@@ -33,13 +33,10 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
       name: result.name,
       slug,
       description: result.description,
-      deliveryTime: result.deliveryTime,
-      revisions: result.revisions,
-      features: result.features,
-      price: result.price,
-      shortDesc: result.shortDesc,
+      packages: result.packages,
+      FAQs: result.FAQs,
       images,
-      service: result.service,
+      category: result.category,
       createdBy: req.payload.userId,
       status: GigStatus.WAITING
     })
@@ -83,7 +80,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
     const slug = await createUniqueSlug(Gig, result.name, gigExist.slug)
     const images: string[] = []
     if (files) {
-      gigExist.images.map((image) => {
+      gigExist?.images?.map((image) => {
         if (existsSync(image)) {
           unlinkSync(image)
         }
@@ -93,17 +90,14 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       })
     }
     const updateField: any = {
-      name: result.name,
+      name: result.name ? result.name : gigExist.name,
       slug,
-      description: result.description,
-      deliveryTime: result.deliveryTime,
-      revisions: result.revisions,
-      features: result.features,
-      price: result.price,
-      shortDesc: result.shortDesc,
-      images,
-      status: result.status,
-      service: result.service
+      description: result.description ? result.description : gigExist.description,
+      packages: result.packages ? result.packages : gigExist.packages,
+      FAQs: result.FAQs ? result.FAQs : gigExist.FAQs,
+      images: files ? images : gigExist.images,
+      status: result.status ? result.status : gigExist.status,
+      category: result.category ? result.category : gigExist.category
     }
     if (user?.role.includes(UserRole.SELLER)) {
       ;(updateField.updatedCustomerAt = Date.now()), (updateField.updatedCustomerBy = req.payload.userId)
@@ -154,7 +148,7 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
     })
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_GIG_STATUS,
+      name: LogName.UPDATE_GIG,
       method: LogMethod.PUT,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
@@ -165,7 +159,7 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
   } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_GIG_STATUS,
+      name: LogName.UPDATE_GIG,
       method: LogMethod.PUT,
       status: LogStatus.ERROR,
       url: req.originalUrl,
@@ -182,8 +176,8 @@ export async function deleteGigs(req: Request, res: Response, next: NextFunction
     const result = await gigDeleteSchema.validateAsync(req.body)
     result.forEach(async (id: string) => {
       const gigExist = await Gig.findOne({ _id: id })
-      if (gigExist && gigExist.images.length > 0) {
-        gigExist.images.forEach((image) => {
+      if (gigExist) {
+        gigExist?.images?.forEach((image) => {
           if (existsSync(image)) {
             unlinkSync(image)
           }

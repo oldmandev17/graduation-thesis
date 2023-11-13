@@ -24,7 +24,7 @@ export interface ICategory extends mongoose.Document {
   updatedBy?: IUser
 }
 
-const serviceSchema: mongoose.Schema = new mongoose.Schema<ICategory>({
+const categorySchema: mongoose.Schema = new mongoose.Schema<ICategory>({
   name: {
     type: String,
     required: true
@@ -78,5 +78,5 @@ const serviceSchema: mongoose.Schema = new mongoose.Schema<ICategory>({
   }
 })
 
-const Category: mongoose.Model<ICategory> = mongoose.model<ICategory>('category', serviceSchema)
+const Category: mongoose.Model<ICategory> = mongoose.model<ICategory>('category', categorySchema)
 export default Category

@@ -10,7 +10,7 @@ function Admin() {
       <HeaderAdmin />
       <SideBarAdmin />
       <main className='h-auto min-h-screen p-4 pt-20 md:ml-64'>
-        <div className='py-5'>
+        <div className='p-5'>
           <Outlet />
         </div>
         <FooterAdmin />

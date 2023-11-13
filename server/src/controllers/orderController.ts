@@ -12,7 +12,7 @@ export async function createOrder(req: Request, res: Response, next: NextFunctio
   try {
     const result = await orderSchema.validateAsync(req.body)
     const gigExist = await Gig.findOne()
-    if(gigExist.status !== GigStatus.ACTIVE) {
+    if (gigExist.status !== GigStatus.ACTIVE) {
       throw httpError.NotAcceptable()
     }
     const order = await Order.create()
@@ -25,8 +25,8 @@ export async function createOrder(req: Request, res: Response, next: NextFunctio
       errorMessage: '',
       content: req.body
     })
-    res.status(201).json({order})
-  } catch (error:any) {
+    res.status(201).json({ order })
+  } catch (error: any) {
     logger({
       user: req.payload.userId,
       name: LogName.CREATE_ORDER,
@@ -44,7 +44,7 @@ export async function createOrder(req: Request, res: Response, next: NextFunctio
 export async function updateOrder(req: Request, res: Response, next: NextFunction) {
   const user = await findUser(req.payload.userId)
   try {
-    const orderExist = await Order.findOne({_id:req.params.id})
+    const orderExist = await Order.findOne({ _id: req.params.id })
     if (!orderExist) {
       throw httpError.NotFound()
     }
@@ -53,17 +53,17 @@ export async function updateOrder(req: Request, res: Response, next: NextFunctio
 
     logger({
       user: req.payload.userId,
-      name: user?.role.includes(UserRole.BUYER)?LogName.UPDATE_ORDER:LogName.UPDATE_ORDER_BY_ADMIN,
+      name: user?.role.includes(UserRole.BUYER) ? LogName.UPDATE_ORDER : LogName.UPDATE_ORDER_BY_ADMIN,
       method: LogMethod.PUT,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
       errorMessage: '',
       content: req.body
     })
-  } catch (error:any) {
+  } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: user?.role.includes(UserRole.BUYER)?LogName.UPDATE_ORDER:LogName.UPDATE_ORDER_BY_ADMIN,
+      name: user?.role.includes(UserRole.BUYER) ? LogName.UPDATE_ORDER : LogName.UPDATE_ORDER_BY_ADMIN,
       method: LogMethod.PUT,
       status: LogStatus.ERROR,
       url: req.originalUrl,

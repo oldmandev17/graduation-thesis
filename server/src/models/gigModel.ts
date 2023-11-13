@@ -45,6 +45,7 @@ export interface IGig extends mongoose.Document {
   packages?: Array<Package>
   images?: Array<string>
   status?: GigStatus
+  reason?: string
   category?: ICategory
   reviews?: Array<IReview>
   orders?: Array<IOrder>
@@ -118,6 +119,9 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
     type: String,
     enum: Object.values(GigStatus),
     default: GigStatus.ACTIVE
+  },
+  reason: {
+    type: String
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,

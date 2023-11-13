@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import { NextFunction } from 'express'
 import mongoose from 'mongoose'
+import { IGig } from './gigModel'
+import { IOrder } from './orderModel'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -36,7 +38,9 @@ export interface IUser extends mongoose.Document {
   password?: string
   provider: UserProvider
   verify: boolean
-  role: UserRole[]
+  role: Array<UserRole>
+  gigs: Array<IGig>
+  orders: Array<IOrder>
   status: UserStatus
   createdAt: Date
   createdBy?: IUser

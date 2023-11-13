@@ -3,8 +3,10 @@ import { NextFunction, Request, Response } from 'express'
 import httpError from 'http-errors'
 import client from 'src/helpers/initRedis'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middlewares/jwtHelper'
+import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
-import User, { IUser, UserProvider, UserRole } from 'src/models/userModel'
+import Order, { IOrder } from 'src/models/orderModel'
+import User, { IUser, UserProvider, UserRole, UserStatus } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
 import UserVerification from 'src/models/userVerificationModel'
 import APIFeature from 'src/utils/apiFeature'
@@ -19,8 +21,13 @@ import {
   authResetPasswordSchema,
   userCreateSchema,
   userDeleteSchema,
+  userStatusSchema,
   userUpdateSchema
 } from 'src/utils/validationSchema'
+
+interface UserQuery {
+  status?: UserStatus
+}
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
@@ -122,6 +129,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     })
     if (!userExist.length) throw httpError.NotFound()
     if (!userExist[0].verify) throw httpError.BadRequest()
+    if (userExist[0].status !== UserStatus.ACTIVE) throw httpError.NotAcceptable()
     const isMatch = await compare(result.password, userExist[0].password as string)
     if (!isMatch) throw httpError.Unauthorized()
     const accessToken = await signAccessToken(String(userExist[0]._id), userExist[0].role)
@@ -159,6 +167,7 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
       _id: userId
     })
     if (!userExist) throw httpError.NotFound()
+    if (userExist.status !== UserStatus.ACTIVE) throw httpError.NotAcceptable()
     const accessToken = await signAccessToken(userId, userExist.role)
     const newRefreshToken = await signRefreshToken(userId)
     res.status(200).json({ accessToken, refreshToken: newRefreshToken })
@@ -214,6 +223,45 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
   }
 }
 
+export const updateUserStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await userStatusSchema.validateAsync(req.body)
+    const { status } = req.query as unknown as UserQuery
+    result.forEach(async (id: string) => {
+      await User.updateOne(
+        { _id: id },
+        {
+          status,
+          updatedAdminAt: Date.now(),
+          updatedAdminBy: req.payload.userId
+        }
+      )
+    })
+    logger({
+      user: req.payload.userId,
+      name: LogName.UPDATE_USER,
+      method: LogMethod.PUT,
+      status: LogStatus.SUCCESS,
+      url: req.originalUrl,
+      errorMessage: '',
+      content: req.body
+    })
+    res.sendStatus(200)
+  } catch (error: any) {
+    logger({
+      user: req.payload.userId,
+      name: LogName.UPDATE_USER,
+      method: LogMethod.PUT,
+      status: LogStatus.ERROR,
+      url: req.originalUrl,
+      errorMessage: error.message,
+      content: req.body
+    })
+    if (error.isJoi === true) error.status = 422
+    next(error)
+  }
+}
+
 export async function createUser(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await userCreateSchema.validateAsync(req.body)
@@ -226,9 +274,11 @@ export async function createUser(req: Request, res: Response, next: NextFunction
     const newUser = await User.create({
       name: result.name,
       email: result.email,
+      status: result.status,
       password: randomPassword,
-      role: [UserRole.MANAGER],
-      provider: UserProvider.EMAIL
+      role: result.role,
+      provider: UserProvider.EMAIL,
+      createdBy: req.payload.userId
     })
     logger({
       user: newUser?._id,
@@ -447,6 +497,22 @@ export const getAllUser = async (req: Request, res: Response, next: NextFunction
     apiFeature.sorting().pagination()
     users = await apiFeature.query.clone()
     res.status(200).json({ users, filteredCount })
+  } catch (error: any) {
+    next(error)
+  }
+}
+
+export const getUserDetail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userExist = await User.findOne({ _id: req.params.id })
+      .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
+      .populate({ path: 'updatedAdminBy', select: '_id name email phone provider verify role status' })
+    if (!userExist) throw httpError.NotFound()
+    const orders: IOrder[] = await Order.find({ createdBy: userExist?._id })
+    userExist.orders = orders
+    const gigs: IGig[] = await Gig.find({ createdBy: userExist?._id })
+    userExist.gigs = gigs
+    res.status(200).json({ user: userExist })
   } catch (error: any) {
     next(error)
   }

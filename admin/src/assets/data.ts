@@ -1,5 +1,6 @@
 import { CategoryStatus } from 'modules/category'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
+import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 
 const arrLogMethods = [
   {
@@ -151,4 +152,87 @@ const arrCategoryStatus = [
   }
 ]
 
-export { arrLimits, arrLogMethods, arrLogNames, arrLogStatus, arrCategoryLevel, arrCategoryStatus }
+const arrUserRole = [
+  {
+    label: 'NONE',
+    value: UserRole.NONE
+  },
+  {
+    label: 'BUYER',
+    value: UserRole.BUYER
+  },
+  {
+    label: 'SELLER',
+    value: UserRole.SELLER
+  },
+  {
+    label: 'MANAGER',
+    value: UserRole.MANAGER
+  },
+  {
+    label: 'ADMIN',
+    value: UserRole.ADMIN
+  }
+]
+
+const arrUserGender = [
+  {
+    label: 'MALE',
+    value: UserGender.MALE
+  },
+  {
+    label: 'FEMALE',
+    value: UserGender.FEMALE
+  }
+]
+
+const arrUserProvider = [
+  {
+    label: 'EMAIL',
+    value: UserProvider.EMAIL
+  },
+  {
+    label: 'GOOGLE',
+    value: UserProvider.GOOGLE
+  }
+]
+
+const arrUserVerify = [
+  {
+    label: 'TRUE',
+    value: 'true'
+  },
+  {
+    label: 'FALSE',
+    value: 'false'
+  }
+]
+
+const arrUserStatus = [
+  {
+    label: 'ACTIVE',
+    value: UserStatus.ACTIVE
+  },
+  {
+    label: 'INACTIVE',
+    value: UserStatus.INACTIVE
+  },
+  {
+    label: 'DELETED',
+    value: UserStatus.DELETED
+  }
+]
+
+export {
+  arrLimits,
+  arrLogMethods,
+  arrLogNames,
+  arrLogStatus,
+  arrCategoryLevel,
+  arrCategoryStatus,
+  arrUserRole,
+  arrUserGender,
+  arrUserProvider,
+  arrUserVerify,
+  arrUserStatus
+}

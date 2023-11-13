@@ -189,7 +189,7 @@ export const updateCategoryStatus = async (req: Request, res: Response, next: Ne
     })
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_CATEGORY_STATUS,
+      name: LogName.UPDATE_CATEGORY,
       method: LogMethod.PUT,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
@@ -200,7 +200,7 @@ export const updateCategoryStatus = async (req: Request, res: Response, next: Ne
   } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_CATEGORY_STATUS,
+      name: LogName.UPDATE_CATEGORY,
       method: LogMethod.PUT,
       status: LogStatus.ERROR,
       url: req.originalUrl,

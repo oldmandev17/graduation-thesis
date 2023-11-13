@@ -1,3 +1,6 @@
+import { IGig } from './gig'
+import { IOrder } from './order'
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
@@ -33,6 +36,8 @@ export interface IUser {
   provider: UserProvider
   verify: boolean
   role: Array<UserRole>
+  orders: Array<IOrder>
+  gigs: Array<IGig>
   status: UserStatus
   createdAt: Date
   createdBy?: IUser
