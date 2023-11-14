@@ -4,26 +4,25 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
+import { yupResolver } from '@hookform/resolvers/yup'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { getUserDetail } from 'apis/api'
+import { arrUserGender, arrUserRole, arrUserStatus } from 'assets/data'
+import dayjs from 'dayjs'
 import { IUser, UserGender, UserRole, UserStatus } from 'modules/user'
+import moment from 'moment'
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { FormProvider, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import * as Yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { FormProvider, useForm } from 'react-hook-form'
-import { arrUserGender, arrUserRole, arrUserStatus } from 'assets/data'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import dayjs from 'dayjs'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import moment from 'moment'
-import { useDropzone } from 'react-dropzone'
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
   phone: Yup.string(),
-  verify: Yup.boolean().required('Verify is required'),
   gender: Yup.string().oneOf(Object.values(UserGender)).nullable(),
   status: Yup.string().oneOf(Object.values(UserStatus)),
   avatar: Yup.mixed()
@@ -91,7 +90,6 @@ function UserDetail() {
     }
   }, [errors])
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getUserDetails = useCallback(async () => {
     if (id)
       await getUserDetail(id, accessToken)
@@ -106,9 +104,9 @@ function UserDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  // useEffect(() => {
-  //   getUserDetails()
-  // }, [getUserDetails])
+  useEffect(() => {
+    getUserDetails()
+  }, [getUserDetails])
 
   useEffect(() => {
     if (user) {
@@ -116,7 +114,7 @@ function UserDetail() {
       setValue('phone', user.phone)
       setValue('gender', user.gender)
       setValue('status', user.status)
-      setValue('verify', user.verify)
+      setValue('avatar', user.avatar)
       setBirthday(user.birthday?.toString())
       setRoles(user.role)
     }
@@ -125,255 +123,496 @@ function UserDetail() {
   const handleUpdateUser = async () => {}
 
   return (
-    <FormProvider {...formHandler}>
-      <form className='' onSubmit={handleSubmit(handleUpdateUser)}>
-        <div className='flex flex-row w-full gap-10'>
-          <h2 className='mb-4 w-40 text-xl font-bold text-gray-900 dark:text-white'>Update User</h2>
-          <div className='flex items-center w-full gap-3 mb-4'>
-            <input
-              id='verify'
-              type='checkbox'
-              {...register('verify')}
-              className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-            />
-            <label htmlFor='verify' className='text-sm font-medium text-gray-900 dark:text-white'>
-              Verify
-            </label>
-          </div>
-        </div>
-        <div className='grid grid-cols-3 gap-10'>
-          <div className='grid col-span-2 gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5'>
-            <div className='w-full'>
-              <label htmlFor='name' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Name
-              </label>
-              <input
-                id='name'
-                className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-                type='text'
-                placeholder='Type the name ...'
-                {...register('name')}
-              />
-            </div>
-            <div className='w-full'>
-              <label htmlFor='phone' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Phone
-              </label>
-              <input
-                id='phone'
-                className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-                type='text'
-                placeholder='Type the phone ...'
-                {...register('phone')}
-              />
-            </div>
-            <div className='w-full'>
-              <label htmlFor='gender' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Gender
-              </label>
-              <select
-                id='gender'
-                className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-                {...register('gender')}
-              >
-                {arrUserGender.length > 0 &&
-                  arrUserGender.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor='status' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Status
-              </label>
-              <select
-                id='status'
-                className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-                {...register('status')}
-              >
-                {arrUserStatus.length > 0 &&
-                  arrUserStatus.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor='birthday' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Birthday
-              </label>
-              <div
-                id='states'
-                className='px-1 py-0.5 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    defaultValue={birthday ? dayjs(birthday) : null}
-                    onChange={(val: React.SetStateAction<any>) => setBirthday(val)}
-                    className='!w-full !text-inherit !h-full'
-                  />
-                </LocalizationProvider>
+    <div className='flex flex-col gap-5'>
+      <FormProvider {...formHandler}>
+        <form className='' onSubmit={handleSubmit(handleUpdateUser)}>
+          <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Update User</h2>
+          <div className='grid grid-cols-3 gap-6'>
+            <div className='grid col-span-2 gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5'>
+              <div className='w-full'>
+                <label htmlFor='name' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Name
+                </label>
+                <input
+                  id='name'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  type='text'
+                  placeholder='Type the name ...'
+                  {...register('name')}
+                />
+              </div>
+              <div className='w-full'>
+                <label htmlFor='phone' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Phone
+                </label>
+                <input
+                  id='phone'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  type='text'
+                  placeholder='Type the phone ...'
+                  {...register('phone')}
+                />
+              </div>
+              <div className='w-full'>
+                <label htmlFor='gender' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Gender
+                </label>
+                <select
+                  id='gender'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  {...register('gender')}
+                >
+                  {arrUserGender.length > 0 &&
+                    arrUserGender.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor='status' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Status
+                </label>
+                <select
+                  id='status'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  {...register('status')}
+                >
+                  {arrUserStatus.length > 0 &&
+                    arrUserStatus.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor='birthday' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Birthday
+                </label>
+                <div
+                  id='states'
+                  className='px-1 py-0.5 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      defaultValue={birthday ? dayjs(birthday) : null}
+                      onChange={(val: React.SetStateAction<any>) => setBirthday(val)}
+                      className='!w-full !text-inherit !h-full'
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div>
+                <label htmlFor='role' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Role
+                </label>
+                <select
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  onChange={handleAddRole}
+                >
+                  {arrUserRole.length > 0 &&
+                    arrUserRole.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
+                    ))}
+                </select>
+                {roles.length > 0 && (
+                  <ul className='flex flex-wrap gap-2 mt-4'>
+                    {roles.map((role, index) => (
+                      <li key={index + role}>
+                        <span
+                          id='badge-dismiss-dark'
+                          className='inline-flex items-center px-2 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded me-2 dark:bg-gray-700 dark:text-gray-300'
+                        >
+                          {role}
+                          <button
+                            type='button'
+                            onClick={() => handleRemoveRole(index)}
+                            className='inline-flex items-center p-1 text-sm text-gray-400 bg-transparent rounded-sm ms-2 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-gray-300'
+                            data-dismiss-target='#badge-dismiss-dark'
+                            aria-label='Remove'
+                          >
+                            <svg
+                              className='w-2 h-2'
+                              aria-hidden='true'
+                              xmlns='http://www.w3.org/2000/svg'
+                              fill='none'
+                              viewBox='0 0 14 14'
+                            >
+                              <path
+                                stroke='currentColor'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth='2'
+                                d='m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6'
+                              />
+                            </svg>
+                            <span className='sr-only'>Remove badge</span>
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className='w-full'>
+                <label htmlFor='createdAt' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Created At
+                </label>
+                <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                  {moment(user?.createdAt).format('MM/DD/YYYY HH:MM:SS')}
+                </div>
+              </div>
+              <div className='w-full'>
+                <label
+                  htmlFor='updatedAdminAt'
+                  className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                >
+                  Updated Admin At
+                </label>
+                <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                  {moment(user?.updatedAdminAt).format('MM/DD/YYYY HH:MM:SS')}
+                </div>
+              </div>
+              <div className='w-full'>
+                <label htmlFor='createdBy' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Created By
+                </label>
+                <div className='px-1 py-2 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                  <pre>{JSON.stringify(user?.createdBy, null, 2)}</pre>
+                </div>
+              </div>
+              <div className='w-full'>
+                <label
+                  htmlFor='updatedAdminBy'
+                  className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                >
+                  Updated Admin By
+                </label>
+                <div className='px-1 py-2 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                  <pre>{JSON.stringify(user?.updatedAdminBy, null, 2)}</pre>
+                </div>
               </div>
             </div>
             <div>
-              <label htmlFor='status' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Status
-              </label>
-              <select
-                className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-                onChange={handleAddRole}
-              >
-                {arrUserRole.length > 0 &&
-                  arrUserRole.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-              </select>
-              {roles.length > 0 && (
-                <ul className='flex flex-wrap gap-2 mt-4'>
-                  {roles.map((role, index) => (
-                    <li
-                      key={index + role}
-                      className='flex gap-2 items-center py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 focus:outline-none bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 hover:text-red-700 cursor-pointer hover:border-red-200'
-                    >
-                      <span className='text-gray-900'>{role}</span>
-                      <span className='text-red-700 cursor-pointer' onClick={() => handleRemoveRole(index)}>
-                        X
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className='w-full'>
-              <label htmlFor='createdAt' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Created At
-              </label>
-              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                {moment(user?.createdAt).format('MM/DD/YYYY HH:MM:SS')}
-              </div>
-            </div>
-            <div className='w-full'>
-              <label htmlFor='updatedAdminAt' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Updated Admin At
-              </label>
-              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                {moment(user?.updatedAdminAt).format('MM/DD/YYYY HH:MM:SS')}
-              </div>
-            </div>
-            <div className='w-full'>
-              <label htmlFor='createdBy' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Created By
-              </label>
-              <div className='px-1 py-2 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                <pre>{JSON.stringify(user?.createdBy, null, 2)}</pre>
-              </div>
-            </div>
-            <div className='w-full'>
-              <label htmlFor='updatedAdminBy' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Updated Admin By
-              </label>
-              <div className='px-1 py-2 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                <pre>{JSON.stringify(user?.updatedAdminBy, null, 2)}</pre>
-              </div>
-            </div>
-          </div>
-          <div className='grid col-span-1 gap-4 mb-4 sm:grid-cols-1 sm:gap-6 sm:mb-5'>
-            <div className='flex items-center justify-center rounded-full'>
-              <div
-                {...getRootProps()}
-                className='flex flex-col items-center justify-center w-80 h-80 border-2 border-gray-300 border-dashed rounded-full cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600'
-              >
-                {files ? (
-                  <div className='w-80 h-80 rounded-full'>
-                    <img
-                      src={
-                        user?.avatar
-                          ? URL.createObjectURL(files)
-                          : typeof files !== 'string'
-                          ? URL.createObjectURL(files)
-                          : `${process.env.REACT_APP_URL_SERVER}/${getValues('avatar')}`
-                      }
-                      alt='Avatar'
-                      className='object-contain w-80 h-80 rounded-full mb-4'
+              <div className='grid col-span-1 gap-4 mb-4 sm:grid-cols-1 sm:gap-6 sm:mb-5'>
+                <div className='w-full'>
+                  <label htmlFor='verify' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                    Verify
+                  </label>
+                  <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                    {user?.verify.toString().toUpperCase()}
+                  </div>
+                </div>
+                <div className='w-full'>
+                  <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                    Email
+                  </label>
+                  <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                    {user?.email}
+                  </div>
+                </div>
+                <div className='w-full'>
+                  <label htmlFor='provider' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                    Provider
+                  </label>
+                  <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+                    {user?.provider}
+                  </div>
+                </div>
+                <div className='flex items-center justify-center rounded-full'>
+                  <div
+                    {...getRootProps()}
+                    className='flex flex-col items-center justify-center border-2 border-gray-300 border-dashed rounded-full cursor-pointer w-80 h-80 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600'
+                  >
+                    {files ? (
+                      <div className='rounded-full w-80 h-80'>
+                        <img
+                          src={
+                            user?.avatar
+                              ? URL.createObjectURL(files)
+                              : typeof files !== 'string'
+                              ? URL.createObjectURL(files)
+                              : `${process.env.REACT_APP_URL_SERVER}/${getValues('avatar')}`
+                          }
+                          alt='Avatar'
+                          className='object-contain mb-4 rounded-full w-80 h-80'
+                        />
+                      </div>
+                    ) : (
+                      <div className='flex flex-col items-center justify-center pt-5 pb-6'>
+                        <svg
+                          className='w-8 h-8 mb-4 text-gray-500 dark:text-gray-400'
+                          aria-hidden='true'
+                          xmlns='http://www.w3.org/2000/svg'
+                          fill='none'
+                          viewBox='0 0 20 16'
+                        >
+                          <path
+                            stroke='currentColor'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth='2'
+                            d='M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2'
+                          />
+                        </svg>
+                        <p className='mb-2 text-sm text-gray-500 dark:text-gray-400'>
+                          <span className='font-semibold'>Click to upload</span> or drag and drop
+                        </p>
+                        <p className='text-xs text-gray-500 dark:text-gray-400'> PNG, JPG (MAX. 800x400px)</p>
+                      </div>
+                    )}
+                    <input
+                      {...getInputProps()}
+                      id='dropzone-file'
+                      type='file'
+                      className='hidden rounded-full w-80 h-80'
                     />
                   </div>
-                ) : (
-                  <div className='flex flex-col items-center justify-center pt-5 pb-6'>
-                    <svg
-                      className='w-8 h-8 mb-4 text-gray-500 dark:text-gray-400'
-                      aria-hidden='true'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 20 16'
-                    >
-                      <path
-                        stroke='currentColor'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2'
-                      />
-                    </svg>
-                    <p className='mb-2 text-sm text-gray-500 dark:text-gray-400'>
-                      <span className='font-semibold'>Click to upload</span> or drag and drop
-                    </p>
-                    <p className='text-xs text-gray-500 dark:text-gray-400'> PNG, JPG (MAX. 800x400px)</p>
-                  </div>
-                )}
-                <input {...getInputProps()} id='dropzone-file' type='file' className='hidden w-80 h-80 rounded-full' />
-              </div>
-            </div>
-            <div className='w-full'>
-              <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Email
-              </label>
-              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                {user?.email}
-              </div>
-            </div>
-            <div className='w-full'>
-              <label htmlFor='provider' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                Provider
-              </label>
-              <div className='px-1 py-2 font-light text-center text-gray-500 rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                {user?.provider}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className='flex items-center space-x-4'>
-          <button
-            type='submit'
-            className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
-          >
-            Update product
-          </button>
-          <button
-            type='button'
-            className='text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900'
-          >
-            <svg
-              className='w-5 h-5 mr-1 -ml-1'
-              fill='currentColor'
-              viewBox='0 0 20 20'
-              xmlns='http://www.w3.org/2000/svg'
+          <div className='flex items-center space-x-4'>
+            <button
+              type='submit'
+              className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
             >
-              <path
-                fillRule='evenodd'
-                d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-                clipRule='evenodd'
-              />
-            </svg>
-            Delete
-          </button>
-        </div>
-      </form>
-    </FormProvider>
+              Update User
+            </button>
+            {(user?.gigs?.length === 0 || !user?.gigs) && (user?.orders?.length === 0 || !user?.orders) && (
+              <button
+                type='button'
+                className='text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900'
+              >
+                <svg
+                  className='w-5 h-5 mr-1 -ml-1'
+                  fill='currentColor'
+                  viewBox='0 0 20 20'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+                Delete
+              </button>
+            )}
+          </div>
+        </form>
+      </FormProvider>
+      {!user?.role.includes(UserRole.SELLER) && (
+        <>
+          <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>
+            Freelancer Seller Account: Unlocking Opportunities for Independent Professionals
+          </h2>
+          <div className='grid grid-cols-3 gap-6'>
+            <div className=''>{}</div>
+            <div className='relative col-span-2 overflow-x-auto shadow-md sm:rounded-lg'>
+              <div className='flex flex-wrap items-center justify-between pb-4 space-y-4 flex-colum sm:flex-row sm:space-y-0'>
+                <div className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700'>
+                  Total Gig: {user?.orders?.length || 0}
+                </div>
+                <label htmlFor='table-search' className='sr-only'>
+                  Search
+                </label>
+                <div className='relative'>
+                  <div className='absolute inset-y-0 left-0 flex items-center pointer-events-none rtl:inset-r-0 rtl:right-0 ps-3'>
+                    <svg
+                      className='w-5 h-5 text-gray-500 dark:text-gray-400'
+                      aria-hidden='true'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type='text'
+                    id='table-search'
+                    className='block p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                    placeholder='Search for items'
+                  />
+                </div>
+              </div>
+              <table className='w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400'>
+                <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+                  <tr>
+                    <th scope='col' className='p-4'>
+                      <div className='flex items-center'>
+                        <input
+                          id='checkbox-all-search'
+                          type='checkbox'
+                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        />
+                        <label htmlFor='checkbox-all-search' className='sr-only'>
+                          checkbox
+                        </label>
+                      </div>
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Name
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Status
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Category
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Created At
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
+                    <td className='w-4 p-4'>
+                      <div className='flex items-center'>
+                        <input
+                          id='checkbox-table-search-1'
+                          type='checkbox'
+                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        />
+                        <label htmlFor='checkbox-table-search-1' className='sr-only'>
+                          checkbox
+                        </label>
+                      </div>
+                    </td>
+                    <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                      Apple MacBook Pro 17"
+                    </th>
+                    <td className='px-6 py-4'>Silver</td>
+                    <td className='px-6 py-4'>Laptop</td>
+                    <td className='px-6 py-4'>$2999</td>
+                    <td className='px-6 py-4'>
+                      <a href='/#' className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>
+                        View
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+      {!user?.role.includes(UserRole.BUYER) && (
+        <>
+          <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>
+            Freelancer Buyer Account: Seamless Access to Quality Services
+          </h2>
+          <div className='grid grid-cols-3 gap-6'>
+            <div className=''>{}</div>
+            <div className='relative col-span-2 overflow-x-auto shadow-md sm:rounded-lg'>
+              <div className='flex flex-wrap items-center justify-between pb-4 space-y-4 flex-colum sm:flex-row sm:space-y-0'>
+                <div className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700'>
+                  Total Order: {user?.orders?.length || 0}
+                </div>
+                <label htmlFor='table-search' className='sr-only'>
+                  Search
+                </label>
+                <div className='relative'>
+                  <div className='absolute inset-y-0 left-0 flex items-center pointer-events-none rtl:inset-r-0 rtl:right-0 ps-3'>
+                    <svg
+                      className='w-5 h-5 text-gray-500 dark:text-gray-400'
+                      aria-hidden='true'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type='text'
+                    id='table-search'
+                    className='block p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                    placeholder='Search for items'
+                  />
+                </div>
+              </div>
+              <table className='w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400'>
+                <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+                  <tr>
+                    <th scope='col' className='p-4'>
+                      <div className='flex items-center'>
+                        <input
+                          id='checkbox-all-search'
+                          type='checkbox'
+                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        />
+                        <label htmlFor='checkbox-all-search' className='sr-only'>
+                          checkbox
+                        </label>
+                      </div>
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Product name
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Color
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Category
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Price
+                    </th>
+                    <th scope='col' className='px-6 py-3'>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
+                    <td className='w-4 p-4'>
+                      <div className='flex items-center'>
+                        <input
+                          id='checkbox-table-search-1'
+                          type='checkbox'
+                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        />
+                        <label htmlFor='checkbox-table-search-1' className='sr-only'>
+                          checkbox
+                        </label>
+                      </div>
+                    </td>
+                    <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                      Apple MacBook Pro 17"
+                    </th>
+                    <td className='px-6 py-4'>Silver</td>
+                    <td className='px-6 py-4'>Laptop</td>
+                    <td className='px-6 py-4'>$2999</td>
+                    <td className='px-6 py-4'>
+                      <a href='/#' className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>
+                        View
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 

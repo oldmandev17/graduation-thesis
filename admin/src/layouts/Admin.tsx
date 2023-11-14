@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom'
 
 function Admin() {
   return (
-    <div className='antialiased bg-gray-50 dark:bg-gray-900'>
+    <div className='antialiased bg-gray-30 dark:bg-gray-900'>
       <HeaderAdmin />
       <SideBarAdmin />
       <main className='h-auto min-h-screen p-4 pt-20 md:ml-64'>

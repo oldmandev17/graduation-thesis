@@ -30,10 +30,14 @@
   color: inherit !important;
 }
 
-.MuiButtonBase-root{
+.MuiButtonBase-root {
   color: inherit !important;
 }
 
 .MuiDialog-paper {
   max-width: max-content !important;
+}
+
+.bg-gray-30 {
+  background-color: #ebf0f5;
 }

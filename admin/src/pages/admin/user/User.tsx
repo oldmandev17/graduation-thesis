@@ -651,7 +651,7 @@ function User() {
                     {roles.map((role, index) => (
                       <li
                         key={index + role}
-                        className='flex gap-2 items-center py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 hover:text-red-700 cursor-pointer hover:border-red-200'
+                        className='flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none bg-gray-50 hover:bg-gray-100 hover:text-red-700 hover:border-red-200'
                       >
                         <span className='text-gray-900'>{role}</span>
                         <span className='text-red-700 cursor-pointer' onClick={() => handleRemoveRole(index)}>
