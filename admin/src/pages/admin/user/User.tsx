@@ -18,12 +18,19 @@ import { IUser, UserGender, UserProvider, UserRole, UserStatus } from 'modules/u
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { HiOutlineViewGridAdd } from 'react-icons/hi'
+import { BsSendCheck } from 'react-icons/bs'
+import { BiMailSend } from 'react-icons/bi'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import generateExcel from 'utils/generateExcel'
 import timeAgo from 'utils/timeAgo'
 import * as Yup from 'yup'
+import { Editor } from 'react-draft-wysiwyg'
+import { EditorState, convertToRaw } from 'draft-js'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+import 'draft-js/dist/Draft.css'
+import draftToHtml from 'draftjs-to-html'
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -58,10 +65,13 @@ function User() {
   const [page, setPage] = useState<number>(1)
   const [limit, setLimit] = useState(20)
   const [openModal, setOpenModal] = useState<boolean>(false)
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
   const [filteredCount, setFilteredCount] = useState<number>(0)
   const [roles, setRoles] = useState<Array<UserRole>>([])
   const navigate = useNavigate()
+  const [editorState, setEditorState] = useState(EditorState.createEmpty())
+  const [title, setTitle] = useState<string>('')
 
   const handleAddRole = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target.value && !roles.includes(event.target.value as UserRole)) {
@@ -233,6 +243,29 @@ function User() {
     }
   }
 
+  const handleSendMail = () => {
+    // if (getCheckedInputIds().length < 1) {
+    //   toast.warning('Select a row to edit, please.')
+    // } else {
+    //   setOpenDialog(true)
+    // }
+    setOpenDialog(true)
+  }
+
+  const sendMails = async () => {
+    const data: any = {}
+    data.title = title
+    data.content = draftToHtml(convertToRaw(editorState.getCurrentContent()))
+    data.ids = getCheckedInputIds()
+    if (!data.title) {
+      toast.warning('Enter the title, please.')
+    } else if (data.content === '<p></p>\n') {
+      toast.warning('Enter the content, please.')
+    } else {
+      console.log(data)
+    }
+  }
+
   return (
     <div className='flex flex-col gap-5'>
       <div className='inline-flex justify-end rounded-md shadow-sm' role='group'>
@@ -243,6 +276,14 @@ function User() {
         >
           <HiOutlineViewGridAdd className='w-[14px] h-[14px] mr-2' style={{ strokeWidth: '2.5' }} />
           Add User
+        </button>
+        <button
+          onClick={handleSendMail}
+          type='button'
+          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
+        >
+          <BiMailSend className='w-[16px] h-[16px] mr-2' style={{ strokeWidth: '1' }} />
+          Send Mail
         </button>
         <button
           type='button'
@@ -682,6 +723,79 @@ function User() {
                     />
                   </svg>
                   Create
+                </button>
+              </div>
+            </div>
+          </form>
+        </FormProvider>
+      </ModalCustom>
+      <ModalCustom onCancel={() => {}} open={openDialog} setOpen={setOpenDialog}>
+        <FormProvider {...formHandler}>
+          <form
+            onSubmit={handleSubmit(createNewUser)}
+            className='relative w-full h-full max-w-4xl min-w-[768px] md:h-auto'
+          >
+            <div className='relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5'>
+              <div className='flex justify-between mb-4 rounded-t sm:mb-5'>
+                <div className='text-lg text-gray-900 md:text-xl dark:text-white'>
+                  <h3 className='ftext-center ont-semibold '>Send Mail</h3>
+                </div>
+                <div>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setOpenDialog(false)
+                    }}
+                    className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex dark:hover:bg-gray-600 dark:hover:text-white'
+                    data-modal-toggle='readProductModal'
+                  >
+                    <svg
+                      aria-hidden='true'
+                      className='w-5 h-5'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span className='sr-only'>Close modal</span>
+                  </button>
+                </div>
+              </div>
+              <dl className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2'>
+                <div className='sm:col-span-2 md:col-span-2'>
+                  <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Title</dt>
+                  <input
+                    className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
+                    type='text'
+                    placeholder='Type the title ...'
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                  />
+                </div>
+                <div className='sm:col-span-2 md:col-span-2'>
+                  <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Content</dt>
+                  <Editor
+                    defaultEditorState={editorState}
+                    onEditorStateChange={setEditorState}
+                    wrapperClassName='border border-gray-300 mb-4 sm:mb-5 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 bg-gray-50 text-gray-500 dark:text-gray-300'
+                    editorClassName='dark:bg-gray-700 hover:bg-gray-100 p-2 bg-gray-50 dark:hover:bg-gray-600 rounded-b-md'
+                    toolbarClassName='border border-gray-300 !rounded-t-md'
+                    placeholder='Type the content ...'
+                  />
+                </div>
+              </dl>
+              <div className='flex items-center justify-between'>
+                <button
+                  type='button'
+                  onClick={sendMails}
+                  className='text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                >
+                  <BsSendCheck className='text-lg mr-2' />
+                  Send
                 </button>
               </div>
             </div>

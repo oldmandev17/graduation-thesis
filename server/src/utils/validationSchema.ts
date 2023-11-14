@@ -68,6 +68,12 @@ export const authForgotPasswordSchema = Joi.object({
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
 })
 
+export const authSendMailSchema = Joi.object({
+  title: Joi.string().required(),
+  content: Joi.string().required(),
+  ids: Joi.array().items(Joi.string()).min(1)
+})
+
 export const authResetPasswordSchema = Joi.object({
   userId: Joi.string().required(),
   resetString: Joi.string().required(),
