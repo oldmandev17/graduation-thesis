@@ -63,7 +63,7 @@ function User() {
   const [keyword, setKeyword] = useState<string>('')
   const keywordDebounce = useDebounce(keyword, 500)
   const [page, setPage] = useState<number>(1)
-  const [limit, setLimit] = useState(20)
+  const [limit, setLimit] = useState<number>(20)
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [openDialog, setOpenDialog] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)

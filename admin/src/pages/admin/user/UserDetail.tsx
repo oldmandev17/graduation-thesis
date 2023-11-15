@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
@@ -11,7 +13,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { getUserDetail } from 'apis/api'
 import { arrUserGender, arrUserRole, arrUserStatus } from 'assets/data'
 import dayjs from 'dayjs'
-import { IGig } from 'modules/gig'
+import { GigStatus, IGig } from 'modules/gig'
 import { IOrder } from 'modules/order'
 import { IUser, UserGender, UserRole, UserStatus } from 'modules/user'
 import moment from 'moment'
@@ -23,6 +25,14 @@ import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import timeAgo from 'utils/timeAgo'
 import * as Yup from 'yup'
+import ReactApexChart from 'react-apexcharts'
+import useDebounce from 'hooks/useDebounce'
+
+interface MonthlyStats {
+  yearMonth: string
+  orderCount: number
+  totalAmount: number
+}
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -52,6 +62,38 @@ function UserDetail() {
   const [user, setUser] = useState<IUser>()
   const [roles, setRoles] = useState<Array<UserRole>>([])
   const [birthday, setBirthday] = useState<string>()
+  const [gigs, setGigs] = useState<Array<IGig>>([])
+  const [gigName, setGigName] = useState<string>('')
+  const gigNameDebounce = useDebounce(gigName, 500)
+  const [orders, setOrders] = useState<Array<IOrder>>([])
+  const [orderCode, setOrderCode] = useState<string>()
+  const orderCodeDebounce = useDebounce(orderCode, 500)
+
+  const searchGigsByName = (gigs: IGig[], searchTerm: string) => {
+    const searchTermLower = searchTerm.toLowerCase()
+    const filteredGigs = gigs.filter((gig) => gig.name?.toLowerCase().includes(searchTermLower))
+    setGigs(filteredGigs)
+  }
+
+  useEffect(() => {
+    if (gigNameDebounce) {
+      searchGigsByName(gigs, gigNameDebounce)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gigNameDebounce])
+
+  const searchOrderByCode = (orders: IOrder[], searchCode: string) => {
+    const searchCodeLower = searchCode.toLowerCase()
+    const filteredOrders = orders.filter((order) => order.code?.toLowerCase().includes(searchCodeLower))
+    setOrders(filteredOrders)
+  }
+
+  useEffect(() => {
+    if (gigNameDebounce) {
+      searchOrderByCode(orders, orderCodeDebounce)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderCodeDebounce])
 
   const files = watch('avatar')
 
@@ -101,6 +143,8 @@ function UserDetail() {
         .then((response) => {
           if (response.status === 200) {
             setUser(response.data.user)
+            setGigs(response.data.user?.gigs)
+            setOrders(response.data.user?.orders)
           }
         })
         .catch((error: any) => {
@@ -126,6 +170,141 @@ function UserDetail() {
   }, [setValue, user])
 
   const handleUpdateUser = async () => {}
+
+  const countGigsByStatus = (gigs: IGig[]): number[] => {
+    const statusOrder = [GigStatus.ACTIVE, GigStatus.INACTIVE, GigStatus.WAITING, GigStatus.BANNED, GigStatus.DELETED]
+    const statusCount: Record<GigStatus, number> = {
+      [GigStatus.ACTIVE]: 0,
+      [GigStatus.INACTIVE]: 0,
+      [GigStatus.WAITING]: 0,
+      [GigStatus.BANNED]: 0,
+      [GigStatus.DELETED]: 0
+    }
+    if (gigs) {
+      gigs.forEach((gig: IGig) => {
+        const { status } = gig
+
+        if (status) statusCount[status]++
+      })
+    }
+    const resultArray = statusOrder.map((status) => statusCount[status])
+    return resultArray
+  }
+
+  const seriesSeller = countGigsByStatus(user?.gigs || [])
+  const optionsSeller = {
+    title: {
+      text: 'Gig Overview'
+    },
+    labels: ['ACTIVE', 'INACTIVE', 'WAITING', 'BANNED', 'DELETED'],
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    ]
+  }
+
+  const getMonthName = (month: number) => {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    return monthNames[month - 1]
+  }
+
+  const getMonthlyStats = (
+    orders: IOrder[]
+  ): {
+    yearMonths: string[]
+    orderCounts: number[]
+    totalAmounts: number[]
+  } => {
+    const monthlyStatsMap: { [yearMonth: string]: MonthlyStats } = {}
+
+    const earliestOrderDate = orders.reduce(
+      (minDate, order) => (order.createdAt < minDate ? order.createdAt : minDate),
+      new Date()
+    )
+
+    const currentDate = new Date()
+    const currentMonth = new Date(earliestOrderDate)
+
+    while (currentMonth <= currentDate) {
+      const year = currentMonth.getFullYear().toString()
+      const month = getMonthName(currentMonth.getMonth() + 1)
+      const yearMonthKey = `${month}-${year}`
+
+      monthlyStatsMap[yearMonthKey] = {
+        yearMonth: yearMonthKey,
+        orderCount: 0,
+        totalAmount: 0
+      }
+
+      currentMonth.setMonth(currentMonth.getMonth() + 1)
+    }
+
+    orders.forEach((order) => {
+      const orderYear = order.createdAt.getFullYear().toString()
+      const orderMonth = getMonthName(order.createdAt.getMonth() + 1)
+      const yearMonthKey = `${orderMonth}-${orderYear}`
+
+      if (monthlyStatsMap[yearMonthKey]) {
+        monthlyStatsMap[yearMonthKey].orderCount += 1
+        monthlyStatsMap[yearMonthKey].totalAmount += order.price
+      }
+    })
+
+    const yearMonths = Object.keys(monthlyStatsMap)
+    const orderCounts = yearMonths.map((key) => monthlyStatsMap[key].orderCount)
+    const totalAmounts = yearMonths.map((key) => monthlyStatsMap[key].totalAmount)
+
+    return { yearMonths, orderCounts, totalAmounts }
+  }
+
+  const seriesBuyer = [
+    {
+      name: 'Order Count',
+      type: 'column',
+      data: getMonthlyStats(user?.orders || []).orderCounts
+    },
+    {
+      name: 'Total Amount',
+      type: 'line',
+      data: getMonthlyStats(user?.orders || []).totalAmounts
+    }
+  ]
+
+  const optionsBuyer = {
+    stroke: {
+      width: [0, 4]
+    },
+    title: {
+      text: 'Order Overview'
+    },
+    dataLabels: {
+      enabled: true,
+      enabledOnSeries: [1]
+    },
+    labels: getMonthlyStats(user?.orders || []).yearMonths,
+    yaxis: [
+      {
+        title: {
+          text: 'Order Count'
+        }
+      },
+      {
+        opposite: true,
+        title: {
+          text: 'Total Amount'
+        }
+      }
+    ]
+  }
 
   return (
     <div className='flex flex-col gap-5'>
@@ -417,7 +596,9 @@ function UserDetail() {
             Freelancer Seller Account: Unlocking Opportunities for Independent Professionals
           </h2>
           <div className='grid grid-cols-3 gap-6'>
-            <div className=''>{}</div>
+            <div className=''>
+              <ReactApexChart options={optionsSeller} series={seriesSeller} type='pie' width={380} />
+            </div>
             <div className='relative col-span-2 overflow-x-auto shadow-md sm:rounded-lg'>
               <div className='flex flex-wrap items-center justify-between pb-4 space-y-4 flex-colum sm:flex-row sm:space-y-0'>
                 <div className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700'>
@@ -446,7 +627,8 @@ function UserDetail() {
                     type='text'
                     id='table-search'
                     className='block p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                    placeholder='Search for items'
+                    placeholder='Search for gig name'
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setGigName(event.target.value)}
                   />
                 </div>
               </div>
@@ -483,9 +665,8 @@ function UserDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {user?.gigs &&
-                    user?.gigs.length > 0 &&
-                    user?.gigs.map((gig: IGig, index) => (
+                  {gigs.length > 0 &&
+                    gigs.map((gig: IGig, index) => (
                       <tr
                         key={gig._id + index}
                         className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
@@ -533,7 +714,9 @@ function UserDetail() {
             Freelancer Buyer Account: Seamless Access to Quality Services
           </h2>
           <div className='grid grid-cols-3 gap-6'>
-            <div className=''>{}</div>
+            <div className=''>
+              <ReactApexChart options={optionsBuyer} series={seriesBuyer} type='line' />
+            </div>
             <div className='relative col-span-2 overflow-x-auto shadow-md sm:rounded-lg'>
               <div className='flex flex-wrap items-center justify-between pb-4 space-y-4 flex-colum sm:flex-row sm:space-y-0'>
                 <div className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700'>
@@ -562,7 +745,8 @@ function UserDetail() {
                     type='text'
                     id='table-search'
                     className='block p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                    placeholder='Search for items'
+                    placeholder='Search for order code'
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setOrderCode(event.target.value)}
                   />
                 </div>
               </div>
@@ -599,9 +783,8 @@ function UserDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {user?.orders &&
-                    user?.orders.length > 0 &&
-                    user?.orders.map((order: IOrder, index) => (
+                  {orders.length > 0 &&
+                    orders.map((order: IOrder, index) => (
                       <tr
                         key={order._id + index}
                         className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
