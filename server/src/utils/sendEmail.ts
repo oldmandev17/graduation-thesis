@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
+import { nextTick } from 'process'
 import User, { UserRole } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
 import UserVerification from 'src/models/userVerificationModel'
@@ -104,6 +105,21 @@ export const sendPasswordEmail = async (_id: string, email: string, password: st
     )
 
     res.sendStatus(200)
+  } catch (error: any) {
+    next(error)
+  }
+}
+
+export const sendEmail = async (email: string, title: string, content: string, next: any) => {
+  try {
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: email,
+      subject: title,
+      html: content
+    }
+
+    await transporter.sendMail(mailOptions)
   } catch (error: any) {
     next(error)
   }

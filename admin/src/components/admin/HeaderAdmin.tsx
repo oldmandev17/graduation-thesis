@@ -9,8 +9,10 @@ import { SiFiverr } from 'react-icons/si'
 import { authLogout } from 'stores/auth/auth-slice'
 import { useAppDispatch, useAppSelector } from 'stores/hooks'
 import { getToken } from 'utils/auth'
+import { useNavigate } from 'react-router-dom'
 
 function HeaderAdmin() {
+  const navigate = useNavigate()
   const [openNotification, setOpenNotification] = useState<boolean>(false)
   const [openApp, setOpenApp] = useState<boolean>(false)
   const [openProfile, setOpenProfile] = useState<boolean>(false)
@@ -109,9 +111,9 @@ function HeaderAdmin() {
             </svg>
             <span className='sr-only'>Toggle sidebar</span>
           </button>
-          <a href='/' className='flex items-center justify-between mr-4'>
+          <div onClick={() => navigate('/')} className='flex items-center justify-between mr-4'>
             <SiFiverr className='w-20 h-[72px] dark:fill-white fill-black' />
-          </a>
+          </div>
           <form action='/#' method='GET' className='hidden md:block md:pl-2'>
             <label htmlFor='topbar-search' className='sr-only'>
               Search

@@ -151,6 +151,16 @@ function createUser(data: any, accessToken: string | undefined) {
   })
 }
 
+function sendMail(data: any, accessToken: string | undefined) {
+  const url = '/auth/admin/send-email'
+  return axiosJson.post(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 function getUserDetail(id: string | undefined, accessToken: string | undefined) {
   const url = `/auth/admin/${id}`
   return axiosJson.get(url, {
@@ -195,5 +205,6 @@ export {
   updateCategoryStatus,
   updateUserStatus,
   createUser,
-  getUserDetail
+  getUserDetail,
+  sendMail
 }

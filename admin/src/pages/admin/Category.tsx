@@ -971,7 +971,7 @@ function Category() {
                       <div>
                         <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Created By</dt>
                         <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                          <pre>{JSON.stringify(categoryDetail?.createdBy, null, 2)}</pre>
+                          <pre className='overflow-auto'>{JSON.stringify(categoryDetail?.createdBy, null, 2)}</pre>
                         </dd>
                       </div>
                     </div>
@@ -985,7 +985,7 @@ function Category() {
                       <div>
                         <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Updated By</dt>
                         <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50 min-h-[40px]'>
-                          <pre>{JSON.stringify(categoryDetail?.updatedBy, null, 2)}</pre>
+                          <pre className='overflow-auto'>{JSON.stringify(categoryDetail?.updatedBy, null, 2)}</pre>
                         </dd>
                       </div>
                     </div>

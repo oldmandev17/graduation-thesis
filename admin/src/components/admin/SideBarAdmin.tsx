@@ -1,5 +1,11 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/label-has-associated-control */
+import { useNavigate } from 'react-router-dom'
+
 function SideBarAdmin() {
+  const navigate = useNavigate()
+
   return (
     <aside
       className='fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-white border border-gray-200 pt-14 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700'
@@ -37,8 +43,8 @@ function SideBarAdmin() {
         </form>
         <ul className='space-y-2'>
           <li>
-            <a
-              href='/overview'
+            <div
+              onClick={() => navigate('/overview')}
               className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
@@ -52,11 +58,11 @@ function SideBarAdmin() {
                 <path d='M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z' />
               </svg>
               <span className='ml-3'>Overview</span>
-            </a>
+            </div>
           </li>
           <li>
-            <a
-              href='/category'
+            <div
+              onClick={() => navigate('/category')}
               className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
@@ -69,11 +75,11 @@ function SideBarAdmin() {
                 <path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
               </svg>
               <span className='ml-3'>Category</span>
-            </a>
+            </div>
           </li>
           <li>
-            <a
-              href='/gig'
+            <div
+              onClick={() => navigate('/gig')}
               className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
@@ -90,11 +96,11 @@ function SideBarAdmin() {
                 />
               </svg>
               <span className='flex-1 ml-3 text-left whitespace-nowrap'>Gig</span>
-            </a>
+            </div>
           </li>
           <li>
-            <a
-              href='/order'
+            <div
+              onClick={() => navigate('/order')}
               className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
@@ -111,13 +117,13 @@ function SideBarAdmin() {
                 />
               </svg>
               <span className='flex-1 ml-3 text-left whitespace-nowrap'>Order</span>
-            </a>
+            </div>
           </li>
         </ul>
         <ul className='pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700'>
           <li>
-            <a
-              href='/message'
+            <div
+              onClick={() => navigate('/message')}
               className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
@@ -134,11 +140,11 @@ function SideBarAdmin() {
               <span className='inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800'>
                 4
               </span>
-            </a>
+            </div>
           </li>
           <li>
-            <a
-              href='/user'
+            <div
+              onClick={() => navigate('/user')}
               className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
@@ -155,11 +161,11 @@ function SideBarAdmin() {
                 />
               </svg>
               <span className='flex-1 ml-3 text-left whitespace-nowrap'>User</span>
-            </a>
+            </div>
           </li>
           <li>
-            <a
-              href='/log'
+            <div
+              onClick={() => navigate('/log')}
               className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
@@ -177,7 +183,7 @@ function SideBarAdmin() {
                 />
               </svg>
               <span className='ml-3'>Log</span>
-            </a>
+            </div>
           </li>
         </ul>
       </div>

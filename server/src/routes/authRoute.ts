@@ -9,6 +9,7 @@ import {
   logout,
   refreshToken,
   register,
+  sendMail,
   updateUserStatus,
   verifyEmail
 } from 'src/controllers/authController'
@@ -28,6 +29,9 @@ authRouter.route('/admin/create-user').post(verifyAccessToken, authorizeRoles([U
 authRouter
   .route('/admin/update-user')
   .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateUserStatus)
+authRouter
+  .route('/admin/send-email')
+  .post(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), sendMail)
 authRouter.route('/admin/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getUserDetail)
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
 authRouter.get(

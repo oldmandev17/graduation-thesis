@@ -6,31 +6,31 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { yupResolver } from '@hookform/resolvers/yup'
-import { createUser, getAllUser, updateUserStatus } from 'apis/api'
+import { createUser, getAllUser, sendMail, updateUserStatus } from 'apis/api'
 import { arrLimits, arrUserGender, arrUserProvider, arrUserRole, arrUserStatus, arrUserVerify } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import ModalCustom from 'components/common/ModalCustom'
 import SearchCustom from 'components/common/SearchCustom'
 import SelectCustom from 'components/common/SelectCustom'
+import { EditorState, convertToRaw } from 'draft-js'
+import 'draft-js/dist/Draft.css'
+import draftToHtml from 'draftjs-to-html'
 import useDebounce from 'hooks/useDebounce'
 import { IUser, UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { Editor } from 'react-draft-wysiwyg'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { FormProvider, useForm } from 'react-hook-form'
-import { HiOutlineViewGridAdd } from 'react-icons/hi'
-import { BsSendCheck } from 'react-icons/bs'
 import { BiMailSend } from 'react-icons/bi'
+import { BsSendCheck } from 'react-icons/bs'
+import { HiOutlineViewGridAdd } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import generateExcel from 'utils/generateExcel'
 import timeAgo from 'utils/timeAgo'
 import * as Yup from 'yup'
-import { Editor } from 'react-draft-wysiwyg'
-import { EditorState, convertToRaw } from 'draft-js'
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import 'draft-js/dist/Draft.css'
-import draftToHtml from 'draftjs-to-html'
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -244,12 +244,11 @@ function User() {
   }
 
   const handleSendMail = () => {
-    // if (getCheckedInputIds().length < 1) {
-    //   toast.warning('Select a row to edit, please.')
-    // } else {
-    //   setOpenDialog(true)
-    // }
-    setOpenDialog(true)
+    if (getCheckedInputIds().length < 1) {
+      toast.warning('Select a user send email, please.')
+    } else {
+      setOpenDialog(true)
+    }
   }
 
   const sendMails = async () => {
@@ -262,7 +261,16 @@ function User() {
     } else if (data.content === '<p></p>\n') {
       toast.warning('Enter the content, please.')
     } else {
-      console.log(data)
+      await sendMail(data, accessToken)
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success('Send Email Completed Successfully!')
+            setOpenDialog(false)
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error.response.data.error.message)
+        })
     }
   }
 

@@ -529,14 +529,14 @@ function Log() {
                 <div>
                   <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>User</dt>
                   <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                    <pre>{JSON.stringify(logDetail?.user, null, 2)}</pre>
+                    <pre className='overflow-auto'>{JSON.stringify(logDetail?.user, null, 2)}</pre>
                   </dd>
                 </div>
                 <div>
                   <div>
                     <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Content</dt>
                     <dd className='px-1 py-2 mb-4 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 sm:mb-5 bg-gray-50'>
-                      <pre>{JSON.stringify(logDetail?.content, null, 2)}</pre>
+                      <pre className='overflow-auto'>{JSON.stringify(logDetail?.content, null, 2)}</pre>
                     </dd>
                   </div>
                   <div>

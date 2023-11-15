@@ -13,12 +13,13 @@ import APIFeature from 'src/utils/apiFeature'
 import { findUser } from 'src/utils/findUser'
 import { generateRandomPassword } from 'src/utils/generatePassword'
 import { logger } from 'src/utils/logger'
-import { sendPasswordEmail, sendResetEmail, sendVerificationEmail } from 'src/utils/sendEmail'
+import { sendEmail, sendPasswordEmail, sendResetEmail, sendVerificationEmail } from 'src/utils/sendEmail'
 import {
   authForgotPasswordSchema,
   authLoginSchema,
   authRegisterSchema,
   authResetPasswordSchema,
+  authSendMailSchema,
   userCreateSchema,
   userDeleteSchema,
   userStatusSchema,
@@ -153,7 +154,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       errorMessage: error.message,
       content: req.body
     })
-    if (error.isJoi === true) next(httpError.BadRequest('Invalid Username/Password'))
+    if (error.isJoi === true) next(httpError.BadRequest())
     next(error)
   }
 }
@@ -330,6 +331,7 @@ export async function deleteUsers(req: Request, res: Response, next: NextFunctio
       errorMessage: error.message,
       content: req.body
     })
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }
@@ -368,6 +370,7 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
       errorMessage: error.message,
       content: req.body
     })
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }
@@ -407,6 +410,7 @@ export async function updateUserByAdmin(req: any, res: Response, next: NextFunct
       errorMessage: error.message,
       content: req.body
     })
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }
@@ -436,6 +440,7 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
       errorMessage: error.message,
       content: req.body
     })
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }
@@ -478,6 +483,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
       errorMessage: error.message,
       content: req.body
     })
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }
@@ -514,6 +520,42 @@ export const getUserDetail = async (req: Request, res: Response, next: NextFunct
     userExist.gigs = gigs
     res.status(200).json({ user: userExist })
   } catch (error: any) {
+    next(error)
+  }
+}
+
+export const sendMail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await authSendMailSchema.validateAsync(req.body)
+    const users = await User.find({
+      _id: {
+        $in: result.ids
+      }
+    })
+    users.forEach(async (user) => {
+      await sendEmail(user.email, result.title, result.content, next)
+    })
+    logger({
+      user: req.body.userId,
+      name: LogName.SEND_MAIL,
+      method: LogMethod.POST,
+      status: LogStatus.SUCCESS,
+      url: req.originalUrl,
+      errorMessage: '',
+      content: req.body
+    })
+    res.sendStatus(200)
+  } catch (error: any) {
+    logger({
+      user: req.body.userId,
+      name: LogName.SEND_MAIL,
+      method: LogMethod.POST,
+      status: LogStatus.ERROR,
+      url: req.originalUrl,
+      errorMessage: error.message,
+      content: req.body
+    })
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }

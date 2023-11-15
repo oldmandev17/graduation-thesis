@@ -13,6 +13,7 @@ export enum OrderStatus {
 export interface IOrder extends mongoose.Document {
   paymentIntent: string
   price: number
+  code: string
   status: OrderStatus
   messages: Array<IMessage>
   gig: IGig
@@ -26,6 +27,11 @@ export interface IOrder extends mongoose.Document {
 
 const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
   paymentIntent: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  code: {
     type: String,
     unique: true,
     required: true

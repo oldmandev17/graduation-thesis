@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
@@ -10,14 +11,17 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { getUserDetail } from 'apis/api'
 import { arrUserGender, arrUserRole, arrUserStatus } from 'assets/data'
 import dayjs from 'dayjs'
+import { IGig } from 'modules/gig'
+import { IOrder } from 'modules/order'
 import { IUser, UserGender, UserRole, UserStatus } from 'modules/user'
 import moment from 'moment'
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
+import timeAgo from 'utils/timeAgo'
 import * as Yup from 'yup'
 
 const userSchema = Yup.object().shape({
@@ -42,6 +46,7 @@ function UserDetail() {
     watch,
     getValues
   } = formHandler
+  const navigate = useNavigate()
   const { id } = useParams<{ id?: string }>()
   const { accessToken } = getToken()
   const [user, setUser] = useState<IUser>()
@@ -282,7 +287,7 @@ function UserDetail() {
                   Created By
                 </label>
                 <div className='px-1 py-2 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                  <pre>{JSON.stringify(user?.createdBy, null, 2)}</pre>
+                  <pre className='overflow-auto'>{JSON.stringify(user?.createdBy, null, 2)}</pre>
                 </div>
               </div>
               <div className='w-full'>
@@ -293,7 +298,7 @@ function UserDetail() {
                   Updated Admin By
                 </label>
                 <div className='px-1 py-2 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-                  <pre>{JSON.stringify(user?.updatedAdminBy, null, 2)}</pre>
+                  <pre className='overflow-auto'>{JSON.stringify(user?.updatedAdminBy, null, 2)}</pre>
                 </div>
               </div>
             </div>
@@ -478,31 +483,44 @@ function UserDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
-                    <td className='w-4 p-4'>
-                      <div className='flex items-center'>
-                        <input
-                          id='checkbox-table-search-1'
-                          type='checkbox'
-                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-                        />
-                        <label htmlFor='checkbox-table-search-1' className='sr-only'>
-                          checkbox
-                        </label>
-                      </div>
-                    </td>
-                    <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                      Apple MacBook Pro 17"
-                    </th>
-                    <td className='px-6 py-4'>Silver</td>
-                    <td className='px-6 py-4'>Laptop</td>
-                    <td className='px-6 py-4'>$2999</td>
-                    <td className='px-6 py-4'>
-                      <a href='/#' className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>
-                        View
-                      </a>
-                    </td>
-                  </tr>
+                  {user?.gigs &&
+                    user?.gigs.length > 0 &&
+                    user?.gigs.map((gig: IGig, index) => (
+                      <tr
+                        key={gig._id + index}
+                        className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                      >
+                        <td className='w-4 p-4'>
+                          <div className='flex items-center'>
+                            <input
+                              id='checkbox-table-search-1'
+                              type='checkbox'
+                              className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                            />
+                            <label htmlFor='checkbox-table-search-1' className='sr-only'>
+                              checkbox
+                            </label>
+                          </div>
+                        </td>
+                        <th
+                          scope='row'
+                          className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
+                        >
+                          {gig?.name}
+                        </th>
+                        <td className='px-6 py-4'>{gig?.status}</td>
+                        <td className='px-6 py-4'>{gig?.category?.name}</td>
+                        <td className='px-6 py-4'>{timeAgo(new Date(gig.createdAt))}</td>
+                        <td className='px-6 py-4'>
+                          <span
+                            onClick={() => navigate(`/gig-detail/${gig?._id}`)}
+                            className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                          >
+                            View
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -564,16 +582,16 @@ function UserDetail() {
                       </div>
                     </th>
                     <th scope='col' className='px-6 py-3'>
-                      Product name
+                      Code
                     </th>
                     <th scope='col' className='px-6 py-3'>
-                      Color
+                      Status
                     </th>
                     <th scope='col' className='px-6 py-3'>
-                      Category
+                      Gig
                     </th>
                     <th scope='col' className='px-6 py-3'>
-                      Price
+                      Created At
                     </th>
                     <th scope='col' className='px-6 py-3'>
                       Action
@@ -581,31 +599,44 @@ function UserDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
-                    <td className='w-4 p-4'>
-                      <div className='flex items-center'>
-                        <input
-                          id='checkbox-table-search-1'
-                          type='checkbox'
-                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-                        />
-                        <label htmlFor='checkbox-table-search-1' className='sr-only'>
-                          checkbox
-                        </label>
-                      </div>
-                    </td>
-                    <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                      Apple MacBook Pro 17"
-                    </th>
-                    <td className='px-6 py-4'>Silver</td>
-                    <td className='px-6 py-4'>Laptop</td>
-                    <td className='px-6 py-4'>$2999</td>
-                    <td className='px-6 py-4'>
-                      <a href='/#' className='font-medium text-blue-600 dark:text-blue-500 hover:underline'>
-                        View
-                      </a>
-                    </td>
-                  </tr>
+                  {user?.orders &&
+                    user?.orders.length > 0 &&
+                    user?.orders.map((order: IOrder, index) => (
+                      <tr
+                        key={order._id + index}
+                        className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                      >
+                        <td className='w-4 p-4'>
+                          <div className='flex items-center'>
+                            <input
+                              id='checkbox-table-search-1'
+                              type='checkbox'
+                              className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                            />
+                            <label htmlFor='checkbox-table-search-1' className='sr-only'>
+                              checkbox
+                            </label>
+                          </div>
+                        </td>
+                        <th
+                          scope='row'
+                          className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
+                        >
+                          {order?.code}
+                        </th>
+                        <td className='px-6 py-4'>{order?.status}</td>
+                        <td className='px-6 py-4'>{order?.gig?.name}</td>
+                        <td className='px-6 py-4'>{timeAgo(new Date(order.createdAt))}</td>
+                        <td className='px-6 py-4'>
+                          <span
+                            onClick={() => navigate(`/order-detail/${order?._id}`)}
+                            className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                          >
+                            View
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
