@@ -41,3 +41,7 @@
 .bg-gray-30 {
   background-color: #ebf0f5;
 }
+
+.apexcharts-title-text {
+  fill: goldenrod;
+}

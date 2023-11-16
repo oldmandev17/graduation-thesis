@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/label-has-associated-control */
+import { getAllCategory, getAllGig } from 'apis/api'
+import { arrGigStatus, arrLimits } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
 import SearchCustom from 'components/common/SearchCustom'
+import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
+import { ICategory } from 'modules/category'
 import { GigStatus, IGig } from 'modules/gig'
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { BiMailSend } from 'react-icons/bi'
@@ -22,14 +29,79 @@ function Gig() {
   const [status, setStatus] = useState<GigStatus | null>(null)
   const [keyword, setKeyword] = useState<string>('')
   const keywordDebounce = useDebounce(keyword, 500)
+  const [creator, setCreator] = useState<string>('')
+  const creatorDebounce = useDebounce(creator, 500)
   const [page, setPage] = useState<number>(1)
   const [limit, setLimit] = useState<number>(20)
   const [count, setCount] = useState<number>(0)
   const [filteredCount, setFilteredCount] = useState<number>(0)
+  const [category, setCategory] = useState<string>('')
+  const [parentCategory, setParentCategory] = useState<string>('')
+  const [parentCategoryTemp, setParentCategoryTemp] = useState<string>('')
+  const [categoryTemp, setCategoryTemp] = useState<string>('')
+  const [categoryKey, setCategoryKey] = useState<string>('')
+  const [arrParentCategory, setArrParentCategory] = useState<Array<{ label: string; value: string }>>([])
+  const [arrCategory, setArrCategory] = useState<Array<{ label: string; value: string }>>([])
   const navigate = useNavigate()
   const { accessToken } = getToken()
 
-  const getAllGigs = useCallback(async () => {}, [])
+  const getAllCategories = useCallback(async () => {
+    endDay.setHours(0, 0, 0, 0)
+    await getAllCategory(null, null, null, '', 'name', 'desc', null, null, categoryKey, undefined, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          if (response.data.arrParentCategory.length > 0)
+            setArrParentCategory([...response.data.arrParentCategory, { label: 'Show all', value: '' }])
+          if (response.data.arrCategory.length > 0)
+            setArrCategory([...response.data.arrCategory, { label: 'Show all', value: '' }])
+        }
+      })
+      .finally(() => setParentCategoryTemp(parentCategory))
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryKey])
+
+  useEffect(() => {
+    if (parentCategory !== parentCategoryTemp) {
+      setCategoryKey(parentCategory)
+    } else if (category !== categoryTemp) {
+      setCategoryKey(category)
+    }
+    setParentCategoryTemp(parentCategory)
+    setCategoryTemp(category)
+  }, [parentCategory, category, parentCategoryTemp, categoryTemp])
+
+  useEffect(() => {
+    getAllCategories()
+  }, [getAllCategories])
+
+  const getAllGigs = useCallback(async () => {
+    await getAllGig(
+      page,
+      limit,
+      status,
+      keywordDebounce,
+      creatorDebounce,
+      categoryId,
+      sortBy,
+      orderBy,
+      startDay,
+      endDay
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          setGigs(response.data.gigs)
+          setCount(Math.ceil(response.data.filteredCount / limit))
+          setFilteredCount(response.data.filteredCount)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+  }, [creatorDebounce, endDay, keywordDebounce, limit, orderBy, page, sortBy, startDay, status, categoryId])
 
   useEffect(() => {
     getAllGigs()
@@ -128,17 +200,33 @@ function Gig() {
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-4 gap-10'>
             <div className='col-span-2'>
-              <SearchCustom value={keyword} setValue={setKeyword} label='Search by name'>
-                Search By Name
+              <SearchCustom value={keyword} setValue={setKeyword} label='Search by gig name'>
+                Search By Gig Name
+              </SearchCustom>
+            </div>
+            <div className='col-span-2'>
+              <SearchCustom value={creator} setValue={setCreator} label='Search by creator name'>
+                Search By Creator Name
               </SearchCustom>
             </div>
           </div>
           <div className='grid grid-cols-4 gap-10'>
-            <SelectCustom arrValue={arrUserStatus} label='Choose the status' value={status} setValue={setStatus}>
+            <SelectCustom arrValue={arrGigStatus} label='Choose the status' value={status} setValue={setStatus}>
               Status
             </SelectCustom>
             <SelectCustom arrValue={arrLimits} label='Choose the dispaly limit' value={limit} setValue={setLimit}>
               Display Limit
+            </SelectCustom>
+            <SelectCustom
+              arrValue={arrParentCategory}
+              label='Choose the parent category'
+              value={parentCategory}
+              setValue={setParentCategory}
+            >
+              Parent Category
+            </SelectCustom>
+            <SelectCustom arrValue={arrCategory} label='Choose the category' value={category} setValue={setCategory}>
+              Category
             </SelectCustom>
           </div>
           <div className='grid grid-cols-4 gap-10'>
@@ -160,12 +248,14 @@ function Gig() {
                 onChange={handleUpdateStatus}
                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg border-l-gray-100 dark:border-l-gray-700 border-l-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
               >
-                {arrUserStatus?.length &&
-                  arrUserStatus.map((val, index) => (
-                    <option key={val.value + index} value={val.value}>
-                      {val.label}
-                    </option>
-                  ))}
+                {arrGigStatus?.length &&
+                  arrGigStatus
+                    .filter((val) => val.value !== GigStatus.BANNED)
+                    .map((val, index) => (
+                      <option key={val.value + index} value={val.value}>
+                        {val.label}
+                      </option>
+                    ))}
               </select>
             </div>
           </div>

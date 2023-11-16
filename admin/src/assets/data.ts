@@ -1,4 +1,5 @@
 import { CategoryStatus } from 'modules/category'
+import { GigStatus } from 'modules/gig'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
 import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 
@@ -223,6 +224,29 @@ const arrUserStatus = [
   }
 ]
 
+const arrGigStatus = [
+  {
+    label: 'ACTIVE',
+    value: GigStatus.ACTIVE
+  },
+  {
+    label: 'INACTIVE',
+    value: GigStatus.INACTIVE
+  },
+  {
+    label: 'BANNED',
+    value: GigStatus.BANNED
+  },
+  {
+    label: 'DELETED',
+    value: GigStatus.DELETED
+  },
+  {
+    label: 'WAITING',
+    value: GigStatus.WAITING
+  }
+]
+
 export {
   arrLimits,
   arrLogMethods,
@@ -234,5 +258,6 @@ export {
   arrUserGender,
   arrUserProvider,
   arrUserVerify,
-  arrUserStatus
+  arrUserStatus,
+  arrGigStatus
 }

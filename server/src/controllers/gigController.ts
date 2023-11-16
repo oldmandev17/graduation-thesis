@@ -4,7 +4,7 @@ import httpError from 'http-errors'
 import Category from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
-import { UserRole } from 'src/models/userModel'
+import User, { UserRole } from 'src/models/userModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { findUser } from 'src/utils/findUser'
@@ -13,6 +13,7 @@ import { gigDeleteSchema, gigSchema, gigStatusSchema } from 'src/utils/validatio
 
 interface GigQuery {
   status?: GigStatus
+  creator?: string
 }
 
 export async function createGig(req: Request, res: Response, next: NextFunction) {
@@ -212,11 +213,18 @@ export async function deleteGigs(req: Request, res: Response, next: NextFunction
 
 export async function getAllGig(req: Request, res: Response, next: NextFunction) {
   try {
-    const apiFeature = new APIFeature(Gig.find(), req.query).search().filter()
-    let gigs: IGig[] = await apiFeature.query
+    const { creator, ...restQuery } = req.query as unknown as GigQuery
+    const apiFeature = new APIFeature(Gig.find(), restQuery).search().filter()
+    if (creator) {
+      const regex = new RegExp(creator, 'i')
+      const users = await User.find({ name: regex }, '_id')
+      const userIds = users.map((user) => user._id)
+      apiFeature.query.where({ createdBy: { $in: userIds } })
+    }
+    let gigs: IGig[] = await apiFeature.query.populate('createdBy').exec()
     const filteredCount = gigs.length
     apiFeature.sorting().pagination()
-    gigs = await apiFeature.query.clone()
+    gigs = await apiFeature.query.clone().populate('createdBy').exec()
     res.status(200).json({ gigs, filteredCount })
   } catch (error: any) {
     next(error)

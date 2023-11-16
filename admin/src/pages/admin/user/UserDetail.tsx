@@ -665,7 +665,7 @@ function UserDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {gigs.length > 0 &&
+                  {gigs?.length > 0 &&
                     gigs.map((gig: IGig, index) => (
                       <tr
                         key={gig._id + index}
@@ -783,7 +783,7 @@ function UserDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.length > 0 &&
+                  {orders?.length > 0 &&
                     orders.map((order: IOrder, index) => (
                       <tr
                         key={order._id + index}

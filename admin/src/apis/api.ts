@@ -1,6 +1,7 @@
 import { CategoryStatus } from 'modules/category'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
 import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
+import { GigStatus } from 'modules/gig'
 import { axiosFormData, axiosJson } from './axios'
 
 function getAllLog(
@@ -193,6 +194,28 @@ function updateCategory(id: string | undefined, parent: string | null, data: any
   })
 }
 
+function getAllGig(
+  page: number | null,
+  limit: number | null,
+  status: GigStatus | null,
+  keyword: string,
+  creator: string,
+  category: string,
+  sortBy: string,
+  orderBy: string,
+  startDay: Date | null,
+  endDay: Date | null
+) {
+  let url = `/auth/admin?sortBy=${sortBy}&&orderBy=${orderBy}`
+  if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
+  if (page && limit) url += `&&page=${page}&&limit=${limit}`
+  if (status) url += `&&status=${status}`
+  if (keyword) url += `&&keyword=${keyword}`
+  if (creator) url += `&&creator=${creator}`
+  if (category) url += `&&category=${category}`
+  return axiosJson.get(url)
+}
+
 export {
   createCategory,
   deleteCategory,
@@ -206,5 +229,6 @@ export {
   updateUserStatus,
   createUser,
   getUserDetail,
-  sendMail
+  sendMail,
+  getAllGig
 }
