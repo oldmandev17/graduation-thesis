@@ -1,7 +1,8 @@
 import { CategoryStatus } from 'modules/category'
-import { LogMethod, LogName, LogStatus } from 'modules/log'
-import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 import { GigStatus } from 'modules/gig'
+import { LogMethod, LogName, LogStatus } from 'modules/log'
+import { OrderMethod, OrderStatus } from 'modules/order'
+import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 import { axiosFormData, axiosJson } from './axios'
 
 function getAllLog(
@@ -142,6 +143,25 @@ function updateUserStatus(arrIds: Array<string>, status: string, accessToken: st
   })
 }
 
+function updateGigStatus(
+  arrIds: Array<string>,
+  status: string,
+  reason: string | undefined,
+  accessToken: string | undefined
+) {
+  const url = `/gig/update?status=${status}`
+  return axiosJson.put(
+    url,
+    { ids: arrIds, reason },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      }
+    }
+  )
+}
+
 function createUser(data: any, accessToken: string | undefined) {
   const url = '/auth/admin/create-user'
   return axiosJson.post(url, data, {
@@ -200,35 +220,65 @@ function getAllGig(
   status: GigStatus | null,
   keyword: string,
   creator: string,
-  category: string,
+  categoryId: string,
   sortBy: string,
   orderBy: string,
   startDay: Date | null,
   endDay: Date | null
 ) {
-  let url = `/auth/admin?sortBy=${sortBy}&&orderBy=${orderBy}`
+  let url = `/gig?sortBy=${sortBy}&&orderBy=${orderBy}`
   if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
   if (page && limit) url += `&&page=${page}&&limit=${limit}`
   if (status) url += `&&status=${status}`
   if (keyword) url += `&&keyword=${keyword}`
   if (creator) url += `&&creator=${creator}`
-  if (category) url += `&&category=${category}`
+  if (categoryId) url += `&&categoryId=${categoryId}`
   return axiosJson.get(url)
+}
+
+function getAllOrder(
+  page: number | null,
+  limit: number | null,
+  status: OrderStatus | null,
+  method: OrderMethod | null,
+  keyword: string,
+  creator: string,
+  sortBy: string,
+  orderBy: string,
+  startDay: Date | null,
+  endDay: Date | null,
+  accessToken: string | undefined
+) {
+  let url = `/order?sortBy=${sortBy}&&orderBy=${orderBy}`
+  if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
+  if (page && limit) url += `&&page=${page}&&limit=${limit}`
+  if (status) url += `&&status=${status}`
+  if (method) url += `&&method=${method}`
+  if (keyword) url += `&&keyword=${keyword}`
+  if (creator) url += `&&creator=${creator}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
 }
 
 export {
   createCategory,
+  createUser,
   deleteCategory,
   deleteLog,
   getAllCategory,
+  getAllGig,
   getAllLog,
+  getAllOrder,
   getAllUser,
   getCategoryDetail,
-  updateCategory,
-  updateCategoryStatus,
-  updateUserStatus,
-  createUser,
   getUserDetail,
   sendMail,
-  getAllGig
+  updateCategory,
+  updateCategoryStatus,
+  updateGigStatus,
+  updateUserStatus
 }

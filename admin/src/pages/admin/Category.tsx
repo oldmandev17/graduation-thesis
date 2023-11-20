@@ -129,7 +129,10 @@ function Category() {
   }, [errors])
 
   const getAllCategories = useCallback(async () => {
-    endDay.setHours(0, 0, 0, 0)
+    const adjustedStartDay = new Date(startDay)
+    adjustedStartDay.setHours(0, 0, 0, 0)
+    const adjustedEndDay = new Date(endDay)
+    adjustedEndDay.setHours(23, 59, 59, 999)
     await getAllCategory(
       page,
       limit,
@@ -137,8 +140,8 @@ function Category() {
       keywordDebounce,
       sortBy,
       orderBy,
-      startDay,
-      new Date(endDay.getTime() + 24 * 60 * 60 * 1000),
+      adjustedStartDay,
+      adjustedEndDay,
       categoryKey,
       level,
       accessToken
@@ -265,6 +268,7 @@ function Category() {
     { header: 'Status', key: 'status', width: 30 },
     { header: 'Level', key: 'level', width: 30 },
     { header: 'Slug', key: 'slug', width: 30 },
+    { header: 'Image', key: 'image', width: 30 },
     { header: 'Created At', key: 'createdAt', width: 30 },
     { header: 'Created By', key: 'createdBy', width: 30 },
     { header: 'Updated At', key: 'updatedAt', width: 30 },
@@ -900,7 +904,6 @@ function Category() {
                       <select
                         className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
                         {...register('parent')}
-                        defaultValue=''
                       >
                         {categoryLevel2.length > 0 &&
                           categoryLevel2.map((cat2) => (

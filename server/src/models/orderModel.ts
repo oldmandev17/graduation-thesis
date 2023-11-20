@@ -10,10 +10,15 @@ export enum OrderStatus {
   CANCEL = 'CANCEL'
 }
 
+export enum OrderMethod {
+  STRIPE = 'STRIPE'
+}
+
 export interface IOrder extends mongoose.Document {
   paymentIntent: string
+  method: OrderMethod
   price: number
-  code: string
+  name: string
   status: OrderStatus
   messages: Array<IMessage>
   gig: IGig
@@ -31,7 +36,11 @@ const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
     unique: true,
     required: true
   },
-  code: {
+  method: {
+    type: String,
+    enum: Object.values(OrderMethod)
+  },
+  name: {
     type: String,
     unique: true,
     required: true

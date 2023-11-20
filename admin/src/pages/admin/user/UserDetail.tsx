@@ -84,7 +84,7 @@ function UserDetail() {
 
   const searchOrderByCode = (orders: IOrder[], searchCode: string) => {
     const searchCodeLower = searchCode.toLowerCase()
-    const filteredOrders = orders.filter((order) => order.code?.toLowerCase().includes(searchCodeLower))
+    const filteredOrders = orders.filter((order) => order.name?.toLowerCase().includes(searchCodeLower))
     setOrders(filteredOrders)
   }
 
@@ -805,7 +805,7 @@ function UserDetail() {
                           scope='row'
                           className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
                         >
-                          {order?.code}
+                          {order?.name}
                         </th>
                         <td className='px-6 py-4'>{order?.status}</td>
                         <td className='px-6 py-4'>{order?.gig?.name}</td>

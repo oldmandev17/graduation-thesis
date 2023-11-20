@@ -23,9 +23,9 @@ export const categorySchema = Joi.object({
   features: Joi.array().items(Joi.string())
 })
 
-export const categoryStatusSchema = Joi.array().items(Joi.string())
+export const categoryStatusSchema = Joi.array().items(Joi.string()).min(1)
 
-export const logDeleteSchema = Joi.array().items(Joi.string())
+export const logDeleteSchema = Joi.array().items(Joi.string()).min(1)
 
 export const userCreateSchema = Joi.object({
   name: Joi.string().min(3).max(30).required(),
@@ -34,11 +34,11 @@ export const userCreateSchema = Joi.object({
   status: Joi.string().valid(...Object.values(UserStatus))
 })
 
-export const userDeleteSchema = Joi.array().items(Joi.string())
+export const userDeleteSchema = Joi.array().items(Joi.string()).min(1)
 
-export const userStatusSchema = Joi.array().items(Joi.string())
+export const userStatusSchema = Joi.array().items(Joi.string()).min(1)
 
-export const categoryDeleteSchema = Joi.array().items(Joi.string())
+export const categoryDeleteSchema = Joi.array().items(Joi.string()).min(1)
 
 export const userUpdateSchema = Joi.object({
   name: Joi.string(),
@@ -113,14 +113,17 @@ export const gigSchema = Joi.object({
     .optional()
 })
 
-export const gigStatusSchema = Joi.array().items(Joi.string())
+export const gigStatusSchema = Joi.object({
+  ids: Joi.array().items(Joi.string()).min(1),
+  reason: Joi.string()
+})
 
-export const gigDeleteSchema = Joi.array().items(Joi.string())
+export const gigDeleteSchema = Joi.array().items(Joi.string()).min(1)
 
 export const orderSchema = Joi.object({
   name: Joi.string()
 })
 
-export const orderStatusSchema = Joi.array().items(Joi.string())
+export const orderStatusSchema = Joi.array().items(Joi.string()).min(1)
 
-export const orderDeleteSchema = Joi.array().items(Joi.string())
+export const orderDeleteSchema = Joi.array().items(Joi.string()).min(1)

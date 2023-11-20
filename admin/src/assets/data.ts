@@ -1,6 +1,7 @@
 import { CategoryStatus } from 'modules/category'
 import { GigStatus } from 'modules/gig'
 import { LogMethod, LogName, LogStatus } from 'modules/log'
+import { OrderMethod, OrderStatus } from 'modules/order'
 import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
 
 const arrLogMethods = [
@@ -247,6 +248,32 @@ const arrGigStatus = [
   }
 ]
 
+const arrOrderStatus = [
+  {
+    label: 'PENDING',
+    value: OrderStatus.PENDING
+  },
+  {
+    label: 'PAID',
+    value: OrderStatus.PAID
+  },
+  {
+    label: 'CANCEL',
+    value: OrderStatus.CANCEL
+  },
+  {
+    label: 'COMPLETE',
+    value: OrderStatus.COMPLETE
+  }
+]
+
+const arrOrderMethod = [
+  {
+    label: 'STRIPE',
+    value: OrderMethod.STRIPE
+  }
+]
+
 export {
   arrLimits,
   arrLogMethods,
@@ -259,5 +286,7 @@ export {
   arrUserProvider,
   arrUserVerify,
   arrUserStatus,
-  arrGigStatus
+  arrGigStatus,
+  arrOrderStatus,
+  arrOrderMethod
 }

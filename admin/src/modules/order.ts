@@ -10,11 +10,16 @@ export enum OrderStatus {
   CANCEL = 'CANCEL'
 }
 
+export enum OrderMethod {
+  STRIPE = 'STRIPE'
+}
+
 export interface IOrder {
   _id: string
   paymentIntent: string
+  method: OrderMethod
   price: number
-  code: string
+  name: string
   status: OrderStatus
   messages: Array<IMessage>
   gig: IGig

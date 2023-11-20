@@ -99,7 +99,10 @@ function User() {
   }
 
   const getAllUsers = useCallback(async () => {
-    endDay.setHours(0, 0, 0, 0)
+    const adjustedStartDay = new Date(startDay)
+    adjustedStartDay.setHours(0, 0, 0, 0)
+    const adjustedEndDay = new Date(endDay)
+    adjustedEndDay.setHours(23, 59, 59, 999)
     await getAllUser(
       page,
       limit,
@@ -107,8 +110,8 @@ function User() {
       keywordDebounce,
       sortBy,
       orderBy,
-      startDay,
-      new Date(endDay.getTime() + 24 * 60 * 60 * 1000),
+      adjustedStartDay,
+      adjustedEndDay,
       gender,
       provider,
       verify,

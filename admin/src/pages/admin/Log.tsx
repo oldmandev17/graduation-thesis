@@ -41,19 +41,11 @@ function Log() {
   const { accessToken } = getToken()
 
   const getAllLogs = useCallback(async () => {
-    endDay.setHours(0, 0, 0, 0)
-    await getAllLog(
-      page,
-      limit,
-      status,
-      method,
-      name,
-      sortBy,
-      orderBy,
-      startDay,
-      new Date(endDay.getTime() + 24 * 60 * 60 * 1000),
-      accessToken
-    )
+    const adjustedStartDay = new Date(startDay)
+    adjustedStartDay.setHours(0, 0, 0, 0)
+    const adjustedEndDay = new Date(endDay)
+    adjustedEndDay.setHours(23, 59, 59, 999)
+    await getAllLog(page, limit, status, method, name, sortBy, orderBy, adjustedStartDay, adjustedEndDay, accessToken)
       .then((response) => {
         if (response.status === 200) {
           setLogs(response.data.logs)

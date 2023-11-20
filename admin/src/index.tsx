@@ -19,7 +19,8 @@ const OverviewPage = lazy(() => import('pages/admin/Overview'))
 const LogPage = lazy(() => import('pages/admin/Log'))
 const AccountPage = lazy(() => import('pages/admin/Account'))
 const CategoryPage = lazy(() => import('pages/admin/Category'))
-const GigPage = lazy(() => import('pages/admin/Gig'))
+const GigPage = lazy(() => import('pages/admin/gig/Gig'))
+const GigDetailPage = lazy(() => import('pages/admin/gig/GigDetail'))
 const OrderPage = lazy(() => import('pages/admin/Order'))
 const SettingPage = lazy(() => import('pages/admin/Setting'))
 const UserPage = lazy(() => import('pages/admin/user/User'))
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
               {
                 path: '/gig',
                 element: <GigPage />
+              },
+              {
+                path: '/gig-detail',
+                element: <GigDetailPage />
               },
               {
                 path: '/log',

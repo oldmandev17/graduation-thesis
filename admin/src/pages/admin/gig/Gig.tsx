@@ -4,7 +4,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { getAllCategory, getAllGig } from 'apis/api'
+import { getAllCategory, getAllGig, updateGigStatus } from 'apis/api'
 import { arrGigStatus, arrLimits } from 'assets/data'
 import AccordionCustom from 'components/common/AccordionCustom'
 import DateTimePickerCustom from 'components/common/DateTimePickerCustom'
@@ -12,7 +12,7 @@ import SearchCustom from 'components/common/SearchCustom'
 import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
 import { GigStatus, IGig } from 'modules/gig'
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { BiMailSend } from 'react-icons/bi'
 import { HiOutlineViewGridAdd } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
@@ -48,7 +48,6 @@ function Gig() {
   const { accessToken } = getToken()
 
   const getAllCategories = useCallback(async () => {
-    endDay.setHours(0, 0, 0, 0)
     await getAllCategory(null, null, null, '', 'name', 'desc', null, null, categoryKey, undefined, accessToken)
       .then((response) => {
         if (response.status === 200) {
@@ -81,6 +80,10 @@ function Gig() {
   }, [getAllCategories])
 
   const getAllGigs = useCallback(async () => {
+    const adjustedStartDay = new Date(startDay)
+    adjustedStartDay.setHours(0, 0, 0, 0)
+    const adjustedEndDay = new Date(endDay)
+    adjustedEndDay.setHours(23, 59, 59, 999)
     await getAllGig(
       page,
       limit,
@@ -90,8 +93,8 @@ function Gig() {
       categoryKey,
       sortBy,
       orderBy,
-      startDay,
-      endDay
+      adjustedStartDay,
+      adjustedEndDay
     )
       .then((response) => {
         if (response.status === 200) {
@@ -158,7 +161,16 @@ function Gig() {
     if (getCheckedInputIds().length < 1) {
       toast.warning('Select a row to edit, please.')
     } else {
-      console.log(event)
+      await updateGigStatus(getCheckedInputIds(), event.target.value, undefined, accessToken)
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success('Update Completed Successfully!')
+            getAllGigs()
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error.response.data.error.message)
+        })
     }
   }
 
@@ -182,7 +194,7 @@ function Gig() {
         <button
           type='button'
           disabled={!gigs.length}
-          onClick={() => generateExcel(columns, gigs, 'User Sheet', 'User')}
+          onClick={() => generateExcel(columns, gigs, 'Gig Sheet', 'Gig')}
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <svg
@@ -360,35 +372,35 @@ function Gig() {
           </thead>
           <tbody>
             {gigs.length ? (
-              gigs.map((user: IGig) => (
+              gigs.map((gig: IGig) => (
                 <tr
-                  key={user._id}
+                  key={gig._id}
                   className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                 >
                   <td className='w-4 p-4'>
                     <div className='flex items-center'>
                       <input
                         onClick={handleCheckElement}
-                        id={user._id}
+                        id={gig._id}
                         name='checkbox-table-search'
                         type='checkbox'
                         className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                       />
-                      <label htmlFor={user._id} className='sr-only'>
+                      <label htmlFor={gig._id} className='sr-only'>
                         checkbox
                       </label>
                     </div>
                   </td>
-                  <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>{user.name}</td>
-                  <td className='px-6 py-4'>{user.slug}</td>
-                  <td className='px-6 py-4'>{user.status}</td>
-                  <td className='px-6 py-4'>{String(user.category?.name).toString()}</td>
-                  <td className='px-6 py-4'>{String(user.createdBy?.name).toString()}</td>
-                  <td className='px-6 py-4'>{user && user.images && user?.images[0]}</td>
-                  <td className='px-6 py-4'>{timeAgo(new Date(user.createdAt))}</td>
+                  <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>{gig.name}</td>
+                  <td className='px-6 py-4'>{gig.slug}</td>
+                  <td className='px-6 py-4'>{gig.status}</td>
+                  <td className='px-6 py-4'>{String(gig.category?.name).toString()}</td>
+                  <td className='px-6 py-4'>{String(gig.createdBy?.name).toString()}</td>
+                  <td className='px-6 py-4'>{gig && gig.images && gig?.images[0]}</td>
+                  <td className='px-6 py-4'>{timeAgo(new Date(gig.createdAt))}</td>
                   <td className='flex items-center px-6 py-4 space-x-3'>
                     <span
-                      onClick={() => navigate(`/user-detail/${user._id}`)}
+                      onClick={() => navigate(`/gig-detail/${gig._id}`)}
                       className='font-medium text-blue-600 cursor-pointer dark:text-blue-500 hover:underline'
                     >
                       View

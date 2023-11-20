@@ -9,11 +9,13 @@ import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { findUser } from 'src/utils/findUser'
 import { logger } from 'src/utils/logger'
+import { sendEmail } from 'src/utils/sendEmail'
 import { gigDeleteSchema, gigSchema, gigStatusSchema } from 'src/utils/validationSchema'
 
 interface GigQuery {
   status?: GigStatus
   creator?: string
+  categoryId?: string
 }
 
 export async function createGig(req: Request, res: Response, next: NextFunction) {
@@ -135,8 +137,11 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
   try {
     const result = await gigStatusSchema.validateAsync(req.body)
     const { status } = req.query as unknown as GigQuery
+    if (status === GigStatus.BANNED && !result.reason) {
+      throw httpError.NotAcceptable()
+    }
     const user = await findUser(req.payload.userId)
-    const updateField: any = { status }
+    const updateField: any = { status, reason: result.reason }
     if (user?.role.includes(UserRole.SELLER)) {
       updateField.updatedCustomerAt = Date.now()
       updateField.updatedCustomerBy = req.params.id
@@ -144,8 +149,14 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
       updateField.updatedAdminAt = Date.now()
       updateField.updatedAdminBy = req.params.id
     }
-    result.forEach(async (id: string) => {
-      await Gig.updateOne({ _id: id }, updateField)
+    result.ids.forEach(async (id: string) => {
+      const gigExist = await Gig.findOne({ _id: id })
+      if (!gigExist) throw httpError.NotFound()
+      await Gig.updateOne({ _id: id }, updateField).populate('createdBy')
+      const title = 'Exciting News: Your Fiverr Gig Has Been Updated!'
+      const content =
+        "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Fiverr has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Fiverr's support email.</p><p>Thank you for working on Fiverr, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Fiverr Support Team]</p>"
+      await sendEmail(gigExist.createdBy?.email as string, title, content, next)
     })
     logger({
       user: req.payload.userId,
@@ -213,13 +224,31 @@ export async function deleteGigs(req: Request, res: Response, next: NextFunction
 
 export async function getAllGig(req: Request, res: Response, next: NextFunction) {
   try {
-    const { creator, ...restQuery } = req.query as unknown as GigQuery
+    const { creator, categoryId, ...restQuery } = req.query as unknown as GigQuery
     const apiFeature = new APIFeature(Gig.find(), restQuery).search().filter()
     if (creator) {
       const regex = new RegExp(creator, 'i')
       const users = await User.find({ name: regex }, '_id')
       const userIds = users.map((user) => user._id)
       apiFeature.query.where({ createdBy: { $in: userIds } })
+    }
+    if (categoryId) {
+      const categoryExist = await Category.findOne({ _id: categoryId })
+      if (!categoryExist) throw httpError.NotFound()
+      const categoryIds: string[] = []
+      if (categoryExist.level === 3) {
+        categoryIds.push(categoryExist._id)
+      } else if (categoryExist.level === 2) {
+        categoryExist.subCategories.forEach((category) => categoryIds.push(category._id))
+      } else {
+        const tempIds: string[] = []
+        categoryExist.subCategories.forEach((category) => tempIds.push(category._id))
+        const subCategories = await Category.find({ _id: { $in: tempIds } })
+        subCategories.forEach((subCategory) => {
+          subCategory.subCategories.forEach((category) => categoryIds.push(category._id))
+        })
+      }
+      apiFeature.query.where({ category: { $in: categoryIds } })
     }
     let gigs: IGig[] = await apiFeature.query.populate('createdBy').exec()
     const filteredCount = gigs.length
