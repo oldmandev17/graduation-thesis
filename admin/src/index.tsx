@@ -80,7 +80,7 @@ const router = createBrowserRouter([
                 element: <GigPage />
               },
               {
-                path: '/gig-detail',
+                path: '/gig-detail/:id',
                 element: <GigDetailPage />
               },
               {
@@ -130,6 +130,10 @@ const router = createBrowserRouter([
           {
             path: '/test/gig',
             element: <GigPage />
+          },
+          {
+            path: '/test/gig-detail/:id',
+            element: <GigDetailPage />
           },
           {
             path: '/test/log',
