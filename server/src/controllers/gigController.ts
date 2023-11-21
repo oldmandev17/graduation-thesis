@@ -134,13 +134,13 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
 }
 
 export async function updateGigStatus(req: Request, res: Response, next: NextFunction) {
+  const user = await findUser(req.payload.userId)
   try {
     const result = await gigStatusSchema.validateAsync(req.body)
     const { status } = req.query as unknown as GigQuery
     if (status === GigStatus.BANNED && !result.reason) {
       throw httpError.NotAcceptable()
     }
-    const user = await findUser(req.payload.userId)
     const updateField: any = { status, reason: result.reason }
     if (user?.role.includes(UserRole.SELLER)) {
       updateField.updatedCustomerAt = Date.now()
@@ -151,16 +151,15 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
     }
     result.ids.forEach(async (id: string) => {
       const gigExist = await Gig.findOne({ _id: id })
-      if (!gigExist) throw httpError.NotFound()
       await Gig.updateOne({ _id: id }, updateField).populate('createdBy')
       const title = 'Exciting News: Your Fiverr Gig Has Been Updated!'
       const content =
         "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Fiverr has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Fiverr's support email.</p><p>Thank you for working on Fiverr, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Fiverr Support Team]</p>"
-      await sendEmail(gigExist.createdBy?.email as string, title, content, next)
+      await sendEmail(gigExist?.createdBy?.email as string, title, content, next)
     })
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_GIG,
+      name: user?.role.includes(UserRole.SELLER) ? LogName.UPDATE_GIG : LogName.UPDATE_GIG_BY_ADMIN,
       method: LogMethod.PUT,
       status: LogStatus.SUCCESS,
       url: req.originalUrl,
@@ -171,7 +170,7 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
   } catch (error: any) {
     logger({
       user: req.payload.userId,
-      name: LogName.UPDATE_GIG,
+      name: user?.role.includes(UserRole.SELLER) ? LogName.UPDATE_GIG : LogName.UPDATE_GIG_BY_ADMIN,
       method: LogMethod.PUT,
       status: LogStatus.ERROR,
       url: req.originalUrl,
