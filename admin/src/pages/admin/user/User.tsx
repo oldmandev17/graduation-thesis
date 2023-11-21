@@ -201,6 +201,7 @@ function User() {
     { header: 'Verify', key: 'verify', width: 30 },
     { header: 'Role', key: 'role', width: 30 },
     { header: 'Status', key: 'status', width: 30 },
+    { header: 'Avatar', key: 'image', width: 30 },
     { header: 'Created At', key: 'createdAt', width: 30 },
     { header: 'Created By', key: 'createdBy', width: 30 },
     { header: 'Updated At', key: 'updatedAt', width: 30 },
@@ -299,7 +300,14 @@ function User() {
         <button
           type='button'
           disabled={!users.length}
-          onClick={() => generateExcel(columns, users, 'User Sheet', 'User')}
+          onClick={() =>
+            generateExcel(
+              columns,
+              users.map((user) => ({ ...user, image: user.avatar, avatar: undefined })),
+              'User Sheet',
+              'User'
+            )
+          }
           className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <svg
