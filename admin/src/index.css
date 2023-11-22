@@ -45,3 +45,19 @@
 .apexcharts-title-text {
   fill: goldenrod;
 }
+
+.f-carousel {
+  margin: 0 auto;
+}
+
+.f-carousel__slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-carousel__slide img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}

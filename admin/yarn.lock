@@ -1416,6 +1416,11 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.50.0.tgz#9e93b850f0f3fa35f5fa59adfd03adae8488e484"
   integrity sha512-NCC3zz2+nvYd+Ckfh87rA47zfu2QsQpvc6k1yzTk+b9KzRj0wkGa8LSoGOXN6Zv4lRf/EIoZ80biDh9HOI+RNQ==
 
+"@fancyapps/ui@^5.0.28":
+  version "5.0.28"
+  resolved "https://registry.yarnpkg.com/@fancyapps/ui/-/ui-5.0.28.tgz#f0ef09a05e0e0be8815e839949a535850bd0a91b"
+  integrity sha512-CJ0Uw/KkSHH/bE+Uz4BaWgxQgzY1Dwl6dlYZtW1SGBrQBrIRuV4G3VEG1uVw27JAB9xgCbUAJddk3JQ/kvPACA==
+
 "@fast-csv/format@4.3.5":
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/@fast-csv/format/-/format-4.3.5.tgz#90d83d1b47b6aaf67be70d6118f84f3e12ee1ff3"
