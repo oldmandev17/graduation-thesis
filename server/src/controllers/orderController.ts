@@ -175,6 +175,6 @@ export async function getAllOrder(req: Request, res: Response, next: NextFunctio
     orders = await apiFeature.query.clone().populate('createdBy').exec()
     res.status(200).json({ orders, filteredCount })
   } catch (error: any) {
-    next(34)
+    next(error)
   }
 }
