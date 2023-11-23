@@ -1,28 +1,45 @@
-import { Routes, Route } from "react-router-dom";
-import SellerOnboardLayout from "layout/SellerOnboardLayout";
-import AuthenticationLayout from "layout/AuthenticationLayout";
-import LandingLayout from "layout/LandingLayout";
-import ForgotPasswordPage from "pages/ForgotPasswordPage";
-import LandingPage from "pages/LandingPage";
-import SignupPage from "pages/SignupPage";
-import LoginPage from "./pages/LoginPage";
+/* eslint-disable no-underscore-dangle */
+import { ReactNode, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { authRefreshToken, authUpdateUser } from 'stores/auth/auth-slice'
+import { useAppDispatch, useAppSelector } from 'stores/hooks'
+import { getToken, logout } from 'utils/auth'
 
-function App() {
+function App({ children }: { children: ReactNode }) {
+  const dispatch = useAppDispatch()
+  const { user } = useAppSelector((state) => state.auth)
+  useEffect(() => {
+    if (user && user._id) {
+      const { accessToken } = getToken()
+      dispatch(
+        authUpdateUser({
+          user,
+          accessToken
+        })
+      )
+    } else {
+      const { refreshToken } = getToken()
+      if (refreshToken) dispatch(authRefreshToken(refreshToken))
+      else {
+        dispatch(
+          authUpdateUser({
+            user: undefined,
+            accessToken: null
+          })
+        )
+        logout()
+      }
+    }
+  }, [dispatch, user])
+
   return (
-    <Routes>
-      <Route path="/" element={<AuthenticationLayout />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-      </Route>
-      <Route path="/" element={<LandingLayout />}>
-        <Route path="/landing" element={<LandingPage />} />
-      </Route>
-      <Route path="/" element={<SellerOnboardLayout />}>
-        <Route path="/landing" element={<LandingPage />} />
-      </Route>
-      <Route path="/login/forgotpassword" element={<ForgotPasswordPage />} />
-    </Routes>
-  );
+    <>
+      <Helmet>
+        <title>Freelancer</title>
+      </Helmet>
+      {children}
+    </>
+  )
 }
 
-export default App;
+export default App
