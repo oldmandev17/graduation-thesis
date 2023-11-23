@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet-async'
 import { authRefreshToken, authUpdateUser } from 'stores/auth/auth-slice'
 import { useAppDispatch, useAppSelector } from 'stores/hooks'
 import { getToken, logout } from 'utils/auth'
-// import { getToken } from "utils/auth";
 
 function App({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()

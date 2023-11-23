@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { yupResolver } from '@hookform/resolvers/yup'
+import PaypalCheckoutButton from 'components/common/PaypalCheckoutButton'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { SiFiverr } from 'react-icons/si'
@@ -125,6 +126,12 @@ function Login() {
                 )}
               </button>
             </form>
+            <div className='paypal'>
+              <p className='checkout-title'>OR, PAY WITH PAYPAL</p>
+              <div className='paypal-button-container'>
+                <PaypalCheckoutButton />
+              </div>
+            </div>
           </div>
         </div>
       </div>
