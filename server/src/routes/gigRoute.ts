@@ -13,15 +13,13 @@ import { upload } from 'src/utils/upload'
 
 const gigRoutes = Router()
 
-gigRoutes
-  .route('/create')
-  .post(verifyAccessToken, authorizeRoles([UserRole.SELLER]), upload('gig').array('images', 5), createGig)
+gigRoutes.route('/create').post(verifyAccessToken, authorizeRoles([UserRole.SELLER]), upload('gig').any(), createGig)
 gigRoutes
   .route('/update/:id')
   .put(
     verifyAccessToken,
     authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]),
-    upload('gig').array('images', 5),
+    upload('gig').any(),
     updateGig
   )
 gigRoutes

@@ -32,7 +32,11 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
     }
     const slug = await createUniqueSlug(Gig, result.name)
     const images: string[] = []
-    files.map((file) => images.push(file.path))
+    files
+      .filter((image) => image.fieldname === 'images[]')
+      .map((file) => {
+        images.push(file.path)
+      })
     const gig = await Gig.create({
       name: result.name,
       slug,
@@ -83,15 +87,20 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
     const result = await gigSchema.validateAsync(req.body)
     const slug = await createUniqueSlug(Gig, result.name, gigExist.slug)
     const images: string[] = []
+    if (result.images) {
+      result.images.forEach((image: string) => images.push(image))
+    }
     if (files) {
       gigExist?.images?.map((image) => {
-        if (existsSync(image)) {
+        if (existsSync(image) && result.images.filter((imageOld: string) => imageOld === image).length !== 0) {
           unlinkSync(image)
         }
       })
-      files.map((file) => {
-        images.push(file.path)
-      })
+      files
+        .filter((image) => image.fieldname === 'images[]')
+        .map((file) => {
+          images.push(file.path)
+        })
     }
     const updateField: any = {
       name: result.name ? result.name : gigExist.name,
@@ -225,7 +234,9 @@ export async function deleteGigs(req: Request, res: Response, next: NextFunction
 export async function getAllGig(req: Request, res: Response, next: NextFunction) {
   try {
     const { creator, categoryId, ...restQuery } = req.query as unknown as GigQuery
-    const apiFeature = new APIFeature(Gig.find(), restQuery).search().filter()
+    const apiFeature = new APIFeature(Gig.find().populate('category').populate('createdBy'), restQuery)
+      .search()
+      .filter()
     if (creator) {
       const regex = new RegExp(creator, 'i')
       const users = await User.find({ name: regex }, '_id')
@@ -250,10 +261,10 @@ export async function getAllGig(req: Request, res: Response, next: NextFunction)
       }
       apiFeature.query.where({ category: { $in: categoryIds } })
     }
-    let gigs: IGig[] = await apiFeature.query.populate('createdBy').exec()
+    let gigs: IGig[] = await apiFeature.query.populate('category').populate('createdBy').exec()
     const filteredCount = gigs.length
     apiFeature.sorting().pagination()
-    gigs = await apiFeature.query.clone().populate('createdBy').exec()
+    gigs = await apiFeature.query.clone().populate('category').populate('createdBy').exec()
     res.status(200).json({ gigs, filteredCount })
   } catch (error: any) {
     next(error)

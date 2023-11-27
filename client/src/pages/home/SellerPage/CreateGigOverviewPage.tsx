@@ -49,7 +49,7 @@ function CreateGigOverviewPage() {
     await getGigDetail(slug, accessToken)
       .then((response) => {
         if (response.status === 200) {
-          setGig(response.data.gig)
+          setGig(response?.data?.gig)
         }
       })
       .catch((error: any) => {
