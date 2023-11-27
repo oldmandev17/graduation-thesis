@@ -235,7 +235,7 @@ export const getAllCategory = async (req: Request, res: Response, next: NextFunc
     apiFeature.sorting().pagination()
     categories = await apiFeature.query.clone()
     const arrParentCategory: { label: string; value: any }[] = []
-    const arrCategory: { label: string; value: any }[] = []
+    const arrCategory: { label: string; value: any; subCategories: Array<ICategory> }[] = []
     categories.map((parentCategory: ICategory) => {
       arrParentCategory.push({
         label: parentCategory.name,
@@ -244,7 +244,8 @@ export const getAllCategory = async (req: Request, res: Response, next: NextFunc
       parentCategory.subCategories.map((category: ICategory) => {
         arrCategory.push({
           label: category.name,
-          value: category._id
+          value: category._id,
+          subCategories: category.subCategories
         })
       })
     })

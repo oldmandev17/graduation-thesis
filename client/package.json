@@ -25,12 +25,14 @@
     "@types/redux-logger": "^3.0.12",
     "@types/redux-saga": "^0.10.5",
     "axios": "^1.6.1",
+    "env-cmd": "^10.1.0",
     "flowbite": "^2.0.0",
     "flowbite-react": "^0.6.4",
     "js-cookie": "^3.0.5",
-    "jwt-decode": "^4.0.0",
+    "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-helmet-async": "^1.3.0",
     "react-hook-form": "^7.48.2",
     "react-multi-carousel": "^2.8.4",
@@ -48,9 +50,9 @@
     "yup": "^1.3.2"
   },
   "scripts": {
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "prod": "react-scripts test",
+    "dev": "env-cmd -f .env.development react-scripts start",
+    "build": "env-cmd -f .env.development react-scripts build",
+    "prod": "env-cmd -f .env.production react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."

@@ -5,9 +5,9 @@ import { AiFillFacebook, AiOutlineInstagram, AiFillTwitterSquare, AiOutlineCopyr
 
 function Footer() {
   return (
-    <div className='flex flex-col bg-[#00b14f] px-48 py-8'>
-      <div className=' border-b border-b-gray-300'>
-        <SiFiverr className='  h-28 w-32 fill-slate-50 ' />
+    <div className='flex flex-col bg-[#00b14f] px-48 py-4'>
+      <div className='border-b  border-b-gray-300'>
+        <SiFiverr className='w-32  h-28 fill-slate-50' />
       </div>
       <div className='flex flex-row flex-wrap py-8 border-b border-b-gray-300 gap-36'>
         <div className='flex flex-col gap-4 text-lg font-semibold text-white'>
@@ -24,20 +24,20 @@ function Footer() {
           <span className='cursor-pointer'>FAQ</span>
         </div>
         <div className='flex flex-row gap-2 text-lg font-semibold text-white '>
-          <AiFillFacebook className='h-8 w-8 rounded-2xl' />
-          <AiOutlineInstagram className='h-8 w-8 rounded-2xl' />
-          <AiFillTwitterSquare className='h-8 w-8 rounded-2xl' />
+          <AiFillFacebook className='w-8 h-8 rounded-2xl' />
+          <AiOutlineInstagram className='w-8 h-8 rounded-2xl' />
+          <AiFillTwitterSquare className='w-8 h-8 rounded-2xl' />
         </div>
       </div>
-      <div className='flex flex-row justify-end py-8 items-center text-white'>
+      <div className='flex flex-row items-center justify-end py-8 text-white'>
         <div className='flex flex-row pr-9'>
-          <AiOutlineCopyrightCircle className='h-5 w-5 rounded-2xl fill-white pr-1' />
+          <AiOutlineCopyrightCircle className='w-5 h-5 pr-1 rounded-2xl fill-white' />
           <span className='text-sm font-medium'>2023 Fiverr</span>
         </div>
-        <span className='cursor-pointer text-sm font-medium'>FAQ</span>
+        <span className='text-sm font-medium cursor-pointer'>FAQ</span>
 
-        <BsDot className='h-4 w-4' />
-        <span className='cursor-pointer text-sm font-medium'>Privacy Policy</span>
+        <BsDot className='w-4 h-4' />
+        <span className='text-sm font-medium cursor-pointer'>Privacy Policy</span>
       </div>
     </div>
   )

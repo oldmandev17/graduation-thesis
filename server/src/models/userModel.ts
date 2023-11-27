@@ -31,6 +31,7 @@ export enum UserProvider {
 export interface IUser extends mongoose.Document {
   name: string
   birthday?: Date
+  id?: string
   avatar?: string
   gender?: UserGender
   email: string
@@ -56,6 +57,9 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
   },
   birthday: {
     type: Date
+  },
+  id: {
+    type: String
   },
   avatar: {
     type: String

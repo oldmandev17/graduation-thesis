@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { yupResolver } from '@hookform/resolvers/yup'
 import PaypalCheckoutButton from 'components/common/PaypalCheckoutButton'
@@ -64,7 +65,6 @@ function Login() {
                 </label>
                 <input
                   type='email'
-                  // eslint-disable-next-line react/jsx-props-no-spreading
                   {...register('email')}
                   name='email'
                   id='email'
@@ -79,7 +79,6 @@ function Login() {
                 <div className='relative'>
                   <input
                     type='password'
-                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...register('password')}
                     name='password'
                     id='password'

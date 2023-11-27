@@ -8,10 +8,11 @@ import { HelmetProvider } from 'react-helmet-async'
 import { IoCloseSharp } from 'react-icons/io5'
 import { Provider } from 'react-redux'
 import { store } from 'stores/configureStore'
-
-import CreateGigLayout from 'layouts/CreateGigLayout'
+// import RequiredAuth from 'pages/auth/RequiredAuth'
+// import { UserRole } from 'modules/user'
 import App from './App'
 
+const CreateGigLayout = lazy(() => import('layouts/CreateGigLayout'))
 const AuthenticationLayout = lazy(() => import('layouts/AuthenticationLayout'))
 const LandingLayout = lazy(() => import('layouts/LandingLayout'))
 
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
           {
             path: '/',
             element: <LandingPage />
+          },
+          {
+            path: '/gig-detail/:gigTitle',
+            element: <GigDetailPage />
           }
         ]
       },
@@ -67,40 +72,34 @@ const router = createBrowserRouter([
             element: <LogInPage />
           },
           {
-            path: '/auth/signup',
+            path: '/auth/register',
             element: <SignUpPage />
           }
         ]
       },
       {
-        path: '/users',
+        path: '/:userId',
         element: <CreateGigLayout />,
         children: [
           {
-            path: '/users/doanvan/manage_gigs/overview',
+            path: '/:userId/gig-create/overview',
             element: <CreateGigOverviewPage />
           },
           {
-            path: '/users/doanvan/manage_gigs/pricing',
+            path: '/:userId/gig-create/:slug/overview',
+            element: <CreateGigOverviewPage />
+          },
+          {
+            path: '/:userId/gig-create/:slug/pricing',
             element: <CreateGigPricingPage />
           },
           {
-            path: '/users/doanvan/manage_gigs/faq&gallery',
+            path: '/:userId/gig-create/:slug/faq&gallery',
             element: <CreateGigFaqGalleryPage />
           },
           {
-            path: '/users/doanvan/publishing/',
+            path: '/:userId/gig-create/:slug/publish',
             element: <CreateGigPushlishPage />
-          }
-        ]
-      },
-      {
-        path: '/user_id',
-        element: <LandingLayout />,
-        children: [
-          {
-            path: '/user_id/gig_title',
-            element: <GigDetailPage />
           }
         ]
       }

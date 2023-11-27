@@ -1,5 +1,12 @@
 import { Router } from 'express'
-import { createGig, deleteGigs, getAllGig, updateGig, updateGigStatus } from 'src/controllers/gigController'
+import {
+  createGig,
+  deleteGigs,
+  getAllGig,
+  getGigDetail,
+  updateGig,
+  updateGigStatus
+} from 'src/controllers/gigController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'
@@ -24,6 +31,7 @@ gigRoutes
   .route('/')
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), deleteGigs)
 gigRoutes.route('/').get(getAllGig)
-gigRoutes.route('/:id').get()
+gigRoutes.route('/id/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getGigDetail)
+gigRoutes.route('/slug/:slug').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getGigDetail)
 
 export default gigRoutes

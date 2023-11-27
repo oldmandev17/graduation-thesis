@@ -7,12 +7,12 @@ function AuthenticationLayout() {
   return (
     <div className='bg-[#093f25]'>
       <span className='flex flex-row pl-5'>
-        <SiFiverr className='h-20 w-20 fill-white' />
+        <SiFiverr className='w-20 h-20 fill-white' />
       </span>
       <div className=' bg-[#093f25] flex flex-row px-14 py-24 justify-center'>
         <Outlet />
         <div className=''>
-          <img src='/career.webp' alt='login_image' />
+          <img src='/images/career.webp' alt='login_image' />
         </div>
       </div>
       <Footer />

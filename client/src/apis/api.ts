@@ -1,30 +1,26 @@
-import { UserGender, UserProvider, UserRole, UserStatus } from 'modules/user'
+import { CategoryStatus } from 'modules/category'
 import { axiosFormData, axiosJson } from './axios'
 
-function getAllUser(
+function getAllCategory(
   page: number | null,
   limit: number | null,
-  status: UserStatus | null,
+  status: CategoryStatus | null,
   keyword: string,
   sortBy: string,
   orderBy: string,
   startDay: Date | null,
   endDay: Date | null,
-  gender: UserGender | null,
-  provider: UserProvider | null,
-  verify: boolean | null,
-  role: UserRole | null,
+  parent: string,
+  level: number | undefined,
   accessToken: string | undefined
 ) {
-  let url = `/user?sortBy=${sortBy}&&orderBy=${orderBy}`
+  let url = `/category?sortBy=${sortBy}&&orderBy=${orderBy}`
   if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
   if (page && limit) url += `&&page=${page}&&limit=${limit}`
   if (status) url += `&&status=${status}`
   if (keyword) url += `&&keyword=${keyword}`
-  if (gender) url += `&&gender=${gender}`
-  if (provider) url += `&&provider=${provider}`
-  if (verify) url += `&&verify=${verify}`
-  if (role) url += `&&role=${role}`
+  if (parent) url += `&&parent=${parent}`
+  if (level) url += `&&level=${level}`
   return axiosJson.get(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -33,4 +29,44 @@ function getAllUser(
   })
 }
 
-export { getAllUser }
+function createGig(data: any, accessToken: string | undefined) {
+  const url = '/gig/create'
+  return axiosFormData.post(url, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function updateGig(id: string, data: any, accessToken: string | undefined) {
+  const url = `/gig/update/${id}`
+  return axiosFormData.put(url, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getCategoryDetail(slug: string, accessToken: string | undefined) {
+  const url = `/category/slug/${slug}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getGigDetail(slug: string | undefined, accessToken: string | undefined) {
+  const url = `/gig/slug/${slug}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+export { getAllCategory, createGig, getCategoryDetail, getGigDetail, updateGig }

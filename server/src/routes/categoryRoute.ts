@@ -36,7 +36,9 @@ categoryRoutes
   .route('/')
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), deleteCategories)
 categoryRoutes.route('/').get(getAllCategory)
-categoryRoutes.route('/id/:id').get(getCategoryDetail)
+categoryRoutes
+  .route('/id/:id')
+  .get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getCategoryDetail)
 categoryRoutes.route('/slug/:slug').get(getCategoryDetail)
 
 export default categoryRoutes

@@ -30,6 +30,7 @@ export interface IUser {
   _id: string
   name: string
   birthday?: Date
+  id?: string
   avatar?: string
   gender?: UserGender
   email: string

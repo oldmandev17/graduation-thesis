@@ -3,7 +3,7 @@ import slugify from 'slugify'
 
 export const createUniqueSlug = async (model: Model<any>, name: string, oldSlug?: string) => {
   let slug = slugify(name, {
-    replacement: '_',
+    replacement: '-',
     lower: true
   })
 

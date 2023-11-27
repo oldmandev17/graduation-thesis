@@ -11,8 +11,8 @@ import { toast } from 'react-toastify'
 import { CiImageOn } from 'react-icons/ci'
 
 const FAQSchema = Yup.object().shape({
-  question: Yup.string().required('nhap di'),
-  answer: Yup.string().required()
+  question: Yup.string().required('Question is required'),
+  answer: Yup.string().required('Answer is required')
 })
 
 function CreateGigFaqGalleryPage() {
@@ -28,7 +28,7 @@ function CreateGigFaqGalleryPage() {
 
   const [show, setShow] = useState<boolean>(true)
   const [FAQs, setFAQs] = useState<Array<{ question: string; answer: string }>>([])
-  const [images] = useState<Array<string>>(['123', '345'])
+  const [images, setImages] = useState<Array<string>>(['123', '345'])
 
   const handleAddFAQ = (values: { question: string; answer: string }) => {
     setFAQs([...FAQs, values])
@@ -46,8 +46,8 @@ function CreateGigFaqGalleryPage() {
   return (
     <div className='bg-gray-50 '>
       <StepNavigate index={3} />
-      <div className=' flex flex-col w-full items-center gap-7 mt-10 max-w-3xl mx-auto'>
-        <div className=' border-b border-slate-300 w-full  flex flex-row justify-between py-5'>
+      <div className='flex flex-col items-center w-full max-w-3xl mx-auto mt-10 gap-7'>
+        <div className='flex flex-row justify-between w-full py-5 border-b border-slate-300'>
           <span className='text-2xl font-semibold text-gray-500'>Frequently Asked Questions</span>
           <span
             onClick={() => setShow(false)}
@@ -56,8 +56,8 @@ function CreateGigFaqGalleryPage() {
             + Add FQA
           </span>
         </div>
-        <div className='w-full  flex flex-col gap-3'>
-          <span className='text-base font-semibold  text-gray-500  justify-start'>
+        <div className='flex flex-col w-full gap-3'>
+          <span className='justify-start text-base font-semibold text-gray-500'>
             Add Questions & Answers for Your Buyers.
           </span>
           {show ? (
@@ -77,20 +77,20 @@ function CreateGigFaqGalleryPage() {
               />
               <textarea
                 {...register('answer')}
-                className='overscroll-none border border-gray-400 rounded-md placeholder:text-gray-400 placeholder:font-normal resize-none'
+                className='border border-gray-400 rounded-md resize-none overscroll-none placeholder:text-gray-400 placeholder:font-normal'
                 placeholder='Add an Answer: ie. Yes, I also translate from English to Hebrew '
               />
               <div className='flex flex-row justify-end gap-2 '>
                 <button
                   type='button'
-                  className='bg-gray-200 rounded-md text-black font-semibold h-7 w-16 items-center hover:bg-gray-300'
+                  className='items-center w-16 font-semibold text-black bg-gray-200 rounded-md h-7 hover:bg-gray-300'
                   onClick={() => setShow(true)}
                 >
                   Cancel
                 </button>
                 <button
                   type='submit'
-                  className='bg-gray-900 rounded-md text-white font-semibold h-7 w-16 items-center hover:bg-black'
+                  className='items-center w-16 font-semibold text-white bg-gray-900 rounded-md h-7 hover:bg-black'
                 >
                   Add
                 </button>
@@ -98,13 +98,13 @@ function CreateGigFaqGalleryPage() {
             </form>
           )}
           {FAQs.map((FAQ, index) => (
-            <div className='flex flex-col gap-2 border border-gray-300  p-2 font-semibold' key={FAQ.question + index}>
-              <p className='border p-2 rounded-md'>{FAQ.question}</p>
-              <p className='border p-2 rounded-md'>{FAQ.answer}</p>
+            <div className='flex flex-col gap-2 p-2 font-semibold border border-gray-300' key={FAQ.question + index}>
+              <p className='p-2 border rounded-md'>{FAQ.question}</p>
+              <p className='p-2 border rounded-md'>{FAQ.answer}</p>
             </div>
           ))}
         </div>
-        <div className='border-b border-slate-300 w-full  flex flex-col justify-between py-5'>
+        <div className='flex flex-col justify-between w-full py-5 border-b border-slate-300'>
           <span className='text-2xl font-semibold text-gray-500'>Showcase Your Services In A Gig Gallery</span>
           <span className='text-base font-semibold text-[#2bbf73]'>Images (up to 5)</span>
         </div>
@@ -112,15 +112,15 @@ function CreateGigFaqGalleryPage() {
           <div className='grid grid-cols-3 gap-2 '>
             {images.map((image, index) => (
               <img
-                className='border border-gray-700 h-32 flex justify-center items-center'
+                className='flex items-center justify-center h-32 border border-gray-700'
                 key={image + index}
                 alt='gig'
                 src={image}
               />
             ))}
-            <div className='border border-dashed border-gray-700 h-32 flex flex-col justify-center items-center'>
-              <CiImageOn className='h-8 w-8 fill-gray-400 ' />
-              <span className='text-gray-500 text-base'>Drag & drop a photo or</span>
+            <div className='flex flex-col items-center justify-center h-32 border border-gray-700 border-dashed'>
+              <CiImageOn className='w-8 h-8 fill-gray-400 ' />
+              <span className='text-base text-gray-500'>Drag & drop a photo or</span>
               <span className='text-[#5070e7] text-sm cursor-pointer'>browser</span>
               <input type='file' multiple name='file' className='appearance-none ' />
             </div>
@@ -129,7 +129,7 @@ function CreateGigFaqGalleryPage() {
       </div>
 
       <div className='flex justify-center mt-10 mb-40'>
-        <button type='button' className='font-bold rounded-xl text-white bg-black p-2 focus:bg-blue-800'>
+        <button type='button' className='p-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800'>
           Save & Continue
         </button>
       </div>

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
+import { use } from 'passport'
 import Category from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
@@ -107,7 +108,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
     } else {
       ;(updateField.updatedAdminAt = Date.now()), (updateField.updatedAdminBy = req.payload.userId)
     }
-    await Gig.updateOne({ _id: req.params.id }, updateField)
+    const gigUpdate = await Gig.findOneAndUpdate({ _id: req.params.id }, updateField)
     logger({
       user: req.payload.userId,
       name: user?.role.includes(UserRole.SELLER) ? LogName.UPDATE_GIG : LogName.UPDATE_GIG_BY_ADMIN,
@@ -117,7 +118,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       errorMessage: '',
       content: req.body
     })
-    res.status(201).send()
+    res.status(200).json({ gig: gigUpdate })
   } catch (error: any) {
     logger({
       user: req.payload.userId,
@@ -255,6 +256,35 @@ export async function getAllGig(req: Request, res: Response, next: NextFunction)
     gigs = await apiFeature.query.clone().populate('createdBy').exec()
     res.status(200).json({ gigs, filteredCount })
   } catch (error: any) {
+    next(error)
+  }
+}
+
+export async function getGigDetail(req: Request, res: Response, next: NextFunction) {
+  try {
+    const queryField: any = {}
+    if (req.params.id) {
+      queryField._id = req.params.id
+    } else {
+      queryField.slug = req.params.slug
+    }
+    const gigExist = await Gig.findOne(queryField).populate('createdBy').populate('category')
+
+    if (!gigExist) {
+      throw httpError.NotFound()
+    }
+    if (gigExist.createdBy && req.payload.userId !== gigExist.createdBy._id.toString()) {
+      throw httpError.NotAcceptable()
+    }
+
+    const categoryExist = await Category.findOne({ _id: gigExist.category })
+    if (!categoryExist) {
+      throw httpError.NotFound()
+    }
+    gigExist.category = categoryExist
+
+    res.status(200).json({ gig: gigExist })
+  } catch (error) {
     next(error)
   }
 }
