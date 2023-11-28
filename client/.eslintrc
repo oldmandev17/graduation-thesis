@@ -42,5 +42,6 @@
         "jsxSingleQuote": true
       }
     ]
-  }
+  },
+  "ignorePatterns": ["tailwind.config.js"]
 }

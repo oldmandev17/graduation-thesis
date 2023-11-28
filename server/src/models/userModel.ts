@@ -43,6 +43,7 @@ export interface IUser extends mongoose.Document {
   gigs: Array<IGig>
   orders: Array<IOrder>
   status: UserStatus
+  contacts?: any
   createdAt: Date
   createdBy?: IUser
   updatedAt?: Date

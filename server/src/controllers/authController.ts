@@ -5,6 +5,7 @@ import client from 'src/helpers/initRedis'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middlewares/jwtHelper'
 import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
+import Message from 'src/models/messageModel'
 import Order, { IOrder } from 'src/models/orderModel'
 import User, { IUser, UserProvider, UserRole, UserStatus } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
@@ -213,6 +214,55 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       _id: req.payload.userId
     })
     if (!userExist) throw httpError.NotFound()
+    const messages = await Message.find({
+      $or: [
+        {
+          sender: userExist._id
+        },
+        {
+          reciever: userExist._id
+        }
+      ]
+    })
+      .populate('sender')
+      .populate('receiver')
+    const uniqueContactsSet = new Set()
+    const uniqueContactsArray: any[] = []
+
+    messages.forEach((message) => {
+      if (message.sender && !uniqueContactsSet.has(message.sender._id)) {
+        uniqueContactsSet.add(message.sender._id)
+        uniqueContactsArray.push({
+          _id: message.sender._id,
+          name: message.sender.name,
+          email: message.sender.email,
+          avatar: message.sender.avatar
+        })
+      }
+
+      if (message.receiver && !uniqueContactsSet.has(message.receiver._id)) {
+        uniqueContactsSet.add(message.receiver._id)
+        uniqueContactsArray.push({
+          _id: message.receiver._id,
+          name: message.receiver.name,
+          email: message.receiver.email,
+          avatar: message.receiver.avatar
+        })
+      }
+    })
+
+    const usersGroupByInitialLetter: any = {}
+
+    uniqueContactsArray.forEach((user: any) => {
+      const initialLetter = user.name.charAt(0).toUpperCase()
+
+      if (!usersGroupByInitialLetter[initialLetter]) {
+        usersGroupByInitialLetter[initialLetter] = []
+      }
+
+      usersGroupByInitialLetter[initialLetter].push(user)
+    })
+    userExist.contacts = usersGroupByInitialLetter
 
     delete userExist?.password
 

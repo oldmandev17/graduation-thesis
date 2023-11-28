@@ -6,10 +6,10 @@ import { AiFillFacebook, AiOutlineInstagram, AiFillTwitterSquare, AiOutlineCopyr
 function Footer() {
   return (
     <div className='flex flex-col bg-[#00b14f] px-48 py-4'>
-      <div className='border-b  border-b-gray-300'>
-        <SiFiverr className='w-32  h-28 fill-slate-50' />
+      <div className='border-b border-b-gray-300'>
+        <SiFiverr className='w-32 h-28 fill-slate-50' />
       </div>
-      <div className='flex flex-row flex-wrap py-8 border-b border-b-gray-300 gap-36'>
+      <div className='grid grid-cols-4 py-8 border-b border-b-gray-300 gap-36'>
         <div className='flex flex-col gap-4 text-lg font-semibold text-white'>
           <span className='cursor-pointer'>About Fiverr</span>
           <span className='cursor-pointer'>Aboout Categories</span>
@@ -35,7 +35,6 @@ function Footer() {
           <span className='text-sm font-medium'>2023 Fiverr</span>
         </div>
         <span className='text-sm font-medium cursor-pointer'>FAQ</span>
-
         <BsDot className='w-4 h-4' />
         <span className='text-sm font-medium cursor-pointer'>Privacy Policy</span>
       </div>

@@ -9,7 +9,8 @@ export enum GigStatus {
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED',
   BANNED = 'BANNED',
-  WAITING = 'WAITING'
+  WAITING = 'WAITING',
+  NONE = 'NONE'
 }
 
 export enum GigPackageType {
@@ -118,7 +119,7 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
   status: {
     type: String,
     enum: Object.values(GigStatus),
-    default: GigStatus.ACTIVE
+    default: GigStatus.NONE
   },
   reason: {
     type: String

@@ -11,13 +11,14 @@ export enum CategoryStatus {
 export interface ICategory {
   _id: string
   name: string
-  image: string
   description: string
-  level: number
-  subCategories: Array<ICategory>
-  gigs: Array<IGig>
-  features: Array<string>
+  image: string
   status: CategoryStatus
+  level: number
+  slug: string
+  subCategories: Array<ICategory>
+  features: Array<string>
+  gigs: Array<IGig>
   createdAt: Date
   createdBy: IUser
   updatedAt?: Date

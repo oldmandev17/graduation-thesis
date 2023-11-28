@@ -178,7 +178,8 @@ function UserDetail() {
       [GigStatus.INACTIVE]: 0,
       [GigStatus.WAITING]: 0,
       [GigStatus.BANNED]: 0,
-      [GigStatus.DELETED]: 0
+      [GigStatus.DELETED]: 0,
+      [GigStatus.NONE]: 0
     }
     if (gigs) {
       gigs.forEach((gig: IGig) => {

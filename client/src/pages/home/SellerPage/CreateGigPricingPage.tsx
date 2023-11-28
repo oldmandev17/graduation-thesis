@@ -73,14 +73,19 @@ function CreateGigPricingPage() {
         }
       })
       .catch((error: any) => {
-        if (error.response.status === 406) {
-          navigate('/auth/unAuthorize')
-        } else {
-          toast.error(error.response.data.error.message)
-        }
+        toast.error(error.response.data.error.message)
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, accessToken])
+
+  useEffect(() => {
+    if (gig) {
+      if (gig.createdBy?._id !== user?._id) {
+        navigate('/auth/unAuthorize')
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gig, user?._id])
 
   useEffect(() => {
     if (slug) {
@@ -178,7 +183,7 @@ function CreateGigPricingPage() {
         onSubmit={handleSubmit(handleCreateOrUpdateGigPricing)}
         className='flex flex-col items-center w-full bg-gray-50'
       >
-        <table className='w-full max-w-3xl mt-20 border border-slate-300'>
+        <table className='w-full max-w-4xl mt-10 border border-slate-300'>
           <thead>
             <tr>
               <th className='bg-gray-100 min-w-[150px]'> </th>
@@ -471,7 +476,7 @@ function CreateGigPricingPage() {
             </tr>
           </tbody>
         </table>
-        <div className='flex justify-end mt-5 mb-20'>
+        <div className='flex justify-end mt-5 mb-10'>
           <button
             type='submit'
             className='p-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800 min-w-[100px]'

@@ -46,7 +46,7 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
       images,
       category: result.category,
       createdBy: req.payload.userId,
-      status: GigStatus.WAITING
+      status: GigStatus.NONE
     })
     res.status(201).json({ gig })
     logger({
@@ -284,17 +284,11 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
     if (!gigExist) {
       throw httpError.NotFound()
     }
-    if (gigExist.createdBy && req.payload.userId !== gigExist.createdBy._id.toString()) {
-      throw httpError.NotAcceptable()
-    }
 
-    const categoryExist = await Category.findOne({ _id: gigExist.category })
-    if (!categoryExist) {
-      throw httpError.NotFound()
-    }
-    gigExist.category = categoryExist
+    const parentCategory = await Category.find({ subCategories: gigExist.category?._id })
+    const grandParentCategory = await Category.find({ subCategories: parentCategory[0]._id })
 
-    res.status(200).json({ gig: gigExist })
+    res.status(200).json({ gig: gigExist, grandParentCategory: grandParentCategory[0] })
   } catch (error) {
     next(error)
   }

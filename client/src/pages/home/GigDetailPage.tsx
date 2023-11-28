@@ -1,4 +1,7 @@
-import React from 'react'
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React, { useCallback, useEffect, useState } from 'react'
 import { IoHomeOutline } from 'react-icons/io5'
 import { FaStar, FaCheck, FaRegClock } from 'react-icons/fa'
 import Fancybox from 'components/Fancybox'
@@ -14,32 +17,71 @@ import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { HiRefresh } from 'react-icons/hi'
+import { useNavigate, useParams } from 'react-router-dom'
+import { IGig } from 'modules/gig'
+// import { useAppSelector } from 'stores/hooks'
+import { getToken } from 'utils/auth'
+import { getGigDetail } from 'apis/api'
+import { toast } from 'react-toastify'
+import { ICategory } from 'modules/category'
 
 function GigDetailPage() {
   const [value, setValue] = React.useState(1)
+  const navigate = useNavigate()
+  const { slug } = useParams<{ slug?: string }>()
+  const [gig, setGig] = useState<IGig>()
+  const [grandParentCategory, setGrandParentCategory] = useState<ICategory>()
+  const { accessToken } = getToken()
+  // const { user } = useAppSelector((state) => state.auth)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
+
+  const getGigDetails = useCallback(async () => {
+    await getGigDetail(slug, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setGig(response?.data?.gig)
+          setGrandParentCategory(response?.data?.grandParentCategory)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, accessToken])
+
+  useEffect(() => {
+    if (slug) {
+      getGigDetails()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getGigDetails])
+
   return (
     <div className='grid grid-cols-5 gap-20 py-10 px-32'>
       <div className='flex gap-10 flex-col col-span-3'>
         <div id='path' className='flex flex-row gap-2 mb-3'>
-          <IoHomeOutline className='h-5 w-5' />
+          <IoHomeOutline className='h-5 w-5 cursor-pointer' onClick={() => navigate('/')} />
           <span className='text-sm text-gray-400 font-semibold'>/</span>
-          <span className='text-base '>Category</span>
+          <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${grandParentCategory?.slug}`)}>
+            {grandParentCategory?.name}
+          </span>
           <span className='text-sm text-gray-400 font-semibold'>/</span>
-          <span className='text-base '>Sub-category</span>
+          <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${gig?.category?.slug}`)}>
+            {gig?.category?.name}
+          </span>
         </div>
         <div id='gig_title' className='text-2xl font-bold text-gray-700'>
-          I will do a subtle minimalist logo design
+          {gig?.name}
         </div>
         <div id='summary' className='flex flex-row gap-4 items-center'>
           <img src='/image/roses.jpg' alt='avata' className='h-14 w-14 rounded-full' />
           <div className='flex flex-col gap-1'>
             <div id='userInfor' className='flex flex-row gap-1'>
-              <span className='text-base font-bold text-gray-700'>Ruby Jane</span>
-              <span className='text-base font-semibold text-gray-400'>@id_user</span>
+              <span className='text-base font-bold text-gray-700'>{gig?.createdBy?.name}</span>
+              <span className='text-base font-semibold text-gray-400'>@{gig?.createdBy?.id}</span>
             </div>
             <span className='flex flex-row gap-1 items-center'>
               <FaStar className='h-4 w-4 fill-gray-900' />
@@ -106,18 +148,7 @@ function GigDetailPage() {
         </div>
         <div id='gig_about' className='flex flex-col gap-5'>
           <span className='text-2xl font-bold text-gray-700'>About this gig</span>
-          <span className='text-base font-medium text-gray-600'>
-            If you're seeking a logo that embodies the essence of your brand through clean and minimalistic design,
-            while still leaving a lasting impression, you've come to the right place. I specialize in creating visually
-            compelling logos that convey your brand's message with precision and effectiveness. By employing sleek
-            lines, strategic typography, and thoughtful simplicity, I'll craft a logo that speaks volumes while
-            maintaining an elegant and timeless aesthetic.
-            <br />
-            With me, you'll not only receive a stunning logo but also full ownership rights, ensuring that your brand's
-            identity remains exclusively yours. I prioritize excellent communication, actively involving you in the
-            design process, listening to your ideas, providing regular updates and video call. Together, we'll create a
-            logo that surpasses expectations and has the potential to skyrocket your business.
-          </span>
+          <span className='text-base font-medium text-gray-600'>{gig?.description}</span>
         </div>
         <div id='gig_package_compare' className='flex flex-col gap-5'>
           <span className='text-2xl font-bold text-gray-700'>Compare packages</span>
@@ -219,27 +250,28 @@ function GigDetailPage() {
         </div>
         <div id='gig_faq' className='flex flex-col'>
           <span className='text-2xl font-bold text-gray-700'>FAQ</span>
-          <Accordion sx={{ boxShadow: 'none' }}>
-            <AccordionSummary
-              expandIcon={<MdExpandMore className='w-7 h-7' />}
-              aria-controls='panel1a-content'
-              id='panel1a-header'
-              sx={{ padding: '0px' }}
-            >
-              <Typography>Accordion 1</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet
-                blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
+          {gig &&
+            gig.FAQs &&
+            gig?.FAQs?.length &&
+            gig.FAQs.map((FAQ, index) => (
+              <Accordion key={index} sx={{ boxShadow: 'none' }}>
+                <AccordionSummary
+                  expandIcon={<MdExpandMore className='w-7 h-7' />}
+                  aria-controls='panel1a-content'
+                  id='panel1a-header'
+                  sx={{ padding: '0px' }}
+                >
+                  <Typography>{FAQ?.question}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography>{FAQ?.answer}</Typography>
+                </AccordionDetails>
+              </Accordion>
+            ))}
           <hr />
         </div>
         <div id='gig_faq' className='flex flex-col'>
           <span className='text-2xl font-bold text-gray-700'>Reviews</span>
-
           <div className='flex items-center mb-2'>
             <svg
               className='w-4 h-4 text-yellow-300 me-1'
@@ -447,35 +479,38 @@ function GigDetailPage() {
                 <Tab className='!font-bold ' label='Premium' value='3' />
               </TabList>
             </Box>
-            <TabPanel className='flex flex-col gap-2' value='1'>
-              <span className='font-bold text-2xl text-gray-600'>$120</span>
-              <p className='text-gray-600'>
-                <span className='font-bold uppercase text-gray-600'>BASIC </span>1 logo concept including vector &
-                source files + 3 revisions
-              </p>
-              <div className='flex flex-row gap-3'>
-                <div className='flex flex-row gap-2  items-center text-gray-600'>
-                  <FaRegClock />
-                  <span className='font-medium'>4 Days Delivery</span>
-                </div>
-                <div className='flex flex-row gap-2  items-center text-gray-600'>
-                  <HiRefresh className='h-5 w-5' />
-                  <span className='font-medium'>3 Revisions</span>
-                </div>
-              </div>
-              <div className='flex flex-col '>
-                <div className='flex flex-row gap-2 items-center'>
-                  <FaCheck className='h-4 w-4 fill-gray-600' />
-                  <span className='text-gray-600'>gssdf</span>
-                </div>
-                <div className='flex flex-row gap-2 items-center'>
-                  <FaCheck className='h-4 w-4 fill-gray-600' />
-                  <span className='text-gray-600'>gssdf</span>
-                </div>
-              </div>
-            </TabPanel>
-            <TabPanel value='2'>Item Two</TabPanel>
-            <TabPanel value='3'>Item Three</TabPanel>
+            {gig &&
+              gig.packages &&
+              gig?.packages?.length > 0 &&
+              gig?.packages?.map((pack, index) => (
+                <TabPanel key={index} className='flex flex-col gap-2' value='1'>
+                  <span className='font-bold text-2xl text-gray-600'>${pack.price}</span>
+                  <p className='text-gray-600'>
+                    <span className='font-bold uppercase text-gray-600'>BASIC </span>1 logo concept including vector &
+                    source files + 3 revisions
+                  </p>
+                  <div className='flex flex-row gap-3'>
+                    <div className='flex flex-row gap-2  items-center text-gray-600'>
+                      <FaRegClock />
+                      <span className='font-medium'>4 Days Delivery</span>
+                    </div>
+                    <div className='flex flex-row gap-2  items-center text-gray-600'>
+                      <HiRefresh className='h-5 w-5' />
+                      <span className='font-medium'>3 Revisions</span>
+                    </div>
+                  </div>
+                  <div className='flex flex-col '>
+                    <div className='flex flex-row gap-2 items-center'>
+                      <FaCheck className='h-4 w-4 fill-gray-600' />
+                      <span className='text-gray-600'>gssdf</span>
+                    </div>
+                    <div className='flex flex-row gap-2 items-center'>
+                      <FaCheck className='h-4 w-4 fill-gray-600' />
+                      <span className='text-gray-600'>gssdf</span>
+                    </div>
+                  </div>
+                </TabPanel>
+              ))}
           </TabContext>
         </Box>
       </div>

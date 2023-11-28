@@ -12,7 +12,7 @@ import { ICategory } from 'modules/category'
 import { createGig, getAllCategory, getGigDetail, updateGig } from 'apis/api'
 import { getToken } from 'utils/auth'
 import { IGig } from 'modules/gig'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useAppSelector } from 'stores/hooks'
 
 const gigOverviewSchema = Yup.object().shape({
@@ -22,6 +22,7 @@ const gigOverviewSchema = Yup.object().shape({
 })
 
 function CreateGigOverviewPage() {
+  const location = useLocation()
   const { slug } = useParams<{ slug?: string }>()
   const [gig, setGig] = useState<IGig>()
   const [parent, setParent] = useState<string>('')
@@ -53,11 +54,7 @@ function CreateGigOverviewPage() {
         }
       })
       .catch((error: any) => {
-        if (error.response.status === 406) {
-          navigate('/auth/unAuthorize')
-        } else {
-          toast.error(error.response.data.error.message)
-        }
+        toast.error(error.response.data.error.message)
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, accessToken])
@@ -144,11 +141,11 @@ function CreateGigOverviewPage() {
     setParent(event.target.value)
   }
 
-  return (
+  return gig?.createdBy?._id !== user?._id ? (
     <div>
       <StepNavigate index={1} />
       <form onSubmit={handleSubmit(handleCreateOrUpdateGigOverview)} className='flex flex-col items-center bg-gray-50 '>
-        <div className='border-[1px] border-gray-500 rounded-md w-full max-w-3xl bg-white my-20 flex flex-col p-10 gap-5'>
+        <div className='border-[1px] border-gray-500 rounded-md w-full max-w-4xl bg-white my-10 flex flex-col p-10 gap-5'>
           <div className='flex flex-row gap-4'>
             <div className='flex flex-col w-1/2 '>
               <span className='text-lg font-semibold'>Gig Title</span>
@@ -256,6 +253,8 @@ function CreateGigOverviewPage() {
         </div>
       </form>
     </div>
+  ) : (
+    <Navigate to='/auth/un-authorize' state={{ from: location }} replace />
   )
 }
 

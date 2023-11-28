@@ -127,3 +127,9 @@ export const orderSchema = Joi.object({
 export const orderStatusSchema = Joi.array().items(Joi.string()).min(1)
 
 export const orderDeleteSchema = Joi.array().items(Joi.string()).min(1)
+
+export const messageSchema = Joi.object({
+  from: Joi.string().required(),
+  to: Joi.string().required(),
+  message: Joi.string().required()
+})

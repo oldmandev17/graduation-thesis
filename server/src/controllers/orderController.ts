@@ -4,7 +4,7 @@ import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import { logger } from 'src/utils/logger'
 import httpError from 'http-errors'
 import { orderDeleteSchema, orderSchema, orderStatusSchema } from 'src/utils/validationSchema'
-import Order, { IOrder } from 'src/models/orderModel'
+import Order, { IOrder, OrderStatus } from 'src/models/orderModel'
 import { findUser } from 'src/utils/findUser'
 import User, { UserRole } from 'src/models/userModel'
 import { sendEmail } from 'src/utils/sendEmail'
@@ -18,7 +18,8 @@ interface OrderQuery {
 export async function createOrder(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await orderSchema.validateAsync(req.body)
-    const gigExist = await Gig.findOne()
+    const gigExist = await Gig.findOne({ _id: result })
+    if (!gigExist) throw httpError.NotFound()
     if (gigExist.status !== GigStatus.ACTIVE) {
       throw httpError.NotAcceptable()
     }

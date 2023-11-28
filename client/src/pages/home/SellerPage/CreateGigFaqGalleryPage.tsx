@@ -59,14 +59,19 @@ function CreateGigFaqGalleryPage() {
         }
       })
       .catch((error: any) => {
-        if (error?.response?.status === 406) {
-          navigate('/auth/unAuthorize')
-        } else {
-          toast.error(error?.response?.data?.error?.message)
-        }
+        toast.error(error?.response?.data?.error?.message)
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, accessToken])
+
+  useEffect(() => {
+    if (gig) {
+      if (gig.createdBy?._id !== user?._id) {
+        navigate('/auth/unAuthorize')
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gig, user?._id])
 
   useEffect(() => {
     if (slug) {
@@ -138,7 +143,7 @@ function CreateGigFaqGalleryPage() {
   return (
     <div className='bg-gray-50 '>
       <StepNavigate index={3} />
-      <div className='flex flex-col items-center w-full max-w-3xl mx-auto mt-10 gap-7'>
+      <div className='flex flex-col items-center w-full max-w-4xl mx-auto mt-10 gap-7'>
         <div className='flex flex-row justify-between w-full py-5 border-b border-slate-300'>
           <span className='text-2xl font-semibold text-gray-500'>Frequently Asked Questions</span>
           <span
@@ -237,7 +242,7 @@ function CreateGigFaqGalleryPage() {
           </div>
         </div>
       </div>
-      <div className='flex justify-center mt-10 mb-40'>
+      <div className='flex justify-center mt-10 mb-10'>
         <button
           onClick={handleCreateOrUpdateGigFaqGallery}
           type='button'

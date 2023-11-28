@@ -9,7 +9,8 @@ export enum GigStatus {
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED',
   BANNED = 'BANNED',
-  WAITING = 'WAITING'
+  WAITING = 'WAITING',
+  NONE = 'NONE'
 }
 
 export enum GigPackageType {

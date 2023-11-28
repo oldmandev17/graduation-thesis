@@ -10,6 +10,7 @@ import { Provider } from 'react-redux'
 import { store } from 'stores/configureStore'
 // import RequiredAuth from 'pages/auth/RequiredAuth'
 // import { UserRole } from 'modules/user'
+import { MessageProvider } from 'contexts/StateContext'
 import App from './App'
 
 const CreateGigLayout = lazy(() => import('layouts/CreateGigLayout'))
@@ -27,6 +28,8 @@ const CreateGigOverviewPage = lazy(() => import('pages/home/SellerPage/CreateGig
 const CreateGigPricingPage = lazy(() => import('pages/home/SellerPage/CreateGigPricingPage'))
 const CreateGigFaqGalleryPage = lazy(() => import('pages/home/SellerPage/CreateGigFaqGalleryPage'))
 const CreateGigPushlishPage = lazy(() => import('pages/home/SellerPage/CreateGigPushlishPage'))
+
+const MessagePage = lazy(() => import('pages/home/MessagePage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -78,6 +81,10 @@ const router = createBrowserRouter([
         ]
       },
       {
+        path: '/message',
+        element: <MessagePage />
+      },
+      {
         path: '/:userId',
         element: <CreateGigLayout />,
         children: [
@@ -111,9 +118,11 @@ createRoot(container).render(
   <Provider store={store}>
     <HelmetProvider>
       <Suspense fallback={<p />}>
-        <App>
-          <RouterProvider router={router} />
-        </App>
+        <MessageProvider>
+          <App>
+            <RouterProvider router={router} />
+          </App>
+        </MessageProvider>
         <ToastContainer
           position='bottom-right'
           toastClassName='text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border border-gray-400 dark:text-gray-500'

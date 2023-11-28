@@ -2,12 +2,14 @@ import cros from 'cors'
 import express, { Request, Response } from 'express'
 import httpError from 'http-errors'
 import morgan from 'morgan'
+import { Server } from 'socket.io'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import authRouter from './routes/authRoute'
 import categoryRoutes from './routes/categoryRoute'
 import gigRoutes from './routes/gigRoute'
 import logRoutes from './routes/logRoute'
+import messageRouter from './routes/messageRoute'
 
 // Use redis cluter
 require('src/helpers/initRedis')
@@ -56,6 +58,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/category', categoryRoutes)
 app.use('/api/log', logRoutes)
 app.use('/api/gig', gigRoutes)
+app.use('/api/message', messageRouter)
 // Swagger Page
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 // Documentation in JSON format
@@ -89,6 +92,35 @@ app.use(
 // Application port
 const PORT = process.env.PORT || 5000
 // Application running
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server started on PORT: ${PORT} in ${process.env.NODE_ENV} mode.`)
+})
+
+const globalAny: any = global
+
+const io = new Server(server, {
+  cors: {
+    origin: '*'
+  }
+})
+
+globalAny.onlineUsers = new Map()
+
+io.on('connection', (socket) => {
+  globalAny.chatSocket = socket
+
+  socket.on('add-user', (userId) => {
+    globalAny.onlineUsers.set(userId, socket.id)
+  })
+
+  socket.on('send-msg', (data: any) => {
+    const sendUserSocket = globalAny.onlineUsers.get(data.to)
+
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit('msg-recieve', {
+        from: data.from,
+        message: data.message
+      })
+    }
+  })
 })

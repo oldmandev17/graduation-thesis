@@ -3,12 +3,13 @@ import { IUser } from './userModel'
 
 export enum MessageType {
   TEXT = 'TEXT',
-  FILE = 'FILE'
+  IMAGE = 'IMAGE'
 }
 
 export enum MessageStatus {
   SENT = 'SENT',
-  READ = 'READ'
+  READ = 'READ',
+  DELIVERED = 'DELIVERED'
 }
 
 export interface IMessage extends mongoose.Document {
@@ -16,7 +17,7 @@ export interface IMessage extends mongoose.Document {
   type: MessageType
   status: MessageStatus
   sender: IUser
-  reciever: IUser
+  receiver: IUser
   createdAt: Date
 }
 
@@ -40,7 +41,7 @@ const messageSchem = new mongoose.Schema<IMessage>({
     ref: 'user',
     required: true
   },
-  reciever: {
+  receiver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
     required: true

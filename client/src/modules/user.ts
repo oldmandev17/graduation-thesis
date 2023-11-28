@@ -40,6 +40,7 @@ export interface IUser {
   role: Array<UserRole>
   orders: Array<IOrder>
   gigs: Array<IGig>
+  contacts?: any
   status: UserStatus
   createdAt: Date
   createdBy?: IUser

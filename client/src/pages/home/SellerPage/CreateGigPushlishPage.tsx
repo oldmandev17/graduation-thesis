@@ -1,7 +1,19 @@
+/* eslint-disable no-underscore-dangle */
+import { getGigDetail, updateGig } from 'apis/api'
 import StepNavigate from 'components/seller/StepNavigate'
-import React from 'react'
+import { GigStatus, IGig } from 'modules/gig'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useAppSelector } from 'stores/hooks'
+import { getToken } from 'utils/auth'
 
 function CreateGigPushlishPage() {
+  const { slug } = useParams<{ slug?: string }>()
+  const [gig, setGig] = useState<IGig>()
+  const { accessToken } = getToken()
+  const navigate = useNavigate()
+  const { user } = useAppSelector((state) => state.auth)
   const getCheckedInputIds = () => {
     const checkedIds: string[] = []
 
@@ -14,13 +26,52 @@ function CreateGigPushlishPage() {
     return checkedIds
   }
 
-  const handleCheckElement = () => {
-    const publishBtn = document.getElementById('publish') as HTMLButtonElement
-    if (publishBtn) {
-      if (getCheckedInputIds().length === 4) {
-        publishBtn.disabled = false
-      } else {
-        publishBtn.disabled = true
+  const getGigDetails = useCallback(async () => {
+    await getGigDetail(slug, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setGig(response?.data?.gig)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, accessToken])
+
+  useEffect(() => {
+    if (gig) {
+      if (gig.createdBy?._id !== user?._id) {
+        navigate('/auth/unAuthorize')
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gig, user?._id])
+
+  useEffect(() => {
+    if (slug) {
+      getGigDetails()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getGigDetails])
+
+  const handlePublishGig = async () => {
+    if (getCheckedInputIds().length < 4) {
+      toast.warning('Please accept all requirements')
+    } else {
+      const data: any = {}
+      data.name = gig?.name
+      data.status = GigStatus.WAITING
+      if (gig) {
+        await updateGig(gig?._id, data, accessToken)
+          .then((response) => {
+            if (response.status === 200) {
+              navigate(`/${user?.id}/gig`)
+            }
+          })
+          .catch((error: any) => {
+            toast.error(error.response.data.error.message)
+          })
       }
     }
   }
@@ -28,9 +79,9 @@ function CreateGigPushlishPage() {
   return (
     <div className='bg-gray-50'>
       <StepNavigate index={4} />
-      <div className='flex flex-col gap-10 my-10 border border-gray-200 rounded-md bg-white mx-60 py-16 '>
+      <div className='flex flex-col gap-10 my-10 border border-gray-200 rounded-md bg-white w-full max-w-4xl mx-auto py-16 '>
         <div className='flex flex-col items-center gap-5 '>
-          <img src='/image/publish.png' alt='pushlishingimage' className='h-24 w-56' />
+          <img src='/images/publish.png' alt='pushlishingimage' className='h-24 w-56' />
           <span className='text-xl text-gray-800 font-bold'>You're almost there!</span>
         </div>
         <div className='flex flex-col px-10 gap-5'>
@@ -39,13 +90,7 @@ function CreateGigPushlishPage() {
           </span>
           <div className='flex flex-col border border-gray-400 gap-5 py-5 px-7'>
             <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
-              <input
-                name='check'
-                onClick={handleCheckElement}
-                id='check1'
-                type='checkbox'
-                className='rounded-sm checked:bg-green-500 input-none'
-              />
+              <input name='check' id='check1' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Information Collection: </b>Fiverr uses the collected information to provide and improve its
                 services, facilitate transactions, and personalize user experience. Personal information is used for
@@ -53,13 +98,7 @@ function CreateGigPushlishPage() {
               </span>
             </div>
             <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
-              <input
-                name='check'
-                onClick={handleCheckElement}
-                id='check2'
-                type='checkbox'
-                className='rounded-sm checked:bg-green-500 input-none'
-              />
+              <input name='check' id='check2' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Use of Information: </b>Fiverr collects personal information when users register on the platform,
                 create a profile, or engage in transactions.
@@ -70,13 +109,7 @@ function CreateGigPushlishPage() {
               </span>
             </div>
             <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
-              <input
-                name='check'
-                onClick={handleCheckElement}
-                id='check3'
-                type='checkbox'
-                className='rounded-sm checked:bg-green-500 input-none'
-              />
+              <input name='check' id='check3' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Sharing of Information: </b>Fiverr may share personal information with service providers, business
                 partners, or third parties for purposes such as payment processing, fraud prevention, and customer
@@ -87,13 +120,7 @@ function CreateGigPushlishPage() {
               </span>
             </div>
             <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
-              <input
-                name='check'
-                onClick={handleCheckElement}
-                id='check4'
-                type='checkbox'
-                className='rounded-sm checked:bg-green-500 input-none'
-              />
+              <input name='check' id='check4' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Security: </b>Fiverr employs security measures to protect user information from unauthorized access,
                 disclosure, alteration, and destruction.
@@ -103,8 +130,7 @@ function CreateGigPushlishPage() {
             </div>
             <div className='flex flex-row justify-end'>
               <button
-                disabled
-                id='publish'
+                onClick={handlePublishGig}
                 type='button'
                 className='p-2 rounded-lg text-base text-white font-bold bg-[#1dbf73] disabled:bg-gray-400'
               >
