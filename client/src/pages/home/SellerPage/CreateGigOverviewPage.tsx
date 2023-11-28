@@ -2,18 +2,18 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-props-no-spreading */
-import StepNavigate from 'components/seller/StepNavigate'
-import * as Yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { ICategory } from 'modules/category'
 import { createGig, getAllCategory, getGigDetail, updateGig } from 'apis/api'
-import { getToken } from 'utils/auth'
+import StepNavigate from 'components/seller/StepNavigate'
+import { ICategory } from 'modules/category'
 import { IGig } from 'modules/gig'
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { useAppSelector } from 'stores/hooks'
+import { getToken } from 'utils/auth'
+import * as Yup from 'yup'
 
 const gigOverviewSchema = Yup.object().shape({
   name: Yup.string().required('Title is required'),
@@ -22,7 +22,6 @@ const gigOverviewSchema = Yup.object().shape({
 })
 
 function CreateGigOverviewPage() {
-  const location = useLocation()
   const { slug } = useParams<{ slug?: string }>()
   const [gig, setGig] = useState<IGig>()
   const [parent, setParent] = useState<string>('')
@@ -54,10 +53,21 @@ function CreateGigOverviewPage() {
         }
       })
       .catch((error: any) => {
-        toast.error(error.response.data.error.message)
+        if (error.response.status === 403) {
+          navigate('/auth/un-authorize')
+        } else {
+          toast.error(error.response.data.error.message)
+        }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, accessToken])
+
+  useEffect(() => {
+    if (gig && user && gig?.createdBy?._id !== user?._id) {
+      navigate('/auth/un-authorize')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gig, user])
 
   useEffect(() => {
     if (slug) {
@@ -141,7 +151,7 @@ function CreateGigOverviewPage() {
     setParent(event.target.value)
   }
 
-  return gig?.createdBy?._id !== user?._id ? (
+  return (
     <div>
       <StepNavigate index={1} />
       <form onSubmit={handleSubmit(handleCreateOrUpdateGigOverview)} className='flex flex-col items-center bg-gray-50 '>
@@ -159,7 +169,7 @@ function CreateGigOverviewPage() {
               rows={5}
               id='title'
               {...register('name')}
-              className='resize-none rounded-lg border-[1px] border-gray-500 text-base font-normal focus:text-gray-900 text-gray-700 w-full no-scrollbar'
+              className='resize-none rounded-lg border-[1px] border-gray-500 text-base font-normal focus:text-gray-900 text-gray-700 p-2 w-full no-scrollbar'
             />
           </div>
           <div className='flex flex-row gap-4'>
@@ -174,7 +184,7 @@ function CreateGigOverviewPage() {
                   onChange={handleChangeCategory}
                   name='parentCategory'
                   id=''
-                  className='w-full text-sm rounded-lg '
+                  className='w-full border-[1px] p-2 border-gray-500 text-sm rounded-lg '
                 >
                   <option value='' disabled>
                     CATEGORY
@@ -193,7 +203,7 @@ function CreateGigOverviewPage() {
                   {...register('category')}
                   name='category'
                   id=''
-                  className='w-full text-sm rounded-lg '
+                  className='w-full border-[1px] p-2 border-gray-500 text-sm rounded-lg '
                 >
                   <option value='' disabled>
                     SUB-CATEGORY
@@ -217,7 +227,7 @@ function CreateGigOverviewPage() {
               rows={5}
               id='describe'
               {...register('description')}
-              className='no-scrollbar rounded-lg border-[1px] border-gray-500 w-full h-36  text-base font-normal focus:text-gray-900 text-gray-700 '
+              className='no-scrollbar rounded-lg border-[1px] border-gray-500 w-full h-36 p-2 text-base font-normal focus:text-gray-900 text-gray-700 '
             />
           </div>
           <div className='flex justify-end'>
@@ -253,8 +263,6 @@ function CreateGigOverviewPage() {
         </div>
       </form>
     </div>
-  ) : (
-    <Navigate to='/auth/un-authorize' state={{ from: location }} replace />
   )
 }
 

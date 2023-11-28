@@ -73,19 +73,21 @@ function CreateGigPricingPage() {
         }
       })
       .catch((error: any) => {
-        toast.error(error.response.data.error.message)
+        if (error.response.status === 403) {
+          navigate('/auth/un-authorize')
+        } else {
+          toast.error(error.response.data.error.message)
+        }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, accessToken])
 
   useEffect(() => {
-    if (gig) {
-      if (gig.createdBy?._id !== user?._id) {
-        navigate('/auth/unAuthorize')
-      }
+    if (gig && user && gig?.createdBy?._id !== user?._id) {
+      navigate('/auth/un-authorize')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gig, user?._id])
+  }, [gig, user])
 
   useEffect(() => {
     if (slug) {

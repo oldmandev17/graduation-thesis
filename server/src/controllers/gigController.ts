@@ -84,6 +84,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       httpError.NotAcceptable()
     }
     const files = req.files as Express.Multer.File[]
+
     const result = await gigSchema.validateAsync(req.body)
     const slug = await createUniqueSlug(Gig, result.name, gigExist.slug)
     const images: string[] = []
@@ -92,12 +93,12 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
     }
     if (files) {
       gigExist?.images?.map((image) => {
-        if (existsSync(image) && result.images.filter((imageOld: string) => imageOld === image).length !== 0) {
+        if (existsSync(image) && result?.images?.filter((imageOld: string) => imageOld === image).length !== 0) {
           unlinkSync(image)
         }
       })
       files
-        .filter((image) => image.fieldname === 'images[]')
+        ?.filter((image) => image.fieldname === 'images[]')
         .map((file) => {
           images.push(file.path)
         })

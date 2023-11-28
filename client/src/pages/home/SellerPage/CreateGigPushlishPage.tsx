@@ -34,19 +34,21 @@ function CreateGigPushlishPage() {
         }
       })
       .catch((error: any) => {
-        toast.error(error.response.data.error.message)
+        if (error.response.status === 403) {
+          navigate('/auth/un-authorize')
+        } else {
+          toast.error(error.response.data.error.message)
+        }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, accessToken])
 
   useEffect(() => {
-    if (gig) {
-      if (gig.createdBy?._id !== user?._id) {
-        navigate('/auth/unAuthorize')
-      }
+    if (gig && user && gig?.createdBy?._id !== user?._id) {
+      navigate('/auth/un-authorize')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gig, user?._id])
+  }, [gig, user])
 
   useEffect(() => {
     if (slug) {
@@ -62,6 +64,7 @@ function CreateGigPushlishPage() {
       const data: any = {}
       data.name = gig?.name
       data.status = GigStatus.WAITING
+      console.log("🚀 ~ file: CreateGigPushlishPage.tsx:65 ~ handlePublishGig ~ data:", data)
       if (gig) {
         await updateGig(gig?._id, data, accessToken)
           .then((response) => {
@@ -79,17 +82,17 @@ function CreateGigPushlishPage() {
   return (
     <div className='bg-gray-50'>
       <StepNavigate index={4} />
-      <div className='flex flex-col gap-10 my-10 border border-gray-200 rounded-md bg-white w-full max-w-4xl mx-auto py-16 '>
+      <div className='flex flex-col w-full max-w-4xl gap-10 py-16 mx-auto my-10 bg-white border border-gray-200 rounded-md '>
         <div className='flex flex-col items-center gap-5 '>
-          <img src='/images/publish.png' alt='pushlishingimage' className='h-24 w-56' />
-          <span className='text-xl text-gray-800 font-bold'>You're almost there!</span>
+          <img src='/images/publish.png' alt='pushlishingimage' className='w-56 h-24' />
+          <span className='text-xl font-bold text-gray-800'>You're almost there!</span>
         </div>
-        <div className='flex flex-col px-10 gap-5'>
-          <span className='font-bold text-base text-gray-700 text-start'>
+        <div className='flex flex-col gap-5 px-10'>
+          <span className='text-base font-bold text-gray-700 text-start'>
             You just need to complete the following requirements to start selling:
           </span>
-          <div className='flex flex-col border border-gray-400 gap-5 py-5 px-7'>
-            <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
+          <div className='flex flex-col gap-5 py-5 border border-gray-400 px-7'>
+            <div className='flex flex-row items-center gap-3 p-2 border border-gray-200 rounded-md'>
               <input name='check' id='check1' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Information Collection: </b>Fiverr uses the collected information to provide and improve its
@@ -97,7 +100,7 @@ function CreateGigPushlishPage() {
                 account management, communication, and to comply with legal obligations.
               </span>
             </div>
-            <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
+            <div className='flex flex-row items-center gap-3 p-2 border border-gray-200 rounded-md'>
               <input name='check' id='check2' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Use of Information: </b>Fiverr collects personal information when users register on the platform,
@@ -108,7 +111,7 @@ function CreateGigPushlishPage() {
                 patterns.
               </span>
             </div>
-            <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
+            <div className='flex flex-row items-center gap-3 p-2 border border-gray-200 rounded-md'>
               <input name='check' id='check3' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Sharing of Information: </b>Fiverr may share personal information with service providers, business
@@ -119,7 +122,7 @@ function CreateGigPushlishPage() {
                 Fiverr does not sell personal information to third parties.
               </span>
             </div>
-            <div className='border border-gray-200 flex flex-row p-2 rounded-md items-center gap-3'>
+            <div className='flex flex-row items-center gap-3 p-2 border border-gray-200 rounded-md'>
               <input name='check' id='check4' type='checkbox' className='rounded-sm checked:bg-green-500 input-none' />
               <span className='text-sm text-gray-600'>
                 <b>Security: </b>Fiverr employs security measures to protect user information from unauthorized access,
