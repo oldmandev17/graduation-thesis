@@ -2698,6 +2698,11 @@
   resolved "https://registry.npmjs.org/@types/scheduler/-/scheduler-0.16.3.tgz"
   integrity sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==
 
+"@types/searchjs@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/searchjs/-/searchjs-1.0.2.tgz#f9323df3ff213288df4b22f62c46f9d22943acfc"
+  integrity sha512-hN0GlP1FBlsqWm0/bUIQzPlOkL3zrZAFFmtl4JgYlLEVRKsewBZsZSXOgkMb/MI/sPTcCn4tNvzwRrUhJWzqxA==
+
 "@types/semver@^7.3.12":
   version "7.5.2"
   resolved "https://registry.npmjs.org/@types/semver/-/semver-7.5.2.tgz"
@@ -9339,6 +9344,11 @@ schema-utils@^4.0.0:
     ajv "^8.9.0"
     ajv-formats "^2.1.1"
     ajv-keywords "^5.1.0"
+
+searchjs@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/searchjs/-/searchjs-1.1.2.tgz#57f79619be9da8f7ce49ffcc1327f4f1ab1a3bad"
+  integrity sha512-ik1HfzYG8XEXuJUo3pdwvrUkzYKBqYUIy/4Aikf5HcIc4zMBhOs7dtVybiGpWSkykCdd/UDy78uUocc8+gz1cw==
 
 select-hose@^2.0.0:
   version "2.0.0"

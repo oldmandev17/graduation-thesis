@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
@@ -24,6 +25,8 @@ import { getToken } from 'utils/auth'
 import { getGigDetail } from 'apis/api'
 import { toast } from 'react-toastify'
 import { ICategory } from 'modules/category'
+import { IReview } from 'modules/review'
+import search from 'searchjs'
 
 function GigDetailPage() {
   const [value, setValue] = React.useState(1)
@@ -32,6 +35,18 @@ function GigDetailPage() {
   const [gig, setGig] = useState<IGig>()
   const [grandParentCategory, setGrandParentCategory] = useState<ICategory>()
   const { accessToken } = getToken()
+  const [ratings, setRatings] = useState<{ [key: number]: number }>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 })
+  const [totalReviews, setTotalReviews] = useState(0)
+  const [averageRating, setAverageRating] = useState(0)
+  const [percentagePerStar, setPercentagePerStar] = useState<{ [key: number]: number }>({
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0
+  })
+  const [filteredReviews, setFilteredReviews] = useState<Array<IReview>>([])
+  const [searchQuery, setSearchQuery] = useState<string>('')
   // const { user } = useAppSelector((state) => state.auth)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -44,6 +59,11 @@ function GigDetailPage() {
         if (response.status === 200) {
           setGig(response?.data?.gig)
           setGrandParentCategory(response?.data?.grandParentCategory)
+          setRatings(response?.data?.ratings.ratings)
+          setTotalReviews(response?.data?.ratings.totalReviews)
+          setAverageRating(response?.data?.ratings.averageRating)
+          setPercentagePerStar(response?.data?.ratings.percentagePerStar)
+          setFilteredReviews(response?.data?.gig.reviews)
         }
       })
       .catch((error: any) => {
@@ -58,6 +78,12 @@ function GigDetailPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getGigDetails])
+
+  useEffect(() => {
+    if (gig && searchQuery) {
+      const filterTemp = gig.reviews?.filter((review) => search.matchObject({ reviewText: review.re }))
+    }
+  }, [])
 
   return (
     <div className='grid grid-cols-5 gap-20 py-10 px-32'>
@@ -85,64 +111,34 @@ function GigDetailPage() {
             </div>
             <span className='flex flex-row gap-1 items-center'>
               <FaStar className='h-4 w-4 fill-gray-900' />
-              <span className='text-gray-900 text-base font-semibold'>5</span>
-              <span className='text-base text-gray-500 font-semibold  cursor-pointer'>(627)</span>
+              <span className='text-gray-900 text-base font-semibold'>{Math.ceil(averageRating)}</span>
+              <span className='text-base text-gray-500 font-semibold  cursor-pointer'>({totalReviews})</span>
             </span>
           </div>
         </div>
         <div id='image'>
           <Fancybox
-            // Sample options
             options={{
               Carousel: {
                 infinite: false
               }
             }}
           >
-            <Carousel
-              // Sample options
-              options={{ infinite: false }}
-            >
-              <div
-                className='f-carousel__slide'
-                data-fancybox='gallery'
-                data-src='https://lipsum.app/id/60/1600x1200'
-                data-thumb-src='https://lipsum.app/id/60/200x150'
-              >
-                <img alt='' src='https://lipsum.app/id/60/400x300' width='400' height='300' />
-              </div>
-              <div
-                className='f-carousel__slide'
-                data-fancybox='gallery'
-                data-src='https://lipsum.app/id/61/1600x1200'
-                data-thumb-src='https://lipsum.app/id/61/200x150'
-              >
-                <img alt='' src='https://lipsum.app/id/61/400x300' width='400' height='300' />
-              </div>
-              <div
-                className='f-carousel__slide'
-                data-fancybox='gallery'
-                data-src='https://lipsum.app/id/62/1600x1200'
-                data-thumb-src='https://lipsum.app/id/62/200x150'
-              >
-                <img alt='' src='https://lipsum.app/id/62/400x300' width='400' height='300' />
-              </div>
-              <div
-                className='f-carousel__slide'
-                data-fancybox='gallery'
-                data-src='https://lipsum.app/id/63/1600x1200'
-                data-thumb-src='https://lipsum.app/id/63/200x150'
-              >
-                <img alt='' src='https://lipsum.app/id/63/400x300' width='400' height='300' />
-              </div>
-              <div
-                className='f-carousel__slide'
-                data-fancybox='gallery'
-                data-src='https://lipsum.app/id/64/1600x1200'
-                data-thumb-src='https://lipsum.app/id/64/200x150'
-              >
-                <img alt='' src='https://lipsum.app/id/64/400x300' width='400' height='300' />
-              </div>
+            <Carousel options={{ infinite: false }}>
+              {gig &&
+                gig.images &&
+                gig.images.length > 0 &&
+                gig.images.map((image, index) => (
+                  <div
+                    key={index}
+                    className='f-carousel__slide'
+                    data-fancybox='gallery'
+                    data-src={process.env.REACT_APP_URL_SERVER + image}
+                    data-thumb-src={process.env.REACT_APP_URL_SERVER + image}
+                  >
+                    <img alt={gig?.name} src={process.env.REACT_APP_URL_SERVER + image} width='400' height='300' />
+                  </div>
+                ))}
             </Carousel>
           </Fancybox>
         </div>
@@ -158,65 +154,104 @@ function GigDetailPage() {
                 <th className=' text-gray-500 font-normal semibold p-5'>
                   <span className='text-base text-left'>Package</span>
                 </th>
-                <th className=' gap-2 border border-slate-300 text-gray-600  text-left p-5'>
-                  <p className=' pt-1 text-xl font-normal'>120$ </p>
-                  <p className='pt-1 text-xl font-bold'> Basic </p>
-                  <p className='pt-1 text-sm font-semibold uppercase'> Basic</p>
-                  <p className='pt-1 text-sm font-normal'>
-                    1 logo concept including vector & source files + 3 revisions
-                  </p>
-                </th>
-                <th className=' gap-2 border border-slate-300 text-gray-600  text-left p-5'>
-                  <p className=' pt-1 text-xl font-normal'>220$ </p>
-                  <p className='pt-1 text-xl font-bold'> Standard </p>
-                  <p className='pt-1 text-sm font-semibold uppercase'> Standard</p>
-                  <p className='pt-1 text-sm font-normal'>
-                    1 logo concept including vector & source files + 3 revisions
-                  </p>
-                </th>
-                <th className=' gap-2 border border-slate-300 text-gray-600  text-left p-5'>
-                  <p className=' pt-1 text-xl font-normal'>320$ </p>
-                  <p className='pt-1 text-xl font-bold'> Premium </p>
-                  <p className='pt-1 text-sm font-semibold uppercase'> Premium</p>
-                  <p className='pt-1 text-sm font-normal'>
-                    1 logo concept including vector & source files + 3 revisions
-                  </p>
-                </th>
+                {gig &&
+                  gig.packages &&
+                  gig?.packages?.length > 0 &&
+                  gig?.packages?.map((pack, index) => (
+                    <th key={index} className=' gap-2 border border-slate-300 text-gray-600  text-left p-5'>
+                      <p className=' pt-1 text-xl font-normal'>{pack.price}$ </p>
+                      <p className='pt-1 text-xl font-bold capitalize'>{pack.type}</p>
+                      <p className='pt-1 text-sm font-semibold uppercase'>{pack.name}</p>
+                      <p className='pt-1 text-sm font-normal'>{pack.description}</p>
+                    </th>
+                  ))}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className='text-base text-left p-2 text-gray-500  border border-slate-300'> Logo transparency</td>
-                <td className=' border border-slate-300 p-5'>
-                  <FaCheck className='h-5 w-5' />
-                </td>
-                <td className='p-5 border border-slate-300 '>
-                  <FaCheck className='h-5 w-5' />
-                </td>
-                <td className='p-5 border border-slate-300 '>
-                  <FaCheck className='h-5 w-5' />
-                </td>
-              </tr>
+              {gig &&
+                gig?.packages &&
+                gig?.packages?.length > 0 &&
+                gig?.packages[0]?.features &&
+                gig?.packages[0]?.features?.length > 0 &&
+                gig?.packages[0]?.features.map((feature, index) => (
+                  <tr key={index}>
+                    <td className='text-base text-left p-2 text-gray-500  border border-slate-300'>{feature.name}</td>
+                    <td className=' border border-slate-300 p-5'>
+                      <FaCheck className={`h-5 w-5 ${feature.status ? 'fill-black' : 'fill-gray-600'}`} />
+                    </td>
+                    <td className='p-5 border border-slate-300 '>
+                      <FaCheck
+                        className={`h-5 w-5 ${
+                          gig &&
+                          gig?.packages &&
+                          gig?.packages?.length > 0 &&
+                          gig?.packages[1]?.features &&
+                          gig?.packages[1]?.features?.length > 0 &&
+                          gig?.packages[1]?.features[index]?.status
+                            ? 'fill-black'
+                            : 'fill-gray-600'
+                        }`}
+                      />
+                    </td>
+                    <td className='p-5 border border-slate-300 '>
+                      <FaCheck
+                        className={`h-5 w-5 ${
+                          gig &&
+                          gig?.packages &&
+                          gig?.packages?.length > 0 &&
+                          gig?.packages[2]?.features &&
+                          gig?.packages[2]?.features?.length > 0 &&
+                          gig?.packages[2]?.features[index]?.status
+                            ? 'fill-black'
+                            : 'fill-gray-600'
+                        }`}
+                      />
+                    </td>
+                  </tr>
+                ))}
               <tr>
                 <td className='text-base text-left p-2 text-gray-500  border border-slate-300'> Revisions</td>
-                <td className='p-5 border border-slate-300 '>1</td>
-                <td className='p-5 border border-slate-300 '>1</td>
-                <td className='p-5 border border-slate-300 '>1</td>
+                <td className='p-5 border border-slate-300'>
+                  {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.revisions !== 999
+                    ? gig?.packages[0]?.revisions
+                    : 'Unlimited'}
+                </td>
+                <td className='p-5 border border-slate-300'>
+                  {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.revisions !== 999
+                    ? gig?.packages[1]?.revisions
+                    : 'Unlimited'}
+                </td>
+                <td className='p-5 border border-slate-300'>
+                  {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.revisions !== 999
+                    ? gig?.packages[2]?.revisions
+                    : 'Unlimited'}
+                </td>
               </tr>
-
               <tr className='text-gray-600'>
                 <td className='text-base text-left text-gray-500 p-2 border border-slate-300'> Delivery Time</td>
-                <td className='p-5 border border-slate-300 '>4 days</td>
-                <td className='p-5 border border-slate-300 '>6 days</td>
-                <td className='p-5 border border-slate-300 '>7 days</td>
+                <td className='p-5 border border-slate-300'>
+                  {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.deliveryTime} days
+                </td>
+                <td className='p-5 border border-slate-300'>
+                  {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.deliveryTime} days
+                </td>
+                <td className='p-5 border border-slate-300'>
+                  {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.deliveryTime} days
+                </td>
               </tr>
             </tbody>
             <tfoot>
               <tr className='text-gray-600 text-lg '>
                 <td className=' border-slate-300 border border-b-0'> </td>
-                <td className='p-5 border border-slate-300 border-b-0 '>120$</td>
-                <td className='p-5 border border-slate-300  border-b-0'>220$</td>
-                <td className='p-5 border border-slate-300 border-b-0'>320$</td>
+                <td className='p-5 border border-slate-300 border-b-0 '>
+                  ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.price}
+                </td>
+                <td className='p-5 border border-slate-300  border-b-0'>
+                  ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.price}
+                </td>
+                <td className='p-5 border border-slate-300 border-b-0'>
+                  ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.price}
+                </td>
               </tr>
               <tr className='text-gray-600 text-lg '>
                 <td className='border border-slate-300 border-t-0 '> </td>
@@ -273,93 +308,33 @@ function GigDetailPage() {
         <div id='gig_faq' className='flex flex-col'>
           <span className='text-2xl font-bold text-gray-700'>Reviews</span>
           <div className='flex items-center mb-2'>
-            <svg
-              className='w-4 h-4 text-yellow-300 me-1'
-              aria-hidden='true'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='currentColor'
-              viewBox='0 0 22 20'
-            >
-              <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-            </svg>
-            <svg
-              className='w-4 h-4 text-yellow-300 me-1'
-              aria-hidden='true'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='currentColor'
-              viewBox='0 0 22 20'
-            >
-              <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-            </svg>
-            <svg
-              className='w-4 h-4 text-yellow-300 me-1'
-              aria-hidden='true'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='currentColor'
-              viewBox='0 0 22 20'
-            >
-              <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-            </svg>
-            <svg
-              className='w-4 h-4 text-yellow-300 me-1'
-              aria-hidden='true'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='currentColor'
-              viewBox='0 0 22 20'
-            >
-              <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-            </svg>
-            <svg
-              className='w-4 h-4 text-gray-300 me-1 dark:text-gray-500'
-              aria-hidden='true'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='currentColor'
-              viewBox='0 0 22 20'
-            >
-              <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-            </svg>
-            <p className='ms-1 text-sm font-medium text-gray-500 dark:text-gray-400'>4.95</p>
+            {[1, 2, 3, 4, 5].map((star, index) => (
+              <svg
+                key={index}
+                className={`w-4 h-4 ${star <= averageRating ? 'text-yellow-300' : 'text-gray-300'} me-1`}
+                aria-hidden='true'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='currentColor'
+                viewBox='0 0 22 20'
+              >
+                <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
+              </svg>
+            ))}
+            <p className='ms-1 text-sm font-medium text-gray-500 dark:text-gray-400'>{averageRating}</p>
             <p className='ms-1 text-sm font-medium text-gray-500 dark:text-gray-400'>out of</p>
             <p className='ms-1 text-sm font-medium text-gray-500 dark:text-gray-400'>5</p>
           </div>
-          <p className='text-sm font-medium text-gray-500 dark:text-gray-400'>1,745 global ratings</p>
-          <div className='flex items-center mt-2'>
-            <span className='text-base font-medium  dark:text-blue-500 hover:underline'>5 star</span>
-            <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded dark:bg-gray-700'>
-              <div className='h-3 bg-gray-500 rounded' style={{ width: '70%' }} />
+          <p className='text-sm font-medium text-gray-500 dark:text-gray-400'>{totalReviews} reviews for this Gig</p>
+          {[5, 4, 3, 2, 1].map((star, index) => (
+            <div key={index} className='flex items-center mt-2'>
+              <span className='text-base font-medium  dark:text-blue-500 hover:underline'>{star} star</span>
+              <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded dark:bg-gray-700'>
+                <div className='h-3 bg-gray-500 rounded' style={{ width: `${percentagePerStar[star]}%` }} />
+              </div>
+              <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>({ratings[star]})</span>
             </div>
-            <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>70%</span>
-          </div>
-          <div className='flex items-center mt-2'>
-            <span className='text-base font-medium  dark:text-blue-500 hover:underline'>4 star</span>
-            <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded dark:bg-gray-700'>
-              <div className='h-3 bg-gray-500 rounded' style={{ width: '17%' }} />
-            </div>
-            <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>17%</span>
-          </div>
-          <div className='flex items-center mt-2'>
-            <span className='text-base font-medium  dark:text-blue-500 hover:underline'>3 star</span>
-            <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded dark:bg-gray-700'>
-              <div className='h-3 bg-gray-500 rounded' style={{ width: '8D%' }} />
-            </div>
-            <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>8%</span>
-          </div>
-          <div className='flex items-center mt-2'>
-            <span className='text-base font-medium  dark:text-blue-500 hover:underline'>2 star</span>
-            <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded dark:bg-gray-700'>
-              <div className='h-3 bg-gray-500 rounded' style={{ width: '4%' }} />
-            </div>
-            <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>4%</span>
-          </div>
-          <div className='flex items-center mt-2'>
-            <span className='text-base font-medium  dark:text-blue-500 hover:underline'>1 star</span>
-            <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded dark:bg-gray-700'>
-              <div className='h-3 bg-gray-500 rounded' style={{ width: '1%' }} />
-            </div>
-            <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>1%</span>
-          </div>
+          ))}
         </div>
-
         <div className='relative w-1/2'>
           <div className='absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none'>
             <svg
@@ -483,31 +458,33 @@ function GigDetailPage() {
               gig.packages &&
               gig?.packages?.length > 0 &&
               gig?.packages?.map((pack, index) => (
-                <TabPanel key={index} className='flex flex-col gap-2' value='1'>
-                  <span className='font-bold text-2xl text-gray-600'>${pack.price}</span>
-                  <p className='text-gray-600'>
-                    <span className='font-bold uppercase text-gray-600'>BASIC </span>1 logo concept including vector &
-                    source files + 3 revisions
-                  </p>
+                <TabPanel key={index} className='flex flex-col gap-2' value={String(index + 1)}>
+                  <div className='flex flex-row justify-between w-full'>
+                    <span className='font-bold text-gray-600 uppercase'>{pack.name}</span>
+                    <span className='font-bold text-2xl text-gray-600'>${pack.price}</span>
+                  </div>
+                  <p className='text-gray-600'>{pack.description}</p>
                   <div className='flex flex-row gap-3'>
                     <div className='flex flex-row gap-2  items-center text-gray-600'>
                       <FaRegClock />
-                      <span className='font-medium'>4 Days Delivery</span>
+                      <span className='font-medium'>{pack.deliveryTime} Days Delivery</span>
                     </div>
                     <div className='flex flex-row gap-2  items-center text-gray-600'>
                       <HiRefresh className='h-5 w-5' />
-                      <span className='font-medium'>3 Revisions</span>
+                      <span className='font-medium'>
+                        {pack.revisions !== 999 ? pack.revisions : 'Unlimited'} Revisions
+                      </span>
                     </div>
                   </div>
                   <div className='flex flex-col '>
-                    <div className='flex flex-row gap-2 items-center'>
-                      <FaCheck className='h-4 w-4 fill-gray-600' />
-                      <span className='text-gray-600'>gssdf</span>
-                    </div>
-                    <div className='flex flex-row gap-2 items-center'>
-                      <FaCheck className='h-4 w-4 fill-gray-600' />
-                      <span className='text-gray-600'>gssdf</span>
-                    </div>
+                    {pack.features &&
+                      pack.features?.length > 0 &&
+                      pack?.features?.map((feature, index) => (
+                        <div key={index} className='flex flex-row gap-2 items-center'>
+                          <FaCheck className={`h-4 w-4 ${feature.status ? 'fill-black' : 'fill-gray-600'}`} />
+                          <span className='text-gray-600'>{feature.name}</span>
+                        </div>
+                      ))}
                   </div>
                 </TabPanel>
               ))}

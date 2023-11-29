@@ -286,10 +286,41 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
       throw httpError.NotFound()
     }
 
+    const gigWithReviews = await Gig.populate(gigExist, {
+      path: 'reviews',
+      populate: { path: 'reviewer', model: 'user' }
+    })
+    const ratings: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    let totalRating = 0
+
+    gigWithReviews?.reviews?.forEach((review) => {
+      ratings[review?.rating]++
+      totalRating += review.rating
+    })
+
+    const totalReviews = gigWithReviews?.reviews?.length
+    const averageRating = totalReviews ? totalRating / totalReviews : 0
+
+    const percentagePerStar: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    if (totalReviews) {
+      for (let i = 1; i <= 5; i++) {
+        percentagePerStar[i] = (ratings[i] / totalReviews) * 100
+      }
+    }
+
     const parentCategory = await Category.find({ subCategories: gigExist.category?._id })
     const grandParentCategory = await Category.find({ subCategories: parentCategory[0]._id })
 
-    res.status(200).json({ gig: gigExist, grandParentCategory: grandParentCategory[0] })
+    res.status(200).json({
+      gig: gigExist,
+      grandParentCategory: grandParentCategory[0],
+      ratings: {
+        ratings,
+        totalReviews,
+        averageRating,
+        percentagePerStar
+      }
+    })
   } catch (error) {
     next(error)
   }

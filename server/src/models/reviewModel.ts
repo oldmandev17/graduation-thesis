@@ -14,7 +14,6 @@ export interface IReview extends mongoose.Document {
   rating: number
   status: ReviewStatus
   reviewer: IUser
-  gig: IGig
   createdAt: Date
 }
 
@@ -34,11 +33,6 @@ const reviewSchema: mongoose.Schema = new mongoose.Schema<IReview>({
   reviewer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: true
-  },
-  gig: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'gig',
     required: true
   },
   createdAt: {
