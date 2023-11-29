@@ -59,8 +59,8 @@ function getCategoryDetail(slug: string, accessToken: string | undefined) {
   })
 }
 
-function getGigDetail(slug: string | undefined, accessToken: string | undefined) {
-  const url = `/gig/slug/${slug}`
+function getGigDetailById(id: string | undefined, accessToken: string | undefined) {
+  const url = `/gig/id/${id}`
   return axiosJson.get(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -69,4 +69,13 @@ function getGigDetail(slug: string | undefined, accessToken: string | undefined)
   })
 }
 
-export { getAllCategory, createGig, getCategoryDetail, getGigDetail, updateGig }
+function getGigDetailBySlug(slug: string | undefined) {
+  const url = `/gig/slug/${slug}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+}
+
+export { getAllCategory, createGig, getCategoryDetail, getGigDetailById, updateGig, getGigDetailBySlug }

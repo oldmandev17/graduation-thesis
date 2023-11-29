@@ -61,7 +61,7 @@ const router = createBrowserRouter([
             element: <LandingPage />
           },
           {
-            path: '/gig-detail/:gigTitle',
+            path: '/gig-detail/:slug',
             element: <GigDetailPage />
           }
         ]
@@ -93,19 +93,19 @@ const router = createBrowserRouter([
             element: <CreateGigOverviewPage />
           },
           {
-            path: '/:userId/gig-create/:slug/overview',
+            path: '/:userId/gig-create/:id/overview',
             element: <CreateGigOverviewPage />
           },
           {
-            path: '/:userId/gig-create/:slug/pricing',
+            path: '/:userId/gig-create/:id/pricing',
             element: <CreateGigPricingPage />
           },
           {
-            path: '/:userId/gig-create/:slug/faq&gallery',
+            path: '/:userId/gig-create/:id/faq&gallery',
             element: <CreateGigFaqGalleryPage />
           },
           {
-            path: '/:userId/gig-create/:slug/publish',
+            path: '/:userId/gig-create/:id/publish',
             element: <CreateGigPushlishPage />
           }
         ]

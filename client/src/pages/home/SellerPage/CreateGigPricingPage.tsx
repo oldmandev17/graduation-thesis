@@ -2,7 +2,7 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-props-no-spreading */
 import { yupResolver } from '@hookform/resolvers/yup'
-import { getGigDetail, updateGig } from 'apis/api'
+import { getGigDetailById, updateGig } from 'apis/api'
 import { arrDeliveryTime, arrRevisions } from 'assets/data'
 import StepNavigate from 'components/seller/StepNavigate'
 import { Feature, GigPackageType, IGig, Package } from 'modules/gig'
@@ -38,7 +38,7 @@ const gigPricingSchema = Yup.object().shape({
 })
 
 function CreateGigPricingPage() {
-  const { slug } = useParams<{ slug?: string }>()
+  const { id } = useParams<{ id?: string }>()
   const [gig, setGig] = useState<IGig>()
   const { accessToken } = getToken()
   const navigate = useNavigate()
@@ -66,7 +66,7 @@ function CreateGigPricingPage() {
   }, [errors])
 
   const getGigDetails = useCallback(async () => {
-    await getGigDetail(slug, accessToken)
+    await getGigDetailById(id, accessToken)
       .then((response) => {
         if (response.status === 200) {
           setGig(response?.data?.gig)
@@ -80,7 +80,7 @@ function CreateGigPricingPage() {
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, accessToken])
+  }, [id, accessToken])
 
   useEffect(() => {
     if (gig && user && gig?.createdBy?._id !== user?._id) {
@@ -90,7 +90,7 @@ function CreateGigPricingPage() {
   }, [gig, user])
 
   useEffect(() => {
-    if (slug) {
+    if (id) {
       getGigDetails()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -6,7 +6,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { yupResolver } from '@hookform/resolvers/yup'
-import { getGigDetail, updateGig } from 'apis/api'
+import { getGigDetailById, updateGig } from 'apis/api'
 import StepNavigate from 'components/seller/StepNavigate'
 import { FAQ, IGig } from 'modules/gig'
 import { useCallback, useEffect, useState } from 'react'
@@ -36,7 +36,7 @@ function CreateGigFaqGalleryPage() {
     resolver: yupResolver(FAQSchema)
   })
 
-  const { slug } = useParams<{ slug?: string }>()
+  const { id } = useParams<{ id?: string }>()
   const [gig, setGig] = useState<IGig>()
   const { accessToken } = getToken()
   const [show, setShow] = useState<boolean>(true)
@@ -52,7 +52,7 @@ function CreateGigFaqGalleryPage() {
   }
 
   const getGigDetails = useCallback(async () => {
-    await getGigDetail(slug, accessToken)
+    await getGigDetailById(id, accessToken)
       .then((response) => {
         if (response.status === 200) {
           setGig(response?.data?.gig)
@@ -66,7 +66,7 @@ function CreateGigFaqGalleryPage() {
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, accessToken])
+  }, [id, accessToken])
 
   useEffect(() => {
     if (gig && user && gig?.createdBy?._id !== user?._id) {
@@ -76,7 +76,7 @@ function CreateGigFaqGalleryPage() {
   }, [gig, user])
 
   useEffect(() => {
-    if (slug) {
+    if (id) {
       getGigDetails()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

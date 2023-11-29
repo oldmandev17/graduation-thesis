@@ -3,7 +3,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-props-no-spreading */
 import { yupResolver } from '@hookform/resolvers/yup'
-import { createGig, getAllCategory, getGigDetail, updateGig } from 'apis/api'
+import { createGig, getAllCategory, getGigDetailById, updateGig } from 'apis/api'
 import StepNavigate from 'components/seller/StepNavigate'
 import { ICategory } from 'modules/category'
 import { IGig } from 'modules/gig'
@@ -22,7 +22,7 @@ const gigOverviewSchema = Yup.object().shape({
 })
 
 function CreateGigOverviewPage() {
-  const { slug } = useParams<{ slug?: string }>()
+  const { id } = useParams<{ id?: string }>()
   const [gig, setGig] = useState<IGig>()
   const [parent, setParent] = useState<string>('')
   const [categories, setCategories] = useState<Array<{ label: string; value: string }>>([])
@@ -46,7 +46,7 @@ function CreateGigOverviewPage() {
   })
 
   const getGigDetails = useCallback(async () => {
-    await getGigDetail(slug, accessToken)
+    await getGigDetailById(id, accessToken)
       .then((response) => {
         if (response.status === 200) {
           setGig(response?.data?.gig)
@@ -60,7 +60,7 @@ function CreateGigOverviewPage() {
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, accessToken])
+  }, [id, accessToken])
 
   useEffect(() => {
     if (gig && user && gig?.createdBy?._id !== user?._id) {
@@ -70,7 +70,7 @@ function CreateGigOverviewPage() {
   }, [gig, user])
 
   useEffect(() => {
-    if (slug) {
+    if (id) {
       getGigDetails()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

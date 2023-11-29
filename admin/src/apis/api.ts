@@ -264,6 +264,16 @@ function getAllOrder(
   })
 }
 
+function getGigDetailById(id: string | undefined, accessToken: string | undefined) {
+  const url = `/gig/id/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   createCategory,
   createUser,
@@ -280,5 +290,6 @@ export {
   updateCategory,
   updateCategoryStatus,
   updateGigStatus,
-  updateUserStatus
+  updateUserStatus,
+  getGigDetailById
 }

@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   createGig,
+  createReview,
   deleteGigs,
   getAllGig,
   getGigDetail,
@@ -30,6 +31,7 @@ gigRoutes
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), deleteGigs)
 gigRoutes.route('/').get(getAllGig)
 gigRoutes.route('/id/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getGigDetail)
-gigRoutes.route('/slug/:slug').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getGigDetail)
+gigRoutes.route('/slug/:slug').get(getGigDetail)
+gigRoutes.route('/:id/create-review').post(verifyAccessToken, authorizeRoles([UserRole.BUYER]), createReview)
 
 export default gigRoutes

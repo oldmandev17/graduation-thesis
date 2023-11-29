@@ -5,6 +5,7 @@ import { use } from 'passport'
 import Category from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
+import Review from 'src/models/reviewModel'
 import User, { UserRole } from 'src/models/userModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
@@ -321,6 +322,15 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
         percentagePerStar
       }
     })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function createReview(req: Request, res: Response, next: NextFunction) {
+  try {
+    const review = await Review.create(req.body)
+    res.status(200).json(review)
   } catch (error) {
     next(error)
   }

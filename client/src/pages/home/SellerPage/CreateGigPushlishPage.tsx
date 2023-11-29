@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { getGigDetail, updateGig } from 'apis/api'
+import { getGigDetailById, updateGig } from 'apis/api'
 import StepNavigate from 'components/seller/StepNavigate'
 import { GigStatus, IGig } from 'modules/gig'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -9,7 +9,7 @@ import { useAppSelector } from 'stores/hooks'
 import { getToken } from 'utils/auth'
 
 function CreateGigPushlishPage() {
-  const { slug } = useParams<{ slug?: string }>()
+  const { id } = useParams<{ id?: string }>()
   const [gig, setGig] = useState<IGig>()
   const { accessToken } = getToken()
   const navigate = useNavigate()
@@ -27,7 +27,7 @@ function CreateGigPushlishPage() {
   }
 
   const getGigDetails = useCallback(async () => {
-    await getGigDetail(slug, accessToken)
+    await getGigDetailById(id, accessToken)
       .then((response) => {
         if (response.status === 200) {
           setGig(response?.data?.gig)
@@ -41,7 +41,7 @@ function CreateGigPushlishPage() {
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, accessToken])
+  }, [id, accessToken])
 
   useEffect(() => {
     if (gig && user && gig?.createdBy?._id !== user?._id) {
@@ -51,7 +51,7 @@ function CreateGigPushlishPage() {
   }, [gig, user])
 
   useEffect(() => {
-    if (slug) {
+    if (id) {
       getGigDetails()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,7 +64,6 @@ function CreateGigPushlishPage() {
       const data: any = {}
       data.name = gig?.name
       data.status = GigStatus.WAITING
-      console.log("🚀 ~ file: CreateGigPushlishPage.tsx:65 ~ handlePublishGig ~ data:", data)
       if (gig) {
         await updateGig(gig?._id, data, accessToken)
           .then((response) => {
