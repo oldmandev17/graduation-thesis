@@ -128,18 +128,18 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'category'
   },
-  reviews: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'review'
-    }
-  ],
-  orders: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'order'
-    }
-  ],
+  // reviews: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'review'
+  //   }
+  // ],
+  // orders: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'order'
+  //   }
+  // ],
   createdAt: {
     type: Date,
     default: Date.now

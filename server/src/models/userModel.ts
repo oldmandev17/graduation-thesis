@@ -3,6 +3,7 @@ import { NextFunction } from 'express'
 import mongoose from 'mongoose'
 import { IGig } from './gigModel'
 import { IOrder } from './orderModel'
+import { INotification } from './notificationModel'
 
 export enum UserRole {
   ADMIN = 'ADMIN',

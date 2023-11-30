@@ -6,6 +6,7 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middl
 import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Message from 'src/models/messageModel'
+import Notification, { NotificationType } from 'src/models/notificationModel'
 import Order, { IOrder } from 'src/models/orderModel'
 import User, { IUser, UserProvider, UserRole, UserStatus } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
@@ -14,6 +15,7 @@ import APIFeature from 'src/utils/apiFeature'
 import { findUser } from 'src/utils/findUser'
 import { generateRandomPassword } from 'src/utils/generatePassword'
 import { logger } from 'src/utils/logger'
+import { createNotification } from 'src/utils/notification'
 import { sendEmail, sendPasswordEmail, sendResetEmail, sendVerificationEmail } from 'src/utils/sendEmail'
 import {
   authForgotPasswordSchema,
@@ -54,6 +56,13 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       errorMessage: '',
       content: req.body
     })
+    await createNotification(
+      newUser._id,
+      'New Account Registration',
+      `Just a heads up, we've received a new account registration from Customer ${newUser.name}`,
+      NotificationType.ADMIN,
+      next
+    )
     await sendVerificationEmail(newUser._id, newUser.email, res, next)
   } catch (error: any) {
     logger({

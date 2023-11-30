@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
-import { use } from 'passport'
 import Category from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
@@ -287,19 +286,17 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
       throw httpError.NotFound()
     }
 
-    const gigWithReviews = await Gig.populate(gigExist, {
-      path: 'reviews',
-      populate: { path: 'reviewer', model: 'user' }
-    })
+    gigExist.reviews = await Review.find({ gig: gigExist._id }).populate('reviewer')
+
     const ratings: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
     let totalRating = 0
 
-    gigWithReviews?.reviews?.forEach((review) => {
+    gigExist.reviews.forEach((review) => {
       ratings[review?.rating]++
       totalRating += review.rating
     })
 
-    const totalReviews = gigWithReviews?.reviews?.length
+    const totalReviews = gigExist.reviews.length
     const averageRating = totalReviews ? totalRating / totalReviews : 0
 
     const percentagePerStar: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
@@ -322,15 +319,6 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
         percentagePerStar
       }
     })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export async function createReview(req: Request, res: Response, next: NextFunction) {
-  try {
-    const review = await Review.create(req.body)
-    res.status(200).json(review)
   } catch (error) {
     next(error)
   }

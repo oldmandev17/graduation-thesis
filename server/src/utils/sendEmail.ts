@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
-import { nextTick } from 'process'
 import User, { UserRole } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
 import UserVerification from 'src/models/userVerificationModel'

@@ -29,7 +29,7 @@ import { toast } from 'react-toastify'
 import * as searchjs from 'searchjs'
 
 function GigDetailPage() {
-  const [value, setValue] = React.useState(1)
+  const [value, setValue] = useState(1)
   const navigate = useNavigate()
   const { slug } = useParams<{ slug?: string }>()
   const [gig, setGig] = useState<IGig>()
@@ -175,7 +175,7 @@ function GigDetailPage() {
                   gig?.packages?.length > 0 &&
                   gig?.packages?.map((pack, index) => (
                     <th key={index} className='gap-2 p-5 text-left text-gray-600 border border-slate-300'>
-                      <p className='pt-1 text-xl font-normal '>{pack.price}$ </p>
+                      <p className='pt-1 text-xl font-normal '>${pack.price}</p>
                       <p className='pt-1 text-xl font-bold capitalize'>{pack.type}</p>
                       <p className='pt-1 text-sm font-semibold uppercase'>{pack.name}</p>
                       <p className='pt-1 text-sm font-normal'>{pack.description}</p>
