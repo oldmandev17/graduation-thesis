@@ -41,8 +41,8 @@ export interface IUser extends mongoose.Document {
   provider: UserProvider
   verify: boolean
   role: Array<UserRole>
-  gigs: Array<IGig>
-  orders: Array<IOrder>
+  gigs?: Array<IGig>
+  orders?: Array<IOrder>
   status: UserStatus
   contacts?: any
   createdAt: Date

@@ -4,12 +4,14 @@ import httpError from 'http-errors'
 import Category from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
+import { NotificationType } from 'src/models/notificationModel'
 import Review from 'src/models/reviewModel'
 import User, { UserRole } from 'src/models/userModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { findUser } from 'src/utils/findUser'
 import { logger } from 'src/utils/logger'
+import { createNotification } from 'src/utils/notification'
 import { sendEmail } from 'src/utils/sendEmail'
 import { gigDeleteSchema, gigSchema, gigStatusSchema } from 'src/utils/validationSchema'
 
@@ -128,6 +130,24 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       errorMessage: '',
       content: req.body
     })
+    if (gigExist.status === GigStatus.NONE && gigUpdate?.status === GigStatus.WAITING) {
+      createNotification(
+        null,
+        'New Gig Create Or Update',
+        `Just a heads up, we've received a new gig  ${gigUpdate.name} created or updated.`,
+        NotificationType.ADMIN,
+        next
+      )
+      if (user?.role.includes(UserRole.SELLER)) {
+        createNotification(
+          req.payload.userId,
+          'Launch Your Gig Now!',
+          `<p>Waiting for admin approval. Thanks for your patience!</p><p>You can review gig by <a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate._id}'>here</a>.</p>`,
+          NotificationType.USER,
+          next
+        )
+      }
+    }
     res.status(200).json({ gig: gigUpdate })
   } catch (error: any) {
     logger({
@@ -167,6 +187,18 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
       const content =
         "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Fiverr has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Fiverr's support email.</p><p>Thank you for working on Fiverr, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Fiverr Support Team]</p>"
       await sendEmail(gigExist?.createdBy?.email as string, title, content, next)
+      if (
+        (user?.role.includes(UserRole.ADMIN) || user?.role.includes(UserRole.MANAGER)) &&
+        (status === GigStatus.ACTIVE || status === GigStatus.BANNED)
+      ) {
+        createNotification(
+          gigExist?.createdBy?._id,
+          'Your Fiverr Gig Has Been Updated!',
+          `<p>Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p>`,
+          NotificationType.USER,
+          next
+        )
+      }
     })
     logger({
       user: req.payload.userId,

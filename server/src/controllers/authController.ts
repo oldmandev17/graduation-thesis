@@ -6,7 +6,7 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middl
 import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Message from 'src/models/messageModel'
-import Notification, { NotificationType } from 'src/models/notificationModel'
+import { NotificationType } from 'src/models/notificationModel'
 import Order, { IOrder } from 'src/models/orderModel'
 import User, { IUser, UserProvider, UserRole, UserStatus } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
@@ -40,7 +40,14 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       email: result.email,
       provider: UserProvider.EMAIL
     })
-    if (userExist.length) throw httpError.Conflict()
+    if (userExist.length > 0) {
+      if (userExist[0].verify || (!userExist[0].verify && userExist[0].createdAt.getTime() + 21600000 < Date.now())) {
+        throw httpError.Conflict()
+      }
+      if (!userExist[0].verify && userExist[0].createdAt.getTime() + 21600000 > Date.now()) {
+        await User.deleteOne({ _id: userExist[0]._id })
+      }
+    }
     const newUser = await User.create({
       name: result.name,
       email: result.email,
@@ -570,14 +577,13 @@ export const getAllUser = async (req: Request, res: Response, next: NextFunction
 export const getUserDetail = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userExist = await User.findOne({ _id: req.params.id })
-      .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
-      .populate({ path: 'updatedAdminBy', select: '_id name email phone provider verify role status' })
+      .populate({ path: 'createdBy', select: 'name email phone provider verify role status' })
+      .populate({ path: 'updatedAdminBy', select: 'name email phone provider verify role status' })
     if (!userExist) throw httpError.NotFound()
-    const orders: IOrder[] = await Order.find({ createdBy: userExist?._id })
-    userExist.orders = orders
-    const gigs: IGig[] = await Gig.find({ createdBy: userExist?._id })
-    userExist.gigs = gigs
-    res.status(200).json({ user: userExist })
+    const orders: IOrder[] = await Order.find({ createdBy: userExist?._id }).populate('gig').sort({ createdAt: 'desc' })
+    const gigs: IGig[] = await Gig.find({ createdBy: userExist?._id }).populate('category').sort({ createdAt: 'desc' })
+
+    res.status(200).json({ user: userExist, gigs, orders })
   } catch (error: any) {
     next(error)
   }

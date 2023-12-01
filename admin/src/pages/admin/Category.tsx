@@ -323,7 +323,9 @@ function Category() {
             getAllCategories()
             getCategories('')
             setOpenModal(false)
+            setCategoryLevel2([])
             reset()
+            setFeatures([])
           }
         })
         .catch((error: any) => {
@@ -337,7 +339,9 @@ function Category() {
             getAllCategories()
             getCategories('')
             setOpenModal(false)
+            setCategoryLevel2([])
             reset()
+            setFeatures([])
           }
         })
         .catch((error: any) => {
@@ -948,7 +952,7 @@ function Category() {
                 )}
                 {Number(watch('level')) === 2 && (
                   <div>
-                    <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Status</dt>
+                    <dt className='mb-2 font-semibold leading-none text-gray-900 dark:text-white'>Parent Category</dt>
                     <select
                       className='w-full px-1 py-2 mb-4 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 sm:mb-5 bg-gray-50'
                       {...register('parent')}

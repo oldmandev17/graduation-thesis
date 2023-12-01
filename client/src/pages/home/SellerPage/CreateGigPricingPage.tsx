@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { getGigDetailById, updateGig } from 'apis/api'
 import { arrDeliveryTime, arrRevisions } from 'assets/data'
 import StepNavigate from 'components/seller/StepNavigate'
-import { Feature, GigPackageType, IGig, Package } from 'modules/gig'
+import { Feature, GigPackageType, GigStatus, IGig, Package } from 'modules/gig'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { BiDollar } from 'react-icons/bi'
@@ -140,6 +140,7 @@ function CreateGigPricingPage() {
     })
     data.packages = packages
     data.name = gig?.name
+    data.status = GigStatus.NONE
     if (gig) {
       await updateGig(gig?._id, data, accessToken)
         .then((response) => {

@@ -351,39 +351,41 @@ function GigDetailPage() {
             </div>
           ))}
         </div>
-        <div className='relative w-1/2'>
-          <div className='absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3'>
-            <svg
-              className='w-4 h-4 text-gray-500 dark:text-gray-400'
-              aria-hidden='true'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 20 20'
+        {filteredReviews.length > 0 && (
+          <div className='relative w-1/2'>
+            <div className='absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3'>
+              <svg
+                className='w-4 h-4 text-gray-500 dark:text-gray-400'
+                aria-hidden='true'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 20 20'
+              >
+                <path
+                  stroke='currentColor'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'
+                />
+              </svg>
+            </div>
+            <input
+              type='search'
+              id='default-search'
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)}
+              className='block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              placeholder='Search Mockups, Logos...'
+            />
+            <button
+              type='button'
+              onClick={handleSearchReview}
+              className='text-white absolute end-2.5 bottom-1 bg-gray-900 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
             >
-              <path
-                stroke='currentColor'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'
-              />
-            </svg>
+              Search
+            </button>
           </div>
-          <input
-            type='search'
-            id='default-search'
-            onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)}
-            className='block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-            placeholder='Search Mockups, Logos...'
-          />
-          <button
-            type='button'
-            onClick={handleSearchReview}
-            className='text-white absolute end-2.5 bottom-1 bg-gray-900 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
-          >
-            Search
-          </button>
-        </div>
+        )}
         <div>
           {filteredReviews.length > 0 &&
             filteredReviews.map((review, index) => (
@@ -463,10 +465,10 @@ function GigDetailPage() {
                   It is obviously not the same build quality as those very expensive watches. But that is like comparing
                   a Citroën to a Ferrari. This watch was well under £100! An absolute bargain.
                 </p>
+                {filteredReviews.length !== index + 1 && <hr />}
               </article>
             ))}
         </div>
-        <hr />
       </div>
       <div className='col-span-2'>
         <Box className='border border-gray-300' sx={{ width: '100%', typography: 'body1' }}>

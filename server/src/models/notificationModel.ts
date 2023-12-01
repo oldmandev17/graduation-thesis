@@ -12,7 +12,7 @@ export enum NotificationType {
 }
 
 export interface INotification extends mongoose.Document {
-  user: IUser
+  user?: IUser
   name: string
   content: string
   status: NotificationStatus

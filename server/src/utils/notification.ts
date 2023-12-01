@@ -3,20 +3,23 @@ import Notification, { INotification, NotificationStatus, NotificationType } fro
 import APIFeature from './apiFeature'
 
 export async function createNotification(
-  user: string,
+  user: string | null,
   name: string,
   content: string,
   type: NotificationType,
   next: NextFunction
 ) {
   try {
-    await Notification.create({
-      user,
+    const notification: any = {
       name,
       content,
       type,
       status: NotificationStatus.SENT
-    })
+    }
+    if (user) {
+      notification.user = user
+    }
+    await Notification.create(notification)
     return true
   } catch (error) {
     next(error)

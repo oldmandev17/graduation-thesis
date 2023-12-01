@@ -8,7 +8,7 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { getGigDetailById, updateGig } from 'apis/api'
 import StepNavigate from 'components/seller/StepNavigate'
-import { FAQ, IGig } from 'modules/gig'
+import { FAQ, GigStatus, IGig } from 'modules/gig'
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useForm } from 'react-hook-form'
@@ -127,6 +127,7 @@ function CreateGigFaqGalleryPage() {
       data.FAQs = FAQs
       data.name = gig?.name
       data.images = images
+      data.status = GigStatus.NONE
       if (gig) {
         await updateGig(gig?._id, data, accessToken)
           .then((response) => {

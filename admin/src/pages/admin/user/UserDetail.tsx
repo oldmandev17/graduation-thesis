@@ -70,22 +70,24 @@ function UserDetail() {
   const orderCodeDebounce = useDebounce(orderCode, 500)
 
   const searchGigsByName = (gigs: IGig[], searchTerm: string) => {
-    const searchTermLower = searchTerm.toLowerCase()
-    const filteredGigs = gigs.filter((gig) => gig.name?.toLowerCase().includes(searchTermLower))
-    setGigs(filteredGigs)
+    if (user) {
+      const searchTermLower = searchTerm.toLowerCase()
+      const filteredGigs = user.gigs.filter((gig) => gig.name?.toLowerCase().includes(searchTermLower))
+      setGigs(searchTermLower ? filteredGigs : user.gigs)
+    }
   }
 
   useEffect(() => {
-    if (gigNameDebounce) {
-      searchGigsByName(gigs, gigNameDebounce)
-    }
+    searchGigsByName(gigs, gigNameDebounce)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gigNameDebounce])
 
   const searchOrderByCode = (orders: IOrder[], searchCode: string) => {
-    const searchCodeLower = searchCode.toLowerCase()
-    const filteredOrders = orders.filter((order) => order.name?.toLowerCase().includes(searchCodeLower))
-    setOrders(filteredOrders)
+    if (user) {
+      const searchCodeLower = searchCode.toLowerCase()
+      const filteredOrders = user.orders.filter((order) => order.name?.toLowerCase().includes(searchCodeLower))
+      setOrders(searchCodeLower ? filteredOrders : user.orders)
+    }
   }
 
   useEffect(() => {
@@ -142,9 +144,9 @@ function UserDetail() {
       await getUserDetail(id, accessToken)
         .then((response) => {
           if (response.status === 200) {
-            setUser(response.data.user)
-            setGigs(response.data.user?.gigs)
-            setOrders(response.data.user?.orders)
+            setUser({ ...response.data.user, gigs: response.data.gigs, orders: response.data.orders })
+            setGigs(response.data.gigs)
+            setOrders(response.data.orders)
           }
         })
         .catch((error: any) => {
@@ -591,7 +593,7 @@ function UserDetail() {
           </div>
         </form>
       </FormProvider>
-      {!user?.role.includes(UserRole.SELLER) && (
+      {user?.role.includes(UserRole.SELLER) && (
         <>
           <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>
             Freelancer Seller Account: Unlocking Opportunities for Independent Professionals
@@ -603,7 +605,7 @@ function UserDetail() {
             <div className='relative col-span-2 overflow-x-auto shadow-md sm:rounded-lg'>
               <div className='flex flex-wrap items-center justify-between pb-4 space-y-4 flex-colum sm:flex-row sm:space-y-0'>
                 <div className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700'>
-                  Total Gig: {user?.orders?.length || 0}
+                  Total Gig: {user?.gigs?.length || 0}
                 </div>
                 <label htmlFor='table-search' className='sr-only'>
                   Search
@@ -709,7 +711,7 @@ function UserDetail() {
           </div>
         </>
       )}
-      {!user?.role.includes(UserRole.BUYER) && (
+      {user?.role.includes(UserRole.BUYER) && (
         <>
           <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>
             Freelancer Buyer Account: Seamless Access to Quality Services

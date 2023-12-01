@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { createGig, getAllCategory, getGigDetailById, updateGig } from 'apis/api'
 import StepNavigate from 'components/seller/StepNavigate'
 import { ICategory } from 'modules/category'
-import { IGig } from 'modules/gig'
+import { GigStatus, IGig } from 'modules/gig'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -122,6 +122,7 @@ function CreateGigOverviewPage() {
   }, [errors])
 
   const handleCreateOrUpdateGigOverview = async (values: any) => {
+    values.status = GigStatus.NONE
     if (gig) {
       await updateGig(gig._id, values, accessToken)
         .then((response) => {
