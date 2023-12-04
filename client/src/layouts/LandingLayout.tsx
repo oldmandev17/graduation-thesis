@@ -1,12 +1,12 @@
 import React from 'react'
 import Footer from 'components/Footer'
-import Header from 'components/Header'
+import HeaderBuyer from 'components/HeaderBuyer'
 import { Outlet } from 'react-router-dom'
 
 function LandingLayout() {
   return (
     <div>
-      <Header />
+      <HeaderBuyer />
       <Outlet />
       <Footer />
     </div>

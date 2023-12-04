@@ -3,7 +3,7 @@ import { NextFunction } from 'express'
 import mongoose from 'mongoose'
 import { IGig } from './gigModel'
 import { IOrder } from './orderModel'
-import { INotification } from './notificationModel'
+import { ICategory } from './categoryModel'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -41,8 +41,7 @@ export interface IUser extends mongoose.Document {
   provider: UserProvider
   verify: boolean
   role: Array<UserRole>
-  gigs?: Array<IGig>
-  orders?: Array<IOrder>
+  target: Array<ICategory>
   status: UserStatus
   contacts?: any
   createdAt: Date
@@ -95,6 +94,12 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     enum: Object.values(UserRole),
     default: [UserRole.NONE]
   },
+  target: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'category'
+    }
+  ],
   status: {
     type: String,
     enum: Object.values(UserStatus),

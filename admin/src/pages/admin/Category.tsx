@@ -106,12 +106,16 @@ function Category() {
   }
 
   const getCategories = async (serId: string) => {
-    await getAllCategory(null, null, null, '', 'name', 'desc', null, null, serId, 1, accessToken).then((response) => {
-      if (response.status === 200) {
-        setCategoryLevel1([...response.data.arrParentCategory, { label: 'Show all', value: '' }])
-        setCategoryLevel2([...response.data.arrCategory, { label: 'Show all', value: '' }])
-      }
-    })
+    await getAllCategory(null, null, null, '', 'name', 'desc', null, null, serId, 1, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setCategoryLevel1([...response.data.arrParentCategory, { label: 'Show all', value: '' }])
+          setCategoryLevel2([...response.data.arrCategory, { label: 'Show all', value: '' }])
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
   }
 
   const [serId, setSerId] = useState<string>('')
@@ -326,6 +330,7 @@ function Category() {
             setCategoryLevel2([])
             reset()
             setFeatures([])
+            setSerId('')
           }
         })
         .catch((error: any) => {
@@ -342,6 +347,7 @@ function Category() {
             setCategoryLevel2([])
             reset()
             setFeatures([])
+            setSerId('')
           }
         })
         .catch((error: any) => {

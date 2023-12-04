@@ -1,13 +1,13 @@
 import { ReactNode, Suspense, lazy, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { Outlet, RouterProvider, createBrowserRouter, useLocation } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { IoCloseSharp } from 'react-icons/io5'
 import { Provider } from 'react-redux'
+import { Outlet, RouterProvider, createBrowserRouter, useLocation } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { store } from 'stores/configureStore'
+import './index.css'
 // import RequiredAuth from 'pages/auth/RequiredAuth'
 // import { UserRole } from 'modules/user'
 import { MessageProvider } from 'contexts/StateContext'
@@ -49,16 +49,16 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: '/*',
-        element: <NotFoundPage />
-      },
-      {
         path: '/',
         element: <LandingLayout />,
         children: [
           {
             path: '/',
             element: <LandingPage />
+          },
+          {
+            path: '/*',
+            element: <NotFoundPage />
           },
           {
             path: '/gig-detail/:slug',
@@ -85,27 +85,27 @@ const router = createBrowserRouter([
         element: <MessagePage />
       },
       {
-        path: '/:userId',
+        path: '/gig-create/:userId',
         element: <CreateGigLayout />,
         children: [
           {
-            path: '/:userId/gig-create/overview',
+            path: '/gig-create/:userId/overview',
             element: <CreateGigOverviewPage />
           },
           {
-            path: '/:userId/gig-create/:id/overview',
+            path: '/gig-create/:userId/:id/overview',
             element: <CreateGigOverviewPage />
           },
           {
-            path: '/:userId/gig-create/:id/pricing',
+            path: '/gig-create/:userId/:id/pricing',
             element: <CreateGigPricingPage />
           },
           {
-            path: '/:userId/gig-create/:id/faq&gallery',
+            path: '/gig-create/:userId/:id/faq&gallery',
             element: <CreateGigFaqGalleryPage />
           },
           {
-            path: '/:userId/gig-create/:id/publish',
+            path: '/gig-create/:userId/:id/publish',
             element: <CreateGigPushlishPage />
           }
         ]

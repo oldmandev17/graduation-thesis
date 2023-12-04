@@ -78,4 +78,33 @@ function getGigDetailBySlug(slug: string | undefined) {
   })
 }
 
-export { getAllCategory, createGig, getCategoryDetail, getGigDetailById, updateGig, getGigDetailBySlug }
+function getAllNotification(accessToken: string | undefined) {
+  const url = '/auth/notification'
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function updateProfile(data: any, accessToken: string | undefined) {
+  const url = '/auth/update-profile'
+  return axiosFormData.put(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+export {
+  getAllCategory,
+  createGig,
+  getCategoryDetail,
+  getGigDetailById,
+  updateGig,
+  getGigDetailBySlug,
+  getAllNotification,
+  updateProfile
+}

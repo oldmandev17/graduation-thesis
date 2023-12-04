@@ -1,5 +1,6 @@
 import { compare } from 'bcrypt'
 import { NextFunction, Request, Response } from 'express'
+import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
 import client from 'src/helpers/initRedis'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middlewares/jwtHelper'
@@ -228,7 +229,7 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
   try {
     const userExist = await User.findOne({
       _id: req.payload.userId
-    })
+    }).populate({ path: 'target' })
     if (!userExist) throw httpError.NotFound()
     const messages = await Message.find({
       $or: [
@@ -405,7 +406,15 @@ export async function deleteUsers(req: Request, res: Response, next: NextFunctio
 export async function updateUser(req: any, res: Response, next: NextFunction) {
   try {
     const result = await userUpdateSchema.validateAsync(req.body)
-    result.avatar = req.files.find((file: any) => file.fieldname === 'avatar')?.path
+    const user = await User.findOne({ _id: req.payload.userId })
+    const file = req.file as Express.Multer.File
+    if (!user) throw httpError.NotFound()
+    else {
+      if (file) {
+        if (existsSync(user?.avatar as string)) unlinkSync(user?.avatar as string)
+        result.avatar = file.path
+      }
+    }
     await User.updateOne(
       {
         _id: req.payload.userId
@@ -415,7 +424,7 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
         updatedAt: Date.now()
       }
     )
-    const user = await User.findOne({ _id: req.payload.userId })
+
     logger({
       user: req.payload.userId,
       name: LogName.UPDATE_USER,

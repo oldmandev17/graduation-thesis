@@ -86,12 +86,16 @@ function CreateGigOverviewPage() {
   }, [gig])
 
   const getAllCategories = useCallback(async () => {
-    await getAllCategory(null, null, null, '', 'name', 'desc', null, null, parent, 1, accessToken).then((response) => {
-      if (response.status === 200) {
-        setArrParentCategory([...response.data.arrParentCategory])
-        setArrCategory([...response.data.arrCategory])
-      }
-    })
+    await getAllCategory(null, null, null, '', 'name', 'desc', null, null, parent, 1, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setArrParentCategory([...response.data.arrParentCategory])
+          setArrCategory([...response.data.arrCategory])
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
   }, [accessToken, parent])
 
   useEffect(() => {

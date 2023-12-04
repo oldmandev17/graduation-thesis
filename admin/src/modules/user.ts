@@ -1,4 +1,5 @@
 /* eslint-disable import/no-cycle */
+import { ICategory } from './category'
 import { IGig } from './gig'
 import { IOrder } from './order'
 
@@ -41,6 +42,7 @@ export interface IUser {
   orders: Array<IOrder>
   gigs: Array<IGig>
   contacts?: any
+  target: Array<ICategory>
   status: UserStatus
   createdAt: Date
   createdBy?: IUser
