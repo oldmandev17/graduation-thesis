@@ -3,7 +3,7 @@
 import { Badge } from '@mui/material'
 import { getAllNotification } from 'apis/api'
 import { INotification } from 'modules/notification'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import { AiOutlineBell, AiOutlineHeart, AiOutlineMail, AiOutlineSearch } from 'react-icons/ai'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -22,6 +22,7 @@ function HeaderBuyer() {
     setKeyword(event.target.value)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getAllNotifications = async () => {
     await getAllNotification(accessToken)
       .then((response) => {
@@ -34,14 +35,14 @@ function HeaderBuyer() {
       })
   }
 
-  useEffect(() => {
-    getAllNotifications()
-    const intervalId = setInterval(() => {
-      getAllNotifications()
-    }, 10000)
-    return () => clearInterval(intervalId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // useEffect(() => {
+  //   getAllNotifications()
+  //   const intervalId = setInterval(() => {
+  //     getAllNotifications()
+  //   }, 10000)
+  //   return () => clearInterval(intervalId)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   const handleSearchKeyword = () => {
     if (keyword) {

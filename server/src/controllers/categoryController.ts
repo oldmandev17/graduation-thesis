@@ -305,15 +305,19 @@ export async function getCategoryDetail(req: Request, res: Response, next: NextF
       queryField.slug = req.params.slug
     }
     const categoryExist = await Category.findOne(queryField)
-      .populate('subCategories')
+      .populate({
+        path: 'subCategories',
+        populate: { path: 'subCategories', populate: { path: 'subCategories' } }
+      })
       .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
       .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })
     if (!categoryExist) {
       throw httpError.NotFound()
     }
+    const parentCategory = await Category.findOne({ subCategories: categoryExist._id })
     const gigs: IGig[] = await Gig.find({ category: req.params.id })
     categoryExist.gigs = gigs
-    res.status(200).json({ category: categoryExist })
+    res.status(200).json({ category: categoryExist, parentCategory })
   } catch (error) {
     next(error)
   }

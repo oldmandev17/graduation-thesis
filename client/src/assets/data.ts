@@ -1,3 +1,10 @@
+export enum SortFilter {
+  BEST_SELLING = 'BEST_SELLING',
+  LATEST = 'LATEST',
+  PRICE_DESCENDING = 'PRICE_DESCENDING',
+  PRICE_ASCENDING = 'PRICE_ASCENDING'
+}
+
 const arrDeliveryTime = [
   {
     label: '5 DAYS DELIVERY',
@@ -52,4 +59,42 @@ const arrRevisions = [
   }
 ]
 
-export { arrDeliveryTime, arrRevisions }
+const arrDeliveryTimeFilter = [
+  {
+    label: 'Express 24h',
+    value: 1
+  },
+  {
+    label: 'Up to 3 days',
+    value: 3
+  },
+  {
+    label: 'Up to 7 days',
+    value: 7
+  },
+  {
+    label: 'Anytime',
+    value: null
+  }
+]
+
+const arrSortFilter = [
+  {
+    label: 'Best Selling',
+    value: SortFilter.BEST_SELLING
+  },
+  {
+    label: 'Latest',
+    value: SortFilter.LATEST
+  },
+  {
+    label: 'Price: High to low',
+    value: SortFilter.PRICE_DESCENDING
+  },
+  {
+    label: 'Price: Low to high',
+    value: SortFilter.PRICE_ASCENDING
+  }
+]
+
+export { arrDeliveryTime, arrRevisions, arrDeliveryTimeFilter, arrSortFilter }

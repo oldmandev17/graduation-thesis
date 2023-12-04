@@ -2,10 +2,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-underscore-dangle */
-import TabContext from '@mui/lab/TabContext'
-import TabList from '@mui/lab/TabList'
-import TabPanel from '@mui/lab/TabPanel'
-import { Box, Tab } from '@mui/material'
 import { getAllCategory, updateProfile } from 'apis/api'
 import ModalCustom from 'components/common/ModalCustom'
 import { ICategory } from 'modules/category'
@@ -14,22 +10,23 @@ import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
 import { MdOutlineNavigateNext } from 'react-icons/md'
 import { PiMagicWandDuotone } from 'react-icons/pi'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAppSelector } from 'stores/hooks'
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
-import { FreeMode } from 'swiper/modules'
+import { FreeMode, EffectCards } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { getToken } from 'utils/auth'
 
 function LandingPage() {
   const [openModal, setOpenModal] = useState<boolean>(false)
   const { user } = useAppSelector((state) => state.auth)
-  const [value, setValue] = useState<number>(0)
   const [targets, setTargets] = useState<Array<string>>([])
   const [categories, setCategories] = useState<Array<ICategory>>([])
   const { accessToken } = getToken()
+  const navigate = useNavigate()
 
   const getAllCategories = useCallback(async () => {
     await getAllCategory(null, null, null, '', 'createdAt', 'asc', null, null, '', 1, undefined)
@@ -55,10 +52,6 @@ function LandingPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue)
-  }
 
   const handleUpdateTarget = async () => {
     const data: any = {}
@@ -111,7 +104,10 @@ function LandingPage() {
                 user.target.length > 0 &&
                 user.target.map((target, index) => (
                   <SwiperSlide key={target._id + index} className='rounded-lg'>
-                    <div className='flex flex-row items-center w-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'>
+                    <div
+                      onClick={() => navigate(`/sub-category/${target.slug}`)}
+                      className='flex flex-row items-center w-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
+                    >
                       <img
                         className='w-10 h-10 rounded-lg'
                         src={`${process.env.REACT_APP_URL_SERVER}/${target.image}`}
@@ -148,7 +144,7 @@ function LandingPage() {
         <span className='text-[#787de7]'>Web Developer</span>
       </div>
       <div className='grid grid-cols-5 gap-10'>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
             <div className='tooltip' data-tip='hello'>
@@ -169,7 +165,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -189,7 +185,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -209,7 +205,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -229,7 +225,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -252,7 +248,7 @@ function LandingPage() {
       </div>
       <span className='text-2xl font-bold text-gray-800 '>Gigs you may like</span>
       <div className='grid grid-cols-5 gap-10'>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -272,7 +268,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -292,7 +288,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -312,7 +308,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -332,7 +328,7 @@ function LandingPage() {
           </div>
           <span className='text-base font-bold text-black'>From $330</span>
         </div>
-        <div className='flex flex-col gap-2 w-72'>
+        <div className='flex flex-col gap-2'>
           <div className='relative'>
             <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
@@ -355,25 +351,13 @@ function LandingPage() {
       </div>
       <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
         <div className='p-3'>
-          <TabContext value={String(value)}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <TabList className='bg-gray-50' onChange={handleChange} aria-label='lab API tabs example'>
-                {categories.length > 0 &&
-                  categories.map((category, index) => (
-                    <Tab
-                      key={category._id + index}
-                      className='!font-bold text-gray-600 hover:text-gray-500'
-                      label={category.name}
-                      value={String(index)}
-                    />
-                  ))}
-              </TabList>
-            </Box>
-            <span className='text-base font-semibold t-2'>You have selected {targets.length}/10 categories</span>
+          <span className='text-base font-semibold t-2'>You have selected {targets.length}/10 categories</span>
+          <Swiper effect='cards' grabCursor modules={[EffectCards]} className='mySwiper'>
             {categories.length > 0 &&
               categories.map((category, index) => (
-                <TabPanel key={index} className='!p-0' value={String(index)}>
+                <SwiperSlide key={index}>
                   <div className='grid w-full grid-cols-2 gap-2 p-5'>
+                    <span className='text-base font-semibold t-2'>{category.name}</span>
                     {category.subCategories.length > 0 &&
                       category.subCategories.map((subCategory, subIndex) => (
                         <Fragment key={subCategory._id + subIndex}>
@@ -397,9 +381,9 @@ function LandingPage() {
                         </Fragment>
                       ))}
                   </div>
-                </TabPanel>
+                </SwiperSlide>
               ))}
-          </TabContext>
+          </Swiper>
           <div className='flex flex-end'>
             <button
               type='submit'

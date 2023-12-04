@@ -49,12 +49,11 @@ function updateGig(id: string, data: any, accessToken: string | undefined) {
   })
 }
 
-function getCategoryDetail(slug: string, accessToken: string | undefined) {
+function getCategoryDetailBySlug(slug: string | undefined) {
   const url = `/category/slug/${slug}`
   return axiosJson.get(url, {
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
+      'Content-Type': 'application/json'
     }
   })
 }
@@ -101,7 +100,7 @@ function updateProfile(data: any, accessToken: string | undefined) {
 export {
   getAllCategory,
   createGig,
-  getCategoryDetail,
+  getCategoryDetailBySlug,
   getGigDetailById,
   updateGig,
   getGigDetailBySlug,

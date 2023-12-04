@@ -93,3 +93,13 @@ ul {
   margin: 0;
   list-style: none;
 }
+
+.icon-move {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.button-hover:hover .icon-move,
+.button-hover:hover .icon-move {
+  opacity: 1;
+}

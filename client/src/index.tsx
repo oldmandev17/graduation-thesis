@@ -30,6 +30,7 @@ const CreateGigFaqGalleryPage = lazy(() => import('pages/home/SellerPage/CreateG
 const CreateGigPushlishPage = lazy(() => import('pages/home/SellerPage/CreateGigPushlishPage'))
 
 const MessagePage = lazy(() => import('pages/home/MessagePage'))
+const CategoryPage = lazy(() => import('pages/home/CategoryPage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
           {
             path: '/gig-detail/:slug',
             element: <GigDetailPage />
+          },
+          {
+            path: '/category/:slug',
+            element: <CategoryPage />
           }
         ]
       },
