@@ -16,7 +16,7 @@ function NavigationBar() {
     await getAllCategory(null, null, null, '', 'createdAt', 'asc', null, null, '', 1, undefined)
       .then((response) => {
         if (response.status === 200) {
-          setCategories([...response.data.categories])
+          setCategories(response.data.categories)
         }
       })
       .catch((error: any) => {

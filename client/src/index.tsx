@@ -31,6 +31,7 @@ const CreateGigPushlishPage = lazy(() => import('pages/home/SellerPage/CreateGig
 
 const MessagePage = lazy(() => import('pages/home/MessagePage'))
 const CategoryPage = lazy(() => import('pages/home/CategoryPage'))
+const BecomeSellerPage = lazy(() => import('pages/home/SellerPage/BecomeSellerPage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
           {
             path: '/category/:slug',
             element: <CategoryPage />
+          },
+          {
+            path: '/seller',
+            element: <BecomeSellerPage />
           }
         ]
       },

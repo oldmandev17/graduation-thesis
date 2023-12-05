@@ -19,6 +19,7 @@ import 'swiper/css/pagination'
 import { EffectCards, FreeMode, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { getToken } from 'utils/auth'
+import GuessPage from './GuestPage'
 
 function LandingPage() {
   const [openModal, setOpenModal] = useState<boolean>(false)
@@ -85,7 +86,7 @@ function LandingPage() {
     }
   }
 
-  return (
+  return user ? (
     <div className='flex flex-col gap-8 py-10 px-28'>
       <div className='pt-2 text-3xl font-bold'>How's it going, {user?.name}?</div>
       {user?.target && user.target.length > 0 ? (
@@ -423,6 +424,8 @@ function LandingPage() {
         </div>
       </ModalCustom>
     </div>
+  ) : (
+    <GuessPage />
   )
 }
 

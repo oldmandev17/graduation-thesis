@@ -1,5 +1,5 @@
 import Footer from 'components/Footer'
-import HeaderSeller from 'components/HeaderSeller'
+import HeaderSeller from 'components/seller/HeaderSeller'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 

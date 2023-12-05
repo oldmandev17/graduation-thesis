@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAppSelector } from 'stores/hooks'
 import { getToken } from 'utils/auth'
-import NavigationBar from './NavigationBar'
+import NavigationBar from '../NavigationBar'
 
 function HeaderBuyer() {
   const { user } = useAppSelector((state) => state.auth)
@@ -44,7 +44,8 @@ function HeaderBuyer() {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [])
 
-  const handleSearchKeyword = () => {
+  const handleSearchKeyword = (event: any) => {
+    event.preventDefault()
     if (keyword) {
       navigate(`/search?keyword=${keyword.trim()}`)
     }
@@ -52,7 +53,7 @@ function HeaderBuyer() {
 
   return (
     <div className='flex flex-col'>
-      <div className='flex flex-row items-center gap-4 py-5 px-28 '>
+      <div className='flex flex-row items-center gap-5 py-5 px-28 '>
         <img
           onClick={() => navigate('/')}
           src='/images/Fiverr-Logo.png'
@@ -61,7 +62,7 @@ function HeaderBuyer() {
           height='80'
           className='cursor-pointer'
         />
-        <div className='flex flex-row w-full'>
+        <form onSubmit={handleSearchKeyword} className='flex flex-row w-full'>
           <input
             type='text'
             onChange={handleChangeKeyword}
@@ -69,21 +70,20 @@ function HeaderBuyer() {
             placeholder='what service are you looking for today?'
           />
           <button
-            type='button'
-            onClick={handleSearchKeyword}
+            type='submit'
             className='flex flex-col justify-center w-16 pl-5 bg-black rounded-l-none rounded-r-lg cursor-pointer '
           >
             <AiOutlineSearch className='w-6 h-6 fill-white' />
           </button>
-        </div>
+        </form>
         <div className='flex flex-row justify-between gap-2'>
           <span className='flex flex-row items-center justify-center h-9 w-9 hover:rounded-full hover:bg-gray-100'>
-            <Badge color='error' badgeContent={notifications.length}>
+            <Badge color='error' variant='dot' invisible={notifications.length > 0}>
               <AiOutlineBell className='w-7 h-7 cursor-pointer fill-gray-400' />
             </Badge>
           </span>
           <span className='flex flex-row items-center justify-center h-9 w-9 hover:rounded-full hover:bg-gray-100'>
-            <Badge color='error' badgeContent={1}>
+            <Badge color='error'>
               <AiOutlineMail className='w-7 h-7 cursor-pointer fill-gray-400' />
             </Badge>
           </span>
