@@ -5,7 +5,7 @@
 import { getAllCategory, updateProfile } from 'apis/api'
 import ModalCustom from 'components/common/ModalCustom'
 import { ICategory } from 'modules/category'
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
 import { MdOutlineNavigateNext } from 'react-icons/md'
@@ -16,7 +16,7 @@ import { useAppSelector } from 'stores/hooks'
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
-import { FreeMode, EffectCards } from 'swiper/modules'
+import { EffectCards, FreeMode, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { getToken } from 'utils/auth'
 
@@ -27,6 +27,13 @@ function LandingPage() {
   const [categories, setCategories] = useState<Array<ICategory>>([])
   const { accessToken } = getToken()
   const navigate = useNavigate()
+
+  const pagination = {
+    clickable: true,
+    renderBullet(index: number, className: string) {
+      return `<span class="${className}">${index + 1}</span>`
+    }
+  }
 
   const getAllCategories = useCallback(async () => {
     await getAllCategory(null, null, null, '', 'createdAt', 'asc', null, null, '', 1, undefined)
@@ -352,12 +359,18 @@ function LandingPage() {
       <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
         <div className='p-3'>
           <span className='text-base font-semibold t-2'>You have selected {targets.length}/10 categories</span>
-          <Swiper effect='cards' grabCursor modules={[EffectCards]} className='mySwiper'>
+          <Swiper
+            effect='cards'
+            pagination={pagination}
+            grabCursor
+            modules={[EffectCards, Pagination]}
+            className='mySwiper'
+          >
             {categories.length > 0 &&
               categories.map((category, index) => (
                 <SwiperSlide key={index}>
-                  <div className='grid w-full grid-cols-2 gap-2 p-5'>
-                    <span className='text-base font-semibold t-2'>{category.name}</span>
+                  <div className='grid w-full h-full grid-cols-2 gap-2 p-5 bg-white'>
+                    <h5 className='col-span-2 text-xl font-semibold text-center'>{category.name}</h5>
                     {category.subCategories.length > 0 &&
                       category.subCategories.map((subCategory, subIndex) => (
                         <Fragment key={subCategory._id + subIndex}>

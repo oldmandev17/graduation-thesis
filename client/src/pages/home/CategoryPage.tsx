@@ -27,7 +27,7 @@ function CategoryPage() {
   const getCategoryDetails = useCallback(async () => {
     await getCategoryDetailBySlug(slug)
       .then((response) => {
-        if (response.data === 200) {
+        if (response.status === 200) {
           setCategory(response.data.category)
         }
       })
@@ -70,20 +70,20 @@ function CategoryPage() {
     <div className='flex flex-col gap-8 py-10 px-28'>
       <figure className='relative w-full'>
         <img
-          className='rounded-lg w-full'
+          className='w-full rounded-lg'
           src={`${process.env.REACT_APP_URL_SERVER}/${category?.image}`}
           alt={category?.name}
         />
-        <figcaption className='absolute px-4 text-lg text-white top-10 w-full flex flex-col gap-1 justify-center'>
+        <figcaption className='absolute flex flex-col justify-center w-full gap-1 px-4 text-lg text-white top-10'>
           <h4 className='flex justify-center text-3xl font-bold'>{category?.name}</h4>
           <p className='flex justify-center text-xl'>{category?.description}</p>
-          <div className='w-full flex justify-center mt-5'>
+          <div className='flex justify-center w-full mt-5'>
             <button
               onClick={() => setOpenModal(true)}
               type='button'
-              className='border border-white rounded-md p-2 px-4 flex gap-2 justify-center items-center hover:bg-white hover:text-gray-600'
+              className='flex items-center justify-center gap-2 p-2 px-4 border border-white rounded-md hover:bg-white hover:text-gray-600'
             >
-              <MdSlowMotionVideo className='h-6 w-6' /> How Fiverr Works
+              <MdSlowMotionVideo className='w-6 h-6' /> How Fiverr Works
             </button>
           </div>
           <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
@@ -141,8 +141,12 @@ function CategoryPage() {
             category.subCategories.map((subCategory, subIndex) => (
               <div key={subCategory._id + subIndex} className='flex flex-col gap-4'>
                 <div className='grid grid-rows-6 gap-4'>
-                  <img src={`${process.env.REACT_APP_URL_SERVER}`} alt={subCategory.name} className='px-2 row-span-5' />
-                  <h5 className='text-xl font-semibold px-2'>{subCategory.name}</h5>
+                  <img
+                    src={`${process.env.REACT_APP_URL_SERVER}/${subCategory.image}`}
+                    alt={subCategory.name}
+                    className='row-span-5 px-2'
+                  />
+                  <h5 className='px-2 text-xl font-semibold'>{subCategory.name}</h5>
                 </div>
                 <div>
                   {subCategory.subCategories.length > 0 &&
@@ -151,7 +155,7 @@ function CategoryPage() {
                         onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
                         key={subSubCategory._id + subSubIndex}
                         type='button'
-                        className='flex flex-row justify-between w-full items-center button-hover rounded-lg hover:bg-gray-100 p-2 text-lg text-gray-600 font-semibold hover:text-gray-900'
+                        className='flex flex-row items-center justify-between w-full p-2 text-lg font-semibold text-gray-600 rounded-lg button-hover hover:bg-gray-100 hover:text-gray-900'
                       >
                         {subSubCategory.name} <LuMoveRight className='icon-move' />
                       </button>
@@ -266,7 +270,7 @@ function CategoryPage() {
         </div>
       </div>
       <div className='flex flex-col gap-4 text-lg'>
-        <h4 className='text-2xl font-bold text-gray-600 text-center'>{category?.name} FAQs</h4>
+        <h4 className='text-2xl font-bold text-center text-gray-600'>{category?.name} FAQs</h4>
         <div>
           {arrFAQs.length > 0 &&
             arrFAQs.map((FAQ, index) => (
