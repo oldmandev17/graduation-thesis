@@ -45,8 +45,8 @@ function HeaderBasic() {
         isFixed ? 'fixed bg-white' : `${location.pathname === '/' && 'absolute bg-transparen'}`
       }`}
     >
-      <div className='flex flex-row py-5 px-28 items-center justify-between'>
-        <div className='flex flex-row gap-5 w-3/4'>
+      <div className='flex flex-row items-center justify-between py-5 px-28'>
+        <div className='flex flex-row w-3/4 gap-5'>
           <img
             onClick={() => navigate('/')}
             src='/images/Fiverr-Logo.png'
@@ -64,14 +64,14 @@ function HeaderBasic() {
             <input
               type='text'
               onChange={handleChangeKeyword}
-              className=' text-lg w-full h-12 border border-1 border-gray-300 rounded-lg rounded-r-none text-gray-900 py-0 pl-5 focus:rounded-none  '
+              className='w-full h-12 py-0 pl-5 text-lg text-gray-900 border border-gray-300 rounded-lg rounded-r-none border-1 focus:rounded-none'
               placeholder='what service are you looking for today?'
             />
             <button
               type='submit'
-              className='bg-black w-16 flex flex-col justify-center pl-5 rounded-l-none rounded-r-lg cursor-pointer '
+              className='flex flex-col justify-center w-16 pl-5 bg-black rounded-l-none rounded-r-lg cursor-pointer '
             >
-              <AiOutlineSearch className='fill-white w-6 h-6' />
+              <AiOutlineSearch className='w-6 h-6 fill-white' />
             </button>
           </form>
         </div>
@@ -98,7 +98,9 @@ function HeaderBasic() {
             onClick={() => navigate('/auth/login')}
             type='button'
             className={`${
-              isFixed ? 'text-green-400 border-green-500' : `${location.pathname === '/' && 'text-white border-white'}`
+              isFixed || location.pathname !== '/'
+                ? 'text-green-400 border-green-500'
+                : `${location.pathname === '/' && 'text-white border-white'}`
             } font-bold text-base  border  px-4 py-1.5 rounded-md cursor-pointer hover:text-white hover:bg-green-500 transition-all duration-300`}
           >
             Join

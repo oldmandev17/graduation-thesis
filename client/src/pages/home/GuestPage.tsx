@@ -109,7 +109,7 @@ function GuestPage() {
           />
         </div>
         <div className='z-10 relative w-[650px] flex justify-center gap-5 flex-col h-full ml-28'>
-          <h1 className='text-white text-5xl leading-snug'>
+          <h1 className='text-5xl leading-snug text-white'>
             Find the perfect &nbsp; <i>Freelance</i> <br /> services for your business.
           </h1>
           <form onSubmit={handleSearchKeyword} className='flex align-middle'>
@@ -125,7 +125,7 @@ function GuestPage() {
               Search
             </button>
           </form>
-          <div className='text-white flex gap-4'>
+          <div className='flex gap-4 text-white'>
             Popular:{' '}
             <ul className='flex gap-5'>
               {categoriesLevel3.length > 0 &&
@@ -133,7 +133,7 @@ function GuestPage() {
                   <li key={category._id + index}>
                     <button
                       onClick={() => navigate(`/sub-category/${category.slug}`)}
-                      className='text-sm py-1 px-3 border rounded-full hover:bg-white hover:text-black transition-all duration-300 cursor-pointer'
+                      className='px-3 py-1 text-sm transition-all duration-300 border rounded-full cursor-pointer hover:bg-white hover:text-black'
                       type='button'
                     >
                       {category.name}
@@ -146,7 +146,7 @@ function GuestPage() {
       </div>
       <div className='flex justify-center mt-32 items-center text-gray-400 text-2xl font-bold min-h-[11vh]'>
         Trusted by: &nbsp;
-        <ul className='flex justify-center items-center gap-10 ml-10'>
+        <ul className='flex items-center justify-center gap-10 ml-10'>
           {[1, 2, 3, 4, 5].map((num) => (
             <li key={num} className='relative h-[4.5rem] w-[4.5rem] flex items-center justify-center'>
               <img alt='trusted brands' src={`/banners/trusted${num}.png`} />
@@ -154,12 +154,12 @@ function GuestPage() {
           ))}
         </ul>
       </div>
-      <div className='mx-28 my-16'>
+      <div className='my-16 mx-28'>
         <h2 className='text-4xl mb-10 text-[#404145] font-bold '>Popular Services</h2>
-        <ul className='flex flex-wrap gap-16 justify-center'>
+        <ul className='flex flex-wrap justify-center gap-16'>
           <Swiper
             slidesPerView={5}
-            spaceBetween={20}
+            spaceBetween={30}
             freeMode
             pagination={{
               clickable: true
@@ -172,10 +172,15 @@ function GuestPage() {
                 <li className='relative cursor-pointer'>
                   <div className='absolute z-10 text-white left-5 top-4'>
                     <span>{service.label}</span>
-                    <h6 className='font-extrabold text-2xl'>{service.name}</h6>
+                    <h6 className='text-2xl font-extrabold'>{service.name}</h6>
                   </div>
-                  <div className='h-80 w-72'>
-                    <img alt='service' onClick={() => navigate(`/sub-category/${1}`)} src={service.image} />
+                  <div className='h-auto'>
+                    <img
+                      alt='service'
+                      onClick={() => navigate(`/sub-category/${service.slug}`)}
+                      src={service.image}
+                      className='w-full'
+                    />
                   </div>
                 </li>
               </SwiperSlide>
@@ -189,7 +194,7 @@ function GuestPage() {
           <ul className='flex flex-col gap-10'>
             {everythingData.map(({ title, subTitle }) => (
               <li key={title}>
-                <div className='flex gap-2 items-center text-xl'>
+                <div className='flex items-center gap-2 text-xl'>
                   <BsCheckCircle />
                   <h4>{title}</h4>
                 </div>
@@ -198,18 +203,18 @@ function GuestPage() {
             ))}
           </ul>
         </div>
-        <div className='relative h-96 w-2/4'>
+        <div className='relative w-2/4 h-96'>
           <img alt='everything' src='/banners/everything.webp' />
         </div>
       </div>
-      <div className='mx-28 py-16'>
+      <div className='py-16 mx-28'>
         <h2 className='text-4xl mb-10 text-[#404145] font-bold'>You need it, we&apos;re got it</h2>
         <ul className='grid grid-cols-5 gap-10'>
           {categories.map((category, index) => (
             <li
               key={category._id + index}
               className='flex flex-col justify-center items-center cursor-pointer hover:shadow-2xl hover:border-[#1DBF73] border-2 border-transparent p-5 transition-all duration-500'
-              onClick={() => `/category/${category.slug}`}
+              onClick={() => navigate(`/category/${category.slug}`)}
             >
               <img src={arrCategory[index]} alt='category' height={50} width={50} />
               <span>{category.name}</span>

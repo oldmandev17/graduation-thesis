@@ -129,59 +129,52 @@ const everythingData = [
 ]
 const popularServicesData = [
   {
-    name: 'AI Artists',
-    label: 'Add talent for AI',
-    image: '/banners/service1.png'
+    name: 'Font & Typography',
+    label: 'Add talent for design',
+    image: '/banners/service1.png',
+    slug: 'font-and-typography'
   },
   {
     name: 'Logo Design',
     label: 'Build your brand',
-    image: '/banners/service2.jpeg'
+    image: '/banners/service2.jpeg',
+    slug: 'logo-design'
   },
   {
-    name: 'Wordpress',
+    name: 'Website Development',
     label: 'Customize your site',
-    image: '/banners/service3.jpeg'
+    image: '/banners/service3.jpeg',
+    slug: 'website-development'
   },
   {
     name: 'Voice Over',
     label: 'Share your message',
-    image: '/banners/service4.jpeg'
+    image: '/banners/service4.jpeg',
+    slug: 'voice-over'
   },
   {
     name: 'Social Media',
     label: 'Reach more customers',
-    image: '/banners/service5.jpeg'
+    image: '/banners/service5.jpeg',
+    slug: 'social-media-videos'
   },
   {
     name: 'SEO',
     label: 'Unclock growth online',
-    image: '/banners/service6.jpeg'
+    image: '/banners/service6.jpeg',
+    slug: 'search-engine-optimization-(seo)'
   },
   {
-    name: 'Illustration',
+    name: 'Business Plans',
     label: 'Color your dreams',
-    image: '/banners/service7.jpeg'
+    image: '/banners/service7.jpeg',
+    slug: 'business-plans'
   },
   {
-    name: 'Translation',
+    name: 'Writing Advice',
     label: 'Go global',
-    image: '/banners/service8.jpeg'
-  }
-]
-
-const arrWork = [
-  {
-    title: '1. Create a Gig',
-    content: 'Sign up for free, set up your Gig, and offer your work to our global audience.'
-  },
-  {
-    title: '2. Deliver great work',
-    content: 'Get notified when you get an order and use our system to discuss details with customers.'
-  },
-  {
-    title: '3. Get paid',
-    content: 'Get paid on time, every time. Payment is available for withdrawal as soon as it clears.'
+    image: '/banners/service8.jpeg',
+    slug: 'writing-advice'
   }
 ]
 
@@ -192,6 +185,5 @@ export {
   arrSortFilter,
   arrCategory,
   everythingData,
-  popularServicesData,
-  arrWork
+  popularServicesData
 }

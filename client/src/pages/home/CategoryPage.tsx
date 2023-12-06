@@ -17,6 +17,9 @@ import { ICategory } from 'modules/category'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getCategoryDetailBySlug } from 'apis/api'
 import { toast } from 'react-toastify'
+import 'swiper/css'
+import 'swiper/css/free-mode'
+import 'swiper/css/pagination'
 
 function CategoryPage() {
   const [openModal, setOpenModal] = useState<boolean>(false)
@@ -96,28 +99,27 @@ function CategoryPage() {
       <div className='flex flex-col gap-4'>
         <h4 className='text-2xl font-bold text-gray-600'>Most Popular in {category?.name}</h4>
         <div className='w-full p-8 border border-gray-300 rounded-lg'>
-          {category &&
-            category.subCategories.length > 0 &&
-            category.subCategories.map((subCategory, subIndex) => (
-              <Fragment key={category._id + subIndex}>
-                {subCategory &&
-                  subCategory.subCategories.length > 0 &&
-                  subCategory.subCategories.map((subSubCategory, subSubIndex) => (
-                    <Swiper
-                      key={subSubCategory._id + subSubIndex}
-                      slidesPerView={4}
-                      spaceBetween={20}
-                      freeMode
-                      pagination={{
-                        clickable: true
-                      }}
-                      modules={[FreeMode]}
-                      className='mySwiper'
-                    >
-                      <SwiperSlide className='rounded-lg'>
+          <Swiper
+            slidesPerView={4}
+            spaceBetween={20}
+            freeMode
+            pagination={{
+              clickable: true
+            }}
+            modules={[FreeMode]}
+            className='mySwiper'
+          >
+            {category &&
+              category.subCategories.length > 0 &&
+              category.subCategories.map((subCategory, subIndex) => (
+                <Fragment key={category._id + subIndex}>
+                  {subCategory &&
+                    subCategory.subCategories.length > 0 &&
+                    subCategory.subCategories.map((subSubCategory, subSubIndex) => (
+                      <SwiperSlide key={subSubCategory._id + subSubIndex} className='rounded-lg'>
                         <div
                           onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
-                          className='flex flex-row items-center w-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
+                          className='flex flex-row items-center w-full h-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
                         >
                           <img
                             className='w-10 h-10 rounded-lg'
@@ -127,10 +129,10 @@ function CategoryPage() {
                           <span className='text-lg font-medium'>{subSubCategory.name}</span>
                         </div>
                       </SwiperSlide>
-                    </Swiper>
-                  ))}
-              </Fragment>
-            ))}
+                    ))}
+                </Fragment>
+              ))}
+          </Swiper>
         </div>
       </div>
       <div className='flex flex-col gap-4'>
@@ -142,7 +144,7 @@ function CategoryPage() {
               <div key={subCategory._id + subIndex} className='flex flex-col gap-4'>
                 <div className='grid grid-rows-6 gap-4'>
                   <img
-                    src={`${process.env.REACT_APP_URL_SERVER}/${subCategory.image}`}
+                    src={`${process.env.REACT_APP_URL_SERVER}/${subCategory?.image}`}
                     alt={subCategory.name}
                     className='row-span-5 px-2'
                   />
@@ -190,7 +192,6 @@ function CategoryPage() {
           <div className='flex flex-col gap-2'>
             <div className='relative'>
               <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
               <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
             </div>
             <div className='flex flex-row items-center gap-2'>

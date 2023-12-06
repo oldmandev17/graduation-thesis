@@ -49,7 +49,7 @@ function NavigationBar() {
                 <div
                   onMouseEnter={() => setId(category._id)}
                   onMouseLeave={() => setId('')}
-                  className={`py-5 mega-menu-content ${index + 1 < categories.length / 2 ? 'left-0' : 'right-0'}`}
+                  className={`py-5 mega-menu-content z-10 ${index + 1 < categories.length / 2 ? 'left-0' : 'right-0'}`}
                 >
                   {category.subCategories.length > 0 &&
                     category.subCategories.map((subCategory, subIndex) => (
@@ -60,7 +60,7 @@ function NavigationBar() {
                             subCategory.subCategories.map((subSubCategory, subSubIndex) => (
                               <li key={subSubCategory._id + subSubIndex}>
                                 <button
-                                  onClick={() => navigate(`/sub-category/${subCategory.slug}`)}
+                                  onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
                                   className='text-base font-medium text-gray-600 w-max hover:text-gray-500'
                                   type='button'
                                 >
