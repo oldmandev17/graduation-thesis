@@ -1,7 +1,10 @@
 /* eslint-disable react/no-array-index-key */
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material'
+import { arrQA, arrStory } from 'assets/data'
+import { Fragment } from 'react'
 import { CiDeliveryTruck } from 'react-icons/ci'
 import { IoCreateOutline } from 'react-icons/io5'
-import { MdOutlinePaid } from 'react-icons/md'
+import { MdExpandMore, MdOutlinePaid } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 
 const arrWork = [
@@ -26,7 +29,7 @@ function BecomeSellerPage() {
   const navigate = useNavigate()
 
   return (
-    <div className='flex flex-col gap-8'>
+    <div className='flex flex-col gap-10'>
       <section className="bg-center bg-no-repeat bg-[url('https://flowbite.s3.amazonaws.com/docs/jumbotron/conference.jpg')] bg-gray-700 bg-blend-multiply">
         <div className='max-w-screen-xl px-4 py-24 mx-auto text-center lg:py-56'>
           <h1 className='mb-4 text-4xl font-extrabold leading-none tracking-tight text-white md:text-5xl lg:text-6xl'>
@@ -61,15 +64,65 @@ function BecomeSellerPage() {
           </div>
         </div>
       </section>
-      <div className='grid grid-cols-3 px-28 py-10 bg-[#f7f7f7]'>
+      <div className='grid grid-cols-3 px-40 gap-x-28 py-10 bg-[#f7f7f7]'>
         <h2 className='text-3xl mb-5 text-[#424145] font-bold text-center col-span-3'>How it works</h2>
         {arrWork.map((work, index) => (
           <div key={index + work.title} className='flex flex-col items-center justify-center gap-3 ite'>
             <span>{work.icon}</span>
-            <h3>{work.title}</h3>
-            <p>{work.content}</p>
+            <h3 className='font-semibold text-2xl text-gray-700'>{work.title}</h3>
+            <p className='text-lg font-semibold text-center text-gray-600'>{work.content}</p>
           </div>
         ))}
+      </div>
+      <div className='px-40 gap-x-20 py-10 bg-[#f7f7f7]'>
+        <h2 className='text-3xl mb-5 text-[#424145] font-bold text-center '>Buyer stories</h2>
+        <div className='grid grid-cols-4'>
+          {arrStory?.length &&
+            arrStory.map((story, index) => (
+              <Fragment key={story.content + index}>
+                {index < 2 ? (
+                  <>
+                    <figure>
+                      <img className='w-full' src={`/banners/story${index + 1}.jpg`} alt='description' />
+                    </figure>
+                    <figcaption className='px-4 text-lg text-gray-600 h-full flex justify-center items-center p-5 gap-10'>
+                      <p>{story.content}</p>
+                      <span>{story.author}</span>
+                    </figcaption>
+                  </>
+                ) : (
+                  <>
+                    <figcaption className='px-4 text-lg text-gray-600'>
+                      <p>{story.content}</p>
+                      <span>{story.author}</span>
+                    </figcaption>
+                    <figure>
+                      <img className='w-full' src={`/banners/story${index + 1}.jpg`} alt='description' />
+                    </figure>
+                  </>
+                )}
+              </Fragment>
+            ))}
+        </div>
+      </div>
+      <div className='grid grid-cols-2 px-40 gap-x-20 py-10 bg-[#f7f7f7]'>
+        <h2 className='text-3xl mb-5 text-[#424145] font-bold text-center col-span-2'>Q&A</h2>
+        {arrQA?.length &&
+          arrQA.map((FAQ, index) => (
+            <Accordion key={index} sx={{ boxShadow: 'none' }}>
+              <AccordionSummary
+                expandIcon={<MdExpandMore className='w-7 h-7' />}
+                aria-controls='panel1a-content'
+                id='panel1a-header'
+                sx={{ padding: '0px' }}
+              >
+                <Typography>{FAQ?.question}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>{FAQ?.answer}</Typography>
+              </AccordionDetails>
+            </Accordion>
+          ))}
       </div>
     </div>
   )
