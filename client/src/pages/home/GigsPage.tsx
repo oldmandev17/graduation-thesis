@@ -28,7 +28,7 @@ function GigsPage() {
   const anchorRefBudget = useRef<HTMLButtonElement>(null)
   const anchorRefSort = useRef<HTMLButtonElement>(null)
   const [budget, setBudget] = useState<number | null>(null)
-  const [deliveryTime, setDeliveryTime] = useState<number | null>()
+  const [deliveryTime, setDeliveryTime] = useState<number | null>(null)
   const [selectedValue, setSelectedValue] = useState<number | null>(null)
   const [sortBy, setSortBy] = useState<SortFilter>(SortFilter.BEST_SELLING)
   const handleToggleDeliveryTime = () => {
@@ -122,10 +122,10 @@ function GigsPage() {
               <span className='text-sm font-semibold text-gray-400'>|</span>
               <button
                 type='button'
-                className='flex justify-center items-center gap-1'
+                className='flex items-center justify-center gap-1'
                 onClick={() => setOpenModal(true)}
               >
-                <MdSlowMotionVideo className='h-6 w-6' /> How Fiverr Works
+                <MdSlowMotionVideo className='w-6 h-6' /> How Fiverr Works
               </button>
             </div>
             <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
@@ -140,13 +140,16 @@ function GigsPage() {
           Result for <span className='font-bold'>{keyword}</span>
         </h4>
       )}
-      <div className='flex flex-col gap-3 sticky'>
+      <div className='sticky flex flex-col gap-3'>
         <div className='flex gap-5'>
           <button
             type='button'
             className={`border ${
               budget !== null ? 'border-black' : 'border-gray-300'
             } p-3 flex gap-3 hover:border-black`}
+            ref={anchorRefBudget}
+            aria-controls={openBudget ? 'budget-dropdown' : undefined}
+            aria-expanded={openBudget ? 'true' : undefined}
             onClick={handleToggleBudget}
           >
             Budget <MdExpandMore className={`transition-all duration-300 ${openBudget && 'rotate-180'}`} />
@@ -168,7 +171,7 @@ function GigsPage() {
               >
                 <Paper className='!rounded-xl'>
                   <ClickAwayListener onClickAway={handleCloseBudget}>
-                    <div className='p-3'>
+                    <div className='flex flex-col gap-3 p-3'>
                       <input
                         type='text'
                         id='budget'
@@ -176,7 +179,7 @@ function GigsPage() {
                         placeholder='Enter Budget'
                       />
                       <Divider />
-                      <div className='flex gap-10 items-center'>
+                      <div className='flex items-center gap-10'>
                         <button
                           onClick={(event: any) => {
                             setBudget(null)
@@ -194,7 +197,7 @@ function GigsPage() {
                             setBudget(Number(budgetElement.value))
                             handleCloseBudget(event)
                           }}
-                          className='p-2 rounded-lg bg-black text-white font-semibold hover:bg-gray-950'
+                          className='p-2 font-semibold text-white bg-black rounded-lg hover:bg-gray-950'
                         >
                           Apply
                         </button>
@@ -211,6 +214,9 @@ function GigsPage() {
               deliveryTime !== null ? 'border-black' : 'border-gray-300'
             } p-3 flex gap-3 hover:border-black`}
             onClick={handleToggleDeliveryTime}
+            ref={anchorRefDeliveryTime}
+            aria-controls={openDeliveryTime ? 'deliveryTime-dropdown' : undefined}
+            aria-expanded={openDeliveryTime ? 'true' : undefined}
           >
             Delivery Time <MdExpandMore className={`transition-all duration-300 ${openDeliveryTime && 'rotate-180'}`} />
           </button>
@@ -231,7 +237,7 @@ function GigsPage() {
               >
                 <Paper className='!rounded-xl'>
                   <ClickAwayListener onClickAway={handleCloseDeliveryTime}>
-                    <div className='p-3'>
+                    <div className='flex flex-col gap-3 p-3'>
                       <div className='flex flex-col gap-4'>
                         {arrDeliveryTimeFilter.length > 0 &&
                           arrDeliveryTimeFilter.map((time, index) => (
@@ -245,17 +251,14 @@ function GigsPage() {
                                 onChange={handleRadioChange}
                                 className='w-4 h-4 text-black bg-transparent border-gray-600 '
                               />
-                              <label
-                                htmlFor={time.label}
-                                className='ms-2 text-sm font-medium text-gray-900 dark:text-gray-300'
-                              >
+                              <label htmlFor={time.label} className='text-sm font-medium text-gray-900 ms-2'>
                                 {time.label}
                               </label>
                             </div>
                           ))}
                       </div>
                       <Divider />
-                      <div className='flex gap-10 items-center'>
+                      <div className='flex items-center gap-10'>
                         <button
                           onClick={(event: any) => {
                             setDeliveryTime(null)
@@ -272,7 +275,7 @@ function GigsPage() {
                             handleCloseDeliveryTime(event)
                           }}
                           type='button'
-                          className='p-2 rounded-lg bg-black text-white font-semibold hover:bg-gray-950'
+                          className='p-2 font-semibold text-white bg-black rounded-lg hover:bg-gray-950'
                         >
                           Apply
                         </button>
@@ -288,13 +291,13 @@ function GigsPage() {
           {budget !== null && (
             <span
               id='badge-dismiss-dark'
-              className='inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-gray-800 bg-gray-100 rounded'
+              className='inline-flex items-center px-2 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded me-2'
             >
               Budget: ${budget}
               <button
                 type='button'
                 onClick={() => setBudget(null)}
-                className='inline-flex items-center p-1 ms-2 text-sm text-gray-400 bg-transparent rounded-sm hover:bg-gray-200 hover:text-gray-900 '
+                className='inline-flex items-center p-1 text-sm text-gray-400 bg-transparent rounded-sm ms-2 hover:bg-gray-200 hover:text-gray-900 '
                 data-dismiss-target='#badge-dismiss-dark'
                 aria-label='Remove'
               >
@@ -319,13 +322,13 @@ function GigsPage() {
           {deliveryTime !== null && (
             <span
               id='badge-dismiss-dark'
-              className='inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-gray-800 bg-gray-100 rounded'
+              className='inline-flex items-center px-2 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded me-2'
             >
-              {arrDeliveryTimeFilter.filter((time) => time.value === deliveryTime)[0].label}
+              {arrDeliveryTimeFilter.filter((time) => time.value === deliveryTime)[0]?.label}
               <button
                 type='button'
                 onClick={() => setDeliveryTime(null)}
-                className='inline-flex items-center p-1 ms-2 text-sm text-gray-400 bg-transparent rounded-sm hover:bg-gray-200 hover:text-gray-900 '
+                className='inline-flex items-center p-1 text-sm text-gray-400 bg-transparent rounded-sm ms-2 hover:bg-gray-200 hover:text-gray-900 '
                 data-dismiss-target='#badge-dismiss-dark'
                 aria-label='Remove'
               >
@@ -351,11 +354,18 @@ function GigsPage() {
       </div>
       <Divider />
       <div className='flex flex-col gap-4'>
-        <div className='flex w-full justify-between items-center'>
+        <div className='flex items-center justify-between w-full'>
           <p className='text-base font-semibold text-gray-600'>260,205 services available</p>
-          <div className='flex justify-center items-center gap-3'>
+          <div className='flex items-center justify-center gap-3'>
             <span className='text-lg text-gray-600'>Sort By</span>
-            <button type='button' className='p-2 flex gap-3 hover:bg-gray-50' onClick={handleToggleSort}>
+            <button
+              type='button'
+              className='flex gap-3 p-2 text-lg font-semibold hover:bg-gray-50'
+              onClick={handleToggleSort}
+              ref={anchorRefSort}
+              aria-controls={openSort ? 'sort-dropdown' : undefined}
+              aria-expanded={openSort ? 'true' : undefined}
+            >
               {arrSortFilter.filter((sort) => sort.value === sortBy)[0].label}
               <MdExpandMore className={`transition-all duration-300 ${openSort && 'rotate-180'}`} />
             </button>
@@ -363,7 +373,7 @@ function GigsPage() {
               open={openSort}
               anchorEl={anchorRefSort.current}
               role={undefined}
-              placement='bottom-start'
+              placement='bottom-end'
               transition
               disablePortal
             >
@@ -371,21 +381,27 @@ function GigsPage() {
                 <Grow
                   {...TransitionProps}
                   style={{
-                    transformOrigin: placement === 'bottom-start' ? 'left top' : 'left bottom'
+                    transformOrigin: placement === 'bottom-end' ? 'left top' : 'left bottom'
                   }}
                 >
                   <Paper className='!rounded-xl'>
                     <ClickAwayListener onClickAway={handleCloseSort}>
-                      <div className='p-3 flex flex-col gap-2'>
+                      <div className='flex flex-col gap-2 p-3'>
                         {arrSortFilter.length > 0 &&
                           arrSortFilter.map((sort, index) => (
                             <button
-                              onClick={() => setSortBy(sort.value)}
+                              onClick={(event: any) => {
+                                setSortBy(sort.value)
+                                handleCloseSort(event)
+                              }}
                               type='button'
                               key={index}
-                              className='flex p-2 gap-5 justify-between items-center'
+                              className='flex items-center gap-5 px-2 py-1 text-lg font-semibold'
                             >
-                              {sortBy === sort.value && <FaCheck className='w-6 h-6' />} {sort.label}
+                              <span className='w-4 h-4'>
+                                {sortBy === sort.value && <FaCheck className='w-4 h-4' />}
+                              </span>
+                              {sort.label}
                             </button>
                           ))}
                       </div>

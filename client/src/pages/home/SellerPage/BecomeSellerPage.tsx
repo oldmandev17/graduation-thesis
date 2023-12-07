@@ -42,7 +42,7 @@ function BecomeSellerPage() {
             <button
               type='button'
               onClick={() => navigate('/auth/login')}
-              className='inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-900'
+              className='inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-500'
             >
               Become a Seller
               <svg
@@ -69,7 +69,7 @@ function BecomeSellerPage() {
         {arrWork.map((work, index) => (
           <div key={index + work.title} className='flex flex-col items-center justify-center gap-3 ite'>
             <span>{work.icon}</span>
-            <h3 className='font-semibold text-2xl text-gray-700'>{work.title}</h3>
+            <h3 className='text-2xl font-semibold text-gray-700'>{work.title}</h3>
             <p className='text-lg font-semibold text-center text-gray-600'>{work.content}</p>
           </div>
         ))}
@@ -85,16 +85,16 @@ function BecomeSellerPage() {
                     <figure>
                       <img className='w-full' src={`/banners/story${index + 1}.jpg`} alt='description' />
                     </figure>
-                    <figcaption className='px-4 text-lg text-gray-600 h-full flex justify-center items-center p-5 gap-10'>
-                      <p>{story.content}</p>
-                      <span>{story.author}</span>
+                    <figcaption className='flex flex-col items-center justify-center h-full gap-5 p-5 px-4 text-lg text-gray-600'>
+                      <p className='text-lg italic font-semibold'>{story.content}</p>
+                      <span className='text-lg'>{story.author}</span>
                     </figcaption>
                   </>
                 ) : (
                   <>
-                    <figcaption className='px-4 text-lg text-gray-600'>
-                      <p>{story.content}</p>
-                      <span>{story.author}</span>
+                    <figcaption className='flex flex-col items-center justify-center h-full gap-5 p-5 px-4 text-lg text-gray-600'>
+                      <p className='text-lg italic font-semibold'>{story.content}</p>
+                      <span className='text-lg'>{story.author}</span>
                     </figcaption>
                     <figure>
                       <img className='w-full' src={`/banners/story${index + 1}.jpg`} alt='description' />
@@ -109,7 +109,7 @@ function BecomeSellerPage() {
         <h2 className='text-3xl mb-5 text-[#424145] font-bold text-center col-span-2'>Q&A</h2>
         {arrQA?.length &&
           arrQA.map((FAQ, index) => (
-            <Accordion key={index} sx={{ boxShadow: 'none' }}>
+            <Accordion key={index} sx={{ boxShadow: 'none', paddingX: '10px', paddingY: '5px' }}>
               <AccordionSummary
                 expandIcon={<MdExpandMore className='w-7 h-7' />}
                 aria-controls='panel1a-content'
@@ -123,6 +123,16 @@ function BecomeSellerPage() {
               </AccordionDetails>
             </Accordion>
           ))}
+      </div>
+      <div className='flex flex-col items-center justify-center gap-5 pb-10'>
+        <p className='text-xl font-semibold text-gray-600'>Sign up and create your first Gig totday</p>
+        <button
+          onClick={() => navigate('/auth/login')}
+          type='button'
+          className='px-10 py-2 text-xl font-semibold text-white bg-green-600 hover:bg-green-500 '
+        >
+          Get Started
+        </button>
       </div>
     </div>
   )
