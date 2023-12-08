@@ -11,6 +11,7 @@ import './index.css'
 // import RequiredAuth from 'pages/auth/RequiredAuth'
 // import { UserRole } from 'modules/user'
 import { MessageProvider } from 'contexts/StateContext'
+// import RequiredAuth from 'pages/auth/RequiredAuth'
 import App from './App'
 
 const CreateGigLayout = lazy(() => import('layouts/CreateGigLayout'))
@@ -33,6 +34,11 @@ const MessagePage = lazy(() => import('pages/home/MessagePage'))
 const CategoryPage = lazy(() => import('pages/home/CategoryPage'))
 const BecomeSellerPage = lazy(() => import('pages/home/SellerPage/BecomeSellerPage'))
 const GigsPage = lazy(() => import('pages/home/GigsPage'))
+const RegisterSellerPage = lazy(() => import('pages/home/SellerPage/SellerOverviewPage'))
+const SellerOverviewPage = lazy(() => import('pages/home/SellerPage/SellerOverviewPage'))
+const SellerOverviewDoPage = lazy(() => import('pages/home/SellerPage/SellerOverviewDoPage'))
+const SellerOverviewDontPage = lazy(() => import('pages/home/SellerPage/SellerOverviewDontPage'))
+const SellerPersonalInfo = lazy(() => import('pages/home/SellerPage/SellerPersonalInfo'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -72,8 +78,12 @@ const router = createBrowserRouter([
             element: <CategoryPage />
           },
           {
-            path: '/seller',
+            path: '/start-selling',
             element: <BecomeSellerPage />
+          },
+          {
+            path: '/register-seller',
+            element: <RegisterSellerPage />
           },
           {
             path: '/sub-category/:slug',
@@ -81,6 +91,28 @@ const router = createBrowserRouter([
           }
         ]
       },
+      // {
+      //   path: '/seller-onboarding',
+      //   element: <RequiredAuth allowPermissions={[]} />,
+      //   children: [
+      {
+        path: '/seller-onboarding/overview',
+        element: <SellerOverviewPage />
+      },
+      {
+        path: '/seller-onboarding/overview-do',
+        element: <SellerOverviewDoPage />
+      },
+      {
+        path: '/seller-onboarding/overview-dont',
+        element: <SellerOverviewDontPage />
+      },
+      {
+        path: '/seller-onboarding/personal-info',
+        element: <SellerPersonalInfo />
+      },
+      //   ]
+      // },
       {
         path: '/auth',
         element: <AuthenticationLayout />,

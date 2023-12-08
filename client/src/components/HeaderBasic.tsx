@@ -77,7 +77,7 @@ function HeaderBasic() {
         </div>
         <div className='flex flex-row gap-5'>
           <button
-            onClick={() => navigate('/seller')}
+            onClick={() => navigate('/start-selling')}
             type='button'
             className={`${
               isFixed ? 'text-gray-600' : `${location.pathname === '/' && 'text-white'}`
