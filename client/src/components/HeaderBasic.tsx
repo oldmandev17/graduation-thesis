@@ -86,7 +86,7 @@ function HeaderBasic() {
             Become a Seller
           </button>
           <button
-            onClick={() => navigate('/auth/register')}
+            onClick={() => navigate('/auth/login')}
             type='button'
             className={`${
               isFixed ? 'text-gray-600' : `${location.pathname === '/' && 'text-white'}`
@@ -95,7 +95,7 @@ function HeaderBasic() {
             Sign In
           </button>
           <button
-            onClick={() => navigate('/auth/login')}
+            onClick={() => navigate('/auth/register')}
             type='button'
             className={`${
               isFixed || location.pathname !== '/'

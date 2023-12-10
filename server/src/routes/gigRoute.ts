@@ -29,7 +29,9 @@ gigRoutes
   .route('/')
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), deleteGigs)
 gigRoutes.route('/').get(getAllGig)
-gigRoutes.route('/id/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getGigDetail)
+gigRoutes
+  .route('/id/:id')
+  .get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), getGigDetail)
 gigRoutes.route('/slug/:slug').get(getGigDetail)
 
 export default gigRoutes

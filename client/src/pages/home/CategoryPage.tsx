@@ -116,7 +116,7 @@ function CategoryPage() {
                   {subCategory &&
                     subCategory.subCategories.length > 0 &&
                     subCategory.subCategories.map((subSubCategory, subSubIndex) => (
-                      <SwiperSlide key={subSubCategory._id + subSubIndex} className='rounded-lg'>
+                      <SwiperSlide key={subSubCategory._id + subSubIndex} className='h-full rounded-lg'>
                         <div
                           onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
                           className='flex flex-row items-center w-full h-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'

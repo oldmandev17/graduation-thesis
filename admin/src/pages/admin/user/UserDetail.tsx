@@ -10,23 +10,23 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { getUserDetail } from 'apis/api'
+import { getUserDetail, updateUser } from 'apis/api'
 import { arrUserGender, arrUserRole, arrUserStatus } from 'assets/data'
 import dayjs from 'dayjs'
+import useDebounce from 'hooks/useDebounce'
 import { GigStatus, IGig } from 'modules/gig'
 import { IOrder } from 'modules/order'
 import { IUser, UserGender, UserRole, UserStatus } from 'modules/user'
 import moment from 'moment'
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import ReactApexChart from 'react-apexcharts'
 import { useDropzone } from 'react-dropzone'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import timeAgo from 'utils/timeAgo'
 import * as Yup from 'yup'
-import ReactApexChart from 'react-apexcharts'
-import useDebounce from 'hooks/useDebounce'
 
 interface MonthlyStats {
   yearMonth: string
@@ -68,6 +68,7 @@ function UserDetail() {
   const [orders, setOrders] = useState<Array<IOrder>>([])
   const [orderCode, setOrderCode] = useState<string>()
   const orderCodeDebounce = useDebounce(orderCode, 500)
+  const [reason, setReason] = useState<string>()
 
   const searchGigsByName = (gigs: IGig[], searchTerm: string) => {
     if (user) {
@@ -309,8 +310,126 @@ function UserDetail() {
     ]
   }
 
+  const handleAccept = async () => {
+    const data: any = {}
+    data.role = user?.role.filter((role) => role !== UserRole.REQUEST_SELLER)
+    data.role.push(UserRole.SELLER)
+    if (id) {
+      await updateUser(id, data, accessToken)
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success('Update Completed Successfully!')
+            getUserDetails()
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error.response.data.error.message)
+        })
+    }
+  }
+
+  const handleRefuse = async () => {
+    const reasonEl = document.getElementById('reason') as HTMLTextAreaElement
+    if (!reason) {
+      reasonEl.classList.remove('hidden')
+      toast.warning('Enter the reason, please!')
+    } else {
+      const data: any = {}
+      data.role = user?.role.filter((role) => role !== UserRole.REQUEST_SELLER)
+      data.reason = reason
+      if (id) {
+        await updateUser(id, data, accessToken)
+          .then((response) => {
+            if (response.status === 200) {
+              toast.success('Update Completed Successfully!')
+              getUserDetails()
+              setReason('')
+              reasonEl.classList.add('hidden')
+            }
+          })
+          .catch((error: any) => {
+            toast.error(error.response.data.error.message)
+          })
+      }
+    }
+  }
+
   return (
     <div className='flex flex-col gap-5'>
+      {user?.role.includes(UserRole.REQUEST_SELLER) && (
+        <div>
+          <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Request Seller</h2>
+          <div className='grid grid-cols-3 gap-10 p-5 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
+            <div className='flex flex-col col-span-2 gap-2'>
+              <p className='text-lg'>
+                <span className='font-semibold'>Display Name: </span>
+                {user?.name}
+              </p>
+              <p className='text-lg'>
+                <span className='font-semibold'>Description: </span>
+                {user?.description}
+              </p>
+              <p className='text-lg'>
+                <span className='font-semibold'>Languages: </span>
+                {user?.language}
+              </p>
+              <p className='text-lg'>
+                <span className='font-semibold'>Your Occupation: </span>
+                {user?.occupation}
+              </p>
+              <p className='text-lg'>
+                <span className='font-semibold'>Skills: </span>
+                {user?.skill}
+              </p>
+              <p className='text-lg'>
+                <span className='font-semibold'>Education: </span>
+                {user?.education}
+              </p>
+              <p className='text-lg'>
+                <span className='font-semibold'>Certification: </span>
+                {user?.certification}
+              </p>
+              <div className='flex items-center w-full gap-10 mt-5'>
+                <button
+                  type='button'
+                  onClick={handleAccept}
+                  className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                >
+                  Accept
+                </button>
+                <div className='flex items-center w-full gap-2'>
+                  <div>
+                    <button
+                      type='button'
+                      onClick={handleRefuse}
+                      className='text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900'
+                    >
+                      Refuse
+                    </button>
+                  </div>
+                  <textarea
+                    className='hidden w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                    placeholder='Type the reason ...'
+                    id='reason'
+                    onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReason(event.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className='flex items-center justify-center '>
+              <img
+                src={`${
+                  user?.avatar?.startsWith('upload')
+                    ? `${process.env.REACT_APP_URL_SERVER}/${user?.avatar}`
+                    : user?.avatar
+                }`}
+                alt={user?.name}
+                className='rounded-full w-60 h-60'
+              />
+            </div>
+          </div>
+        </div>
+      )}
       <FormProvider {...formHandler}>
         <form className='' onSubmit={handleSubmit(handleUpdateUser)}>
           <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Update User</h2>
@@ -519,11 +638,13 @@ function UserDetail() {
                       <div className='rounded-full w-80 h-80'>
                         <img
                           src={
-                            user?.avatar
+                            !user?.avatar
                               ? URL.createObjectURL(files)
                               : typeof files !== 'string'
                               ? URL.createObjectURL(files)
-                              : `${process.env.REACT_APP_URL_SERVER}/${getValues('avatar')}`
+                              : user?.avatar?.startsWith('upload')
+                              ? `${process.env.REACT_APP_URL_SERVER}/${getValues('avatar')}`
+                              : user.avatar
                           }
                           alt='Avatar'
                           className='object-contain mb-4 rounded-full w-80 h-80'

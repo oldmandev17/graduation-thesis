@@ -10,6 +10,7 @@ export enum UserRole {
   MANAGER = 'MANAGER',
   BUYER = 'BUYER',
   SELLER = 'SELLER',
+  REQUEST_SELLER = 'REQUEST_SELLER',
   NONE = 'NONE'
 }
 
@@ -43,6 +44,12 @@ export interface IUser extends mongoose.Document {
   role: Array<UserRole>
   target: Array<ICategory>
   status: UserStatus
+  language?: string
+  description?: string
+  occupation?: string
+  skill?: string
+  education?: string
+  certification?: string
   contacts?: any
   createdAt: Date
   createdBy?: IUser
@@ -71,13 +78,30 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
   },
   email: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   phone: {
     type: String
   },
   password: {
+    type: String
+  },
+  language: {
+    type: String
+  },
+  description: {
+    type: String
+  },
+  occupation: {
+    type: String
+  },
+  skill: {
+    type: String
+  },
+  education: {
+    type: String
+  },
+  certification: {
     type: String
   },
   provider: {
@@ -127,8 +151,10 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
 
 userSchema.pre('save', async function (next) {
   try {
-    const salt = await bcrypt.genSalt(10)
-    await bcrypt.hash(this.password as string, salt).then((result) => (this.password = result))
+    if (this.password !== null) {
+      const salt = await bcrypt.genSalt(10)
+      await bcrypt.hash(this.password as string, salt).then((result) => (this.password = result))
+    }
     next()
   } catch (error: any) {
     next(error)

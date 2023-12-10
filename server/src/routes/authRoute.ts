@@ -11,6 +11,7 @@ import {
   register,
   sendMail,
   updateUser,
+  updateUserByAdmin,
   updateUserStatus,
   verifyEmail
 } from 'src/controllers/authController'
@@ -32,13 +33,21 @@ authRouter.route('/admin/create-user').post(verifyAccessToken, authorizeRoles([U
 authRouter
   .route('/admin/update-user')
   .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateUserStatus)
+authRouter
+  .route('/admin/update/:id')
+  .put(
+    verifyAccessToken,
+    authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]),
+    upload('user').single('avatar'),
+    updateUserByAdmin
+  )
 authRouter.route('/update-profile').put(verifyAccessToken, upload('user').single('avatar'), updateUser)
 authRouter
   .route('/admin/send-email')
   .post(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), sendMail)
 authRouter.route('/admin/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getUserDetail)
 authRouter.route('/notification').get(verifyAccessToken, getAllNotification)
-authRouter.route('/seen-notification/:id').put(verifyAccessToken, seenNotification)
+authRouter.route('/seen-notification/:id').get(verifyAccessToken, seenNotification)
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
 authRouter.get(
   '/google/callback',
@@ -49,7 +58,7 @@ authRouter.get(
     })(req, res, next)
   },
   (req: any, res: any) => {
-    res.redirect(`${process.env.URL_CLIENT}/login-success/${req.user?.id}/${req.user.tokenLogin}`)
+    res.redirect(`${process.env.URL_CLIENT}/auth/login/${req.user.access}/${req.user.refresh}`)
   }
 )
 

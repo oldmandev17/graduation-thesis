@@ -144,7 +144,7 @@ function GuestPage() {
           </div>
         </div>
       </div>
-      <div className='flex justify-center mt-32 items-center text-gray-400 text-2xl font-bold min-h-[11vh]'>
+      <div className='flex items-center justify-center mt-16 text-2xl font-bold text-gray-400'>
         Trusted by: &nbsp;
         <ul className='flex items-center justify-center gap-10 ml-10'>
           {[1, 2, 3, 4, 5].map((num) => (

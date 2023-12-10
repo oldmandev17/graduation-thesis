@@ -11,6 +11,11 @@ export interface LogInPayload {
   password: string
 }
 
+export interface LogInGooglePayload {
+  accessToken: string
+  refreshToken: string
+}
+
 export interface UpdateUserPayload {
   user?: IUser
   accessToken?: string | null

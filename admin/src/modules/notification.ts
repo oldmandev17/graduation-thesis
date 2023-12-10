@@ -11,6 +11,7 @@ export enum NotificationType {
 }
 
 export interface INotification {
+  _id: string
   user: IUser
   name: string
   content: string

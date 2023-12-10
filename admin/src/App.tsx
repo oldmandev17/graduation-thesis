@@ -35,7 +35,7 @@ function App({ children }: { children: ReactNode }) {
   return (
     <>
       <Helmet>
-        <title>Admin | Fiverr</title>
+        <title>Admin | Freelancer</title>
       </Helmet>
       {children}
     </>

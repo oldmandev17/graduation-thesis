@@ -87,11 +87,21 @@ function getAllNotification(accessToken: string | undefined) {
   })
 }
 
+function seenNotification(id: string, accessToken: string | undefined) {
+  const url = `/auth/seen-notification/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 function updateProfile(data: any, accessToken: string | undefined) {
   const url = '/auth/update-profile'
   return axiosFormData.put(url, data, {
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${accessToken}`
     }
   })
@@ -105,5 +115,6 @@ export {
   updateGig,
   getGigDetailBySlug,
   getAllNotification,
-  updateProfile
+  updateProfile,
+  seenNotification
 }

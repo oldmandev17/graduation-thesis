@@ -32,6 +32,7 @@ import {
 
 interface UserQuery {
   status?: UserStatus
+  reason?: string
 }
 
 export async function register(req: Request, res: Response, next: NextFunction) {
@@ -49,11 +50,13 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         await User.deleteOne({ _id: userExist[0]._id })
       }
     }
+    const id = String(result.name).replace(/ /g, '')
     const newUser = await User.create({
       name: result.name,
       email: result.email,
       password: result.password,
-      provider: UserProvider.EMAIL
+      provider: UserProvider.EMAIL,
+      id: id.charAt(0).toLowerCase() + id.slice(1)
     })
     logger({
       user: newUser?._id,
@@ -65,7 +68,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       content: req.body
     })
     await createNotification(
-      newUser._id,
+      null,
       'New Account Registration',
       `Just a heads up, we've received a new account registration from Customer ${newUser.name}`,
       NotificationType.ADMIN,
@@ -405,13 +408,14 @@ export async function deleteUsers(req: Request, res: Response, next: NextFunctio
 
 export async function updateUser(req: any, res: Response, next: NextFunction) {
   try {
+    const file = req.file as Express.Multer.File
     const result = await userUpdateSchema.validateAsync(req.body)
     const user = await User.findOne({ _id: req.payload.userId })
-    const file = req.file as Express.Multer.File
     if (!user) throw httpError.NotFound()
     else {
       if (file) {
-        if (existsSync(user?.avatar as string)) unlinkSync(user?.avatar as string)
+        if (existsSync(user?.avatar as string) && user.provider === UserProvider.EMAIL)
+          unlinkSync(user?.avatar as string)
         result.avatar = file.path
       }
     }
@@ -424,6 +428,22 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
         updatedAt: Date.now()
       }
     )
+    if (result.role.includes(UserRole.REQUEST_SELLER)) {
+      await createNotification(
+        user._id,
+        'Account Request Seller',
+        'Waiting for admin approval. Thanks for your patience!',
+        NotificationType.USER,
+        next
+      )
+      await createNotification(
+        null,
+        'Account Request Seller',
+        `<p>Just a heads up, we've received a account request seller from Customer ${user.name}.<a className="font-bold" href='${process.env.URL_ADMIN}/user-detail/${user._id}'>Click here.</a></p>`,
+        NotificationType.ADMIN,
+        next
+      )
+    }
 
     logger({
       user: req.payload.userId,
@@ -452,8 +472,40 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
 
 export async function updateUserByAdmin(req: any, res: Response, next: NextFunction) {
   try {
+    const file = req.file as Express.Multer.File
     const result = await userUpdateSchema.validateAsync(req.body)
-    result.avatar = req.files.find((file: any) => file.fieldname === 'avatar')?.path
+    const userExist = await User.findOne({ _id: req.params.id })
+    if (!userExist) throw httpError.NotFound()
+    else {
+      if (file) {
+        if (existsSync(userExist?.avatar as string) && userExist.provider === UserProvider.EMAIL)
+          unlinkSync(userExist?.avatar as string)
+        result.avatar = file.path
+      }
+    }
+    if (
+      userExist.role.includes(UserRole.REQUEST_SELLER) &&
+      !result.role.includes(UserRole.REQUEST_SELLER) &&
+      !result.role.includes(UserRole.SELLER)
+    ) {
+      createNotification(
+        userExist._id,
+        'Your request become a Seller has been denied.',
+        `Because of reasons: "${result.reason}"`,
+        NotificationType.USER,
+        next
+      )
+      delete result.reason
+    }
+    if (userExist.role.includes(UserRole.REQUEST_SELLER) && result.role.includes(UserRole.SELLER)) {
+      createNotification(
+        userExist._id,
+        'Your request to become a Seller has been approved',
+        `<p>Congratulations on becoming a Seller. Let's start with my first gig.<a className="font-bold" href="${process.env.URL_CLIENT}/seller">Click here</a></p>`,
+        NotificationType.USER,
+        next
+      )
+    }
     await User.updateOne(
       {
         _id: req.params.id

@@ -7,9 +7,10 @@ import { FcGoogle } from 'react-icons/fc'
 import { IoCloseSharp } from 'react-icons/io5'
 import { RiLockPasswordLine } from 'react-icons/ri'
 import { toast } from 'react-toastify'
-import { authLogIn } from 'stores/auth/auth-slice'
+import { authLogIn, authLogInGoogle } from 'stores/auth/auth-slice'
 import { useAppDispatch } from 'stores/hooks'
 import * as Yup from 'yup'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const loginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -19,6 +20,8 @@ const loginSchema = Yup.object().shape({
 })
 
 function LoginPage() {
+  const { accessToken, refreshToken } = useParams<{ accessToken?: string; refreshToken?: string }>()
+  const navigate = useNavigate()
   const [show, setShow] = useState<boolean>(false)
   const [icon, setIcon] = useState<boolean>(false)
   const [text, setText] = useState<string>('')
@@ -51,8 +54,15 @@ function LoginPage() {
   }
 
   useEffect(() => {
+    if (accessToken && refreshToken) {
+      dispatch(authLogInGoogle({ accessToken, refreshToken }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, refreshToken])
+
+  useEffect(() => {
     const handleOutsideClick = (event: any) => {
-      if (event.target.id !== 'username') {
+      if (event.target.id !== 'email') {
         setIcon(false)
       }
     }
@@ -65,20 +75,24 @@ function LoginPage() {
   }, [])
 
   return (
-    <div className='flex flex-col align-middle'>
-      <div className='flex flex-col items-center px-60 '>
+    <div className='flex flex-col align-middle min-w-[500px]'>
+      <div className='flex flex-col items-center w-full gap-2'>
         <p className='py-2 text-5xl font-bold text-white '>Welcome</p>
-        <p className='text-xs text-white '>We are glad to see you back with us</p>
+        <p className='text-lg text-white '>We are glad to see you back with us</p>
       </div>
-      <form className='flex flex-col justify-between gap-5 py-7 px-52' onSubmit={handleSubmit(handleLogin)}>
+      <form
+        autoComplete='off'
+        className='flex flex-col justify-between w-full gap-5 px-20 py-7 '
+        onSubmit={handleSubmit(handleLogin)}
+      >
         <div className='relative block bg-white-500 ' id='divUsername'>
           <span className='absolute inset-y-0 left-0 flex items-center pl-5'>
             <AiOutlineUser className='w-5 h-5 fill-black ' />
           </span>
           <input
             type='text'
-            className='w-full py-2 pl-12 pr-10 text-black bg-white rounded-md shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm placeholder:text-xs '
-            id='username'
+            className='w-full py-2 pl-12 pr-10 text-black bg-white rounded-md shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-md placeholder:text-md '
+            id='email'
             placeholder='Email'
             {...register('email')}
             onFocus={() => setIcon(true)}
@@ -99,7 +113,7 @@ function LoginPage() {
           </span>
           <input
             type={show ? 'text' : 'password'}
-            className='w-full py-2 pl-12 pr-10 text-black bg-white rounded-md shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm placeholder:text-xs '
+            className='w-full py-2 pl-12 pr-10 text-black bg-white rounded-md shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-md placeholder:text-md '
             id='password'
             {...register('password')}
             placeholder='Password'
@@ -140,26 +154,42 @@ function LoginPage() {
             <>NEXT</>
           )}
         </button>
-        <div className='flex justify-end'>
-          <span className='text-xs text-white cursor-pointer'>Forgot Password</span>
+        <div className='flex justify-between'>
+          <button
+            onClick={() => navigate('/auth/register')}
+            type='button'
+            className='text-white hover:text-yellow-300 text-md'
+          >
+            Create Account ?
+          </button>
+          <button
+            onClick={() => navigate('/auth/forgot-password')}
+            type='button'
+            className='text-white hover:text-yellow-300 text-md'
+          >
+            Forgot Password ?
+          </button>
         </div>
         <div className=' hr-sect'>
           <div className='text-xs font-bold'>
-            <div className='text-xs text-white '>
+            <div className='text-white text-md '>
               <b>Login</b> with Others
             </div>
           </div>
         </div>
         <div className='flex items-center justify-center border border-white rounded-xl hover:bg-gray-300 '>
-          <button type='button' className='flex justify-center w-full gap-1 px-6 py-2 text-gray-800'>
+          <a
+            href={`${process.env.REACT_APP_URL_SERVER}/api/auth/google`}
+            className='flex justify-center w-full gap-1 px-6 py-2 text-gray-800'
+          >
             <span className='inset-y-0 left-0 flex items-center'>
               <FcGoogle className='w-6 h-6 ' />
             </span>
-            <span className='text-sm text-white'>
-              login with
-              <span className='text-sm font-bold text-white'> google </span>
+            <span className='text-white text-MD'>
+              Login with
+              <span className='font-bold text-white capitalize text-MD'> google </span>
             </span>
-          </button>
+          </a>
         </div>
       </form>
     </div>

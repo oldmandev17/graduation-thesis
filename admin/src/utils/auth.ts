@@ -1,15 +1,15 @@
 import Cookies from 'js-cookie'
 
-const accessTokenKey = 'access_token'
-const refreshTokenKey = 'refreshToken'
+const accessTokenKey = 'accessTokenAdmin'
+const refreshTokenKey = 'refreshTokenAdmin'
 const objCookies = {
   expires: 30,
   domain: process.env.COOKIE_DOMAIN
 }
 
-export const saveToken = (access_token: any, refreshToken: any) => {
-  if (access_token && refreshToken) {
-    Cookies.set(accessTokenKey, access_token, {
+export const saveToken = (accessToken: any, refreshToken: any) => {
+  if (accessToken && refreshToken) {
+    Cookies.set(accessTokenKey, accessToken, {
       ...objCookies
     })
     Cookies.set(refreshTokenKey, refreshToken, {

@@ -8,6 +8,7 @@ export enum UserRole {
   MANAGER = 'MANAGER',
   BUYER = 'BUYER',
   SELLER = 'SELLER',
+  REQUEST_SELLER = 'REQUEST_SELLER',
   NONE = 'NONE'
 }
 
@@ -44,6 +45,12 @@ export interface IUser {
   contacts?: any
   target: Array<ICategory>
   status: UserStatus
+  language?: string
+  description?: string
+  occupation?: string
+  skill?: string
+  education?: string
+  certification?: string
   createdAt: Date
   createdBy?: IUser
   updatedAt?: Date

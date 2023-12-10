@@ -1,3 +1,8 @@
+import { MessageProvider } from 'contexts/StateContext'
+import { UserRole } from 'modules/user'
+import RequiredAuth from 'pages/auth/RequiredAuth'
+import NotFoundPage from 'pages/home/NotFoundPage'
+import BecomeSellerPage from 'pages/home/SellerPage/BecomeSellerPage'
 import { ReactNode, Suspense, lazy, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
@@ -7,38 +12,28 @@ import { Outlet, RouterProvider, createBrowserRouter, useLocation } from 'react-
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { store } from 'stores/configureStore'
-import './index.css'
-// import RequiredAuth from 'pages/auth/RequiredAuth'
-// import { UserRole } from 'modules/user'
-import { MessageProvider } from 'contexts/StateContext'
-// import RequiredAuth from 'pages/auth/RequiredAuth'
 import App from './App'
+import './index.css'
 
-const CreateGigLayout = lazy(() => import('layouts/CreateGigLayout'))
+const SellerOnboardLayout = lazy(() => import('layouts/SellerOnboardLayout'))
 const AuthenticationLayout = lazy(() => import('layouts/AuthenticationLayout'))
 const LandingLayout = lazy(() => import('layouts/LandingLayout'))
-
-const NotFoundPage = lazy(() => import('pages/home/NotFoundPage'))
-
 const LandingPage = lazy(() => import('pages/home/LandingPage'))
 const GigDetailPage = lazy(() => import('pages/home/GigDetailPage'))
-
 const LogInPage = lazy(() => import('pages/auth/LoginPage'))
 const SignUpPage = lazy(() => import('pages/auth/SignupPage'))
 const CreateGigOverviewPage = lazy(() => import('pages/home/SellerPage/CreateGigOverviewPage'))
 const CreateGigPricingPage = lazy(() => import('pages/home/SellerPage/CreateGigPricingPage'))
 const CreateGigFaqGalleryPage = lazy(() => import('pages/home/SellerPage/CreateGigFaqGalleryPage'))
 const CreateGigPushlishPage = lazy(() => import('pages/home/SellerPage/CreateGigPushlishPage'))
-
 const MessagePage = lazy(() => import('pages/home/MessagePage'))
 const CategoryPage = lazy(() => import('pages/home/CategoryPage'))
-const BecomeSellerPage = lazy(() => import('pages/home/SellerPage/BecomeSellerPage'))
 const GigsPage = lazy(() => import('pages/home/GigsPage'))
-const RegisterSellerPage = lazy(() => import('pages/home/SellerPage/SellerOverviewPage'))
 const SellerOverviewPage = lazy(() => import('pages/home/SellerPage/SellerOverviewPage'))
 const SellerOverviewDoPage = lazy(() => import('pages/home/SellerPage/SellerOverviewDoPage'))
 const SellerOverviewDontPage = lazy(() => import('pages/home/SellerPage/SellerOverviewDontPage'))
 const SellerPersonalInfo = lazy(() => import('pages/home/SellerPage/SellerPersonalInfo'))
+const DashboardPage = lazy(() => import('pages/home/SellerPage/DashboardPage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -82,37 +77,33 @@ const router = createBrowserRouter([
             element: <BecomeSellerPage />
           },
           {
-            path: '/register-seller',
-            element: <RegisterSellerPage />
-          },
-          {
             path: '/sub-category/:slug',
             element: <GigsPage />
           }
         ]
       },
-      // {
-      //   path: '/seller-onboarding',
-      //   element: <RequiredAuth allowPermissions={[]} />,
-      //   children: [
       {
-        path: '/seller-onboarding/overview',
-        element: <SellerOverviewPage />
+        path: '/seller-onboarding',
+        element: <RequiredAuth allowPermissions={[UserRole.BUYER]} />,
+        children: [
+          {
+            path: '/seller-onboarding/overview',
+            element: <SellerOverviewPage />
+          },
+          {
+            path: '/seller-onboarding/overview-do',
+            element: <SellerOverviewDoPage />
+          },
+          {
+            path: '/seller-onboarding/overview-dont',
+            element: <SellerOverviewDontPage />
+          },
+          {
+            path: '/seller-onboarding/personal-info',
+            element: <SellerPersonalInfo />
+          }
+        ]
       },
-      {
-        path: '/seller-onboarding/overview-do',
-        element: <SellerOverviewDoPage />
-      },
-      {
-        path: '/seller-onboarding/overview-dont',
-        element: <SellerOverviewDontPage />
-      },
-      {
-        path: '/seller-onboarding/personal-info',
-        element: <SellerPersonalInfo />
-      },
-      //   ]
-      // },
       {
         path: '/auth',
         element: <AuthenticationLayout />,
@@ -122,38 +113,52 @@ const router = createBrowserRouter([
             element: <LogInPage />
           },
           {
+            path: '/auth/login/:accessToken/:refreshToken',
+            element: <LogInPage />
+          },
+          {
             path: '/auth/register',
             element: <SignUpPage />
           }
         ]
       },
       {
-        path: '/message',
+        path: '/message/:userId',
         element: <MessagePage />
       },
       {
-        path: '/gig-create/:userId',
-        element: <CreateGigLayout />,
+        path: '/user/:userId',
+        element: <RequiredAuth allowPermissions={[UserRole.SELLER]} />,
         children: [
           {
-            path: '/gig-create/:userId/overview',
-            element: <CreateGigOverviewPage />
-          },
-          {
-            path: '/gig-create/:userId/:id/overview',
-            element: <CreateGigOverviewPage />
-          },
-          {
-            path: '/gig-create/:userId/:id/pricing',
-            element: <CreateGigPricingPage />
-          },
-          {
-            path: '/gig-create/:userId/:id/faq&gallery',
-            element: <CreateGigFaqGalleryPage />
-          },
-          {
-            path: '/gig-create/:userId/:id/publish',
-            element: <CreateGigPushlishPage />
+            path: '/user/:userId',
+            element: <SellerOnboardLayout />,
+            children: [
+              {
+                path: '/user/:userId/',
+                element: <DashboardPage />
+              },
+              {
+                path: '/user/:userId/gig-create/overview',
+                element: <CreateGigOverviewPage />
+              },
+              {
+                path: '/user/:userId/gig-create/:id/overview',
+                element: <CreateGigOverviewPage />
+              },
+              {
+                path: '/user/:userId/gig-create/:id/pricing',
+                element: <CreateGigPricingPage />
+              },
+              {
+                path: '/user/:userId/gig-create/:id/faq&gallery',
+                element: <CreateGigFaqGalleryPage />
+              },
+              {
+                path: '/user/:userId/gig-create/:id/publish',
+                element: <CreateGigPushlishPage />
+              }
+            ]
           }
         ]
       }
@@ -172,7 +177,7 @@ createRoot(container).render(
         </MessageProvider>
         <ToastContainer
           position='bottom-right'
-          toastClassName='text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border border-gray-400 dark:text-gray-500'
+          toastClassName='text-gray-500 bg-white rounded-lg shadow border border-gray-400'
           closeButton={<IoCloseSharp />}
         />
       </Suspense>

@@ -10,7 +10,7 @@ import {
   requestResetPassword
 } from './auth-requests'
 import { authUpdateUser } from './auth-slice'
-import { ForgotPasswordPayload, LogInPayload, ResetPasswordPayload } from './auth-types'
+import { ForgotPasswordPayload, LogInGooglePayload, LogInPayload, ResetPasswordPayload } from './auth-types'
 
 function* handleAuthFetchMe({ payload }: { payload: string }): Generator<any, void, any> {
   try {
@@ -36,6 +36,17 @@ function* handleAuthLogIn({ payload }: { payload: LogInPayload; type: string }):
     }
   } catch (error: any) {
     toast.error(error.response.data.error.message)
+  }
+}
+
+function* handleAuthLogInGoolge({ payload }: { payload: LogInGooglePayload; type: string }): Generator<any, void, any> {
+  try {
+    if (payload.accessToken && payload.refreshToken) {
+      saveToken(payload.accessToken, payload.refreshToken)
+      yield call(handleAuthFetchMe, { payload: payload.accessToken })
+    }
+  } catch (error: any) {
+    toast.error(error.message)
   }
 }
 
@@ -105,6 +116,7 @@ export {
   handleAuthFetchMe,
   handleAuthForgotPassword,
   handleAuthLogIn,
+  handleAuthLogInGoolge,
   handleAuthLogout,
   handleAuthRefreshToken,
   handleAuthResetPassword

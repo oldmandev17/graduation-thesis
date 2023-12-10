@@ -45,7 +45,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/overview')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
                 aria-hidden='true'
@@ -63,7 +63,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/category')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
                 aria-hidden='true'
@@ -80,7 +80,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/gig')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
                 aria-hidden='true'
@@ -101,7 +101,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/order')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
                 aria-hidden='true'
@@ -124,7 +124,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/message')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
                 aria-hidden='true'
@@ -145,7 +145,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/user')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
             >
               <svg
                 aria-hidden='true'
@@ -166,7 +166,7 @@ function SideBarAdmin() {
           <li>
             <div
               onClick={() => navigate('/log')}
-              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
+              className='flex items-center p-2 text-base font-medium text-gray-900 transition duration-75 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'
             >
               <svg
                 aria-hidden='true'

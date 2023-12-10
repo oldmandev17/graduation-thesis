@@ -133,7 +133,7 @@ function CreateGigFaqGalleryPage() {
           .then((response) => {
             if (response.status === 200) {
               reset()
-              navigate(`/${user?.id}/gig-create/${response.data.gig.slug}/publish`)
+              navigate(`/user/${user?.id}/gig-create/${response.data.gig._id}/publish`)
             }
           })
           .catch((error: any) => {
@@ -172,12 +172,12 @@ function CreateGigFaqGalleryPage() {
               <input
                 type='text'
                 {...register('question')}
-                className='border border-gray-400 rounded-md placeholder:text-gray-400 placeholder:font-normal '
+                className='p-1 border border-gray-400 rounded-md placeholder:text-gray-400 placeholder:font-normal '
                 placeholder='Add a question: ie. Do you translate to English as well?'
               />
               <textarea
                 {...register('answer')}
-                className='border border-gray-400 rounded-md resize-none overscroll-none placeholder:text-gray-400 placeholder:font-normal'
+                className='p-1 border border-gray-400 rounded-md resize-none overscroll-none placeholder:text-gray-400 placeholder:font-normal'
                 placeholder='Add an Answer: ie. Yes, I also translate from English to Hebrew '
               />
               <div className='flex flex-row justify-end gap-2 '>
@@ -234,7 +234,7 @@ function CreateGigFaqGalleryPage() {
             {images.length < 5 && (
               <div
                 {...getRootProps()}
-                className='flex flex-col items-center justify-center h-32 border border-gray-700 border-dashed'
+                className='flex flex-col items-center justify-center h-32 border border-gray-700 border-dashed cursor-pointer'
               >
                 <CiImageOn className='w-8 h-8 fill-gray-400 ' />
                 <span className='text-base text-gray-500'>Drag & drop a photo or</span>

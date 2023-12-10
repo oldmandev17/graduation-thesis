@@ -9,7 +9,7 @@ export async function createNotification(
   name: string,
   content: string,
   type: NotificationType,
-  next: NextFunction
+  next: NextFunction | null
 ) {
   try {
     const notification: any = {
@@ -24,7 +24,7 @@ export async function createNotification(
     await Notification.create(notification)
     return true
   } catch (error) {
-    next(error)
+    if (next) next(error)
     return false
   }
 }
@@ -68,7 +68,7 @@ export async function getAllNotification(req: Request, res: Response, next: Next
     } else {
       ;(query.user = req.payload.userId), (query.type = NotificationType.USER)
     }
-    const notifications = await Notification.find(query)
+    const notifications = await Notification.find(query).sort({ createdAt: 'desc' }).populate('user')
 
     res.status(200).json({ notifications })
   } catch (error) {

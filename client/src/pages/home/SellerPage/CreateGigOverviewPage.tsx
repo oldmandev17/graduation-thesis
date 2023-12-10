@@ -89,8 +89,8 @@ function CreateGigOverviewPage() {
     await getAllCategory(null, null, null, '', 'name', 'desc', null, null, parent, 1, accessToken)
       .then((response) => {
         if (response.status === 200) {
-          setArrParentCategory([...response.data.arrParentCategory])
-          setArrCategory([...response.data.arrCategory])
+          setArrParentCategory([...response.data.arrParentCategory, { label: 'Show All', value: '' }])
+          setArrCategory(response.data.arrCategory)
         }
       })
       .catch((error: any) => {
@@ -101,6 +101,10 @@ function CreateGigOverviewPage() {
   useEffect(() => {
     getAllCategories()
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getAllCategories])
+
+  useEffect(() => {
     const arrTemp: any = []
     arrCategory.forEach((category) => {
       category.subCategories.forEach((subCategory: ICategory) => {
@@ -111,9 +115,7 @@ function CreateGigOverviewPage() {
       })
     })
     setCategories(arrTemp)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getAllCategories])
+  }, [arrCategory])
 
   useEffect(() => {
     const arrErroes = Object.values(errors)
@@ -132,7 +134,7 @@ function CreateGigOverviewPage() {
         .then((response) => {
           if (response.status === 200) {
             reset()
-            navigate(`/${user?.id}/gig-create/${response.data.gig.slug}/pricing`)
+            navigate(`/user/${user?.id}/gig-create/${response.data.gig._id}/pricing`)
           }
         })
         .catch((error: any) => {
@@ -143,7 +145,7 @@ function CreateGigOverviewPage() {
         .then((response) => {
           if (response.status === 201) {
             reset()
-            navigate(`/${user?.id}/gig-create/${response.data.gig.slug}/pricing`)
+            navigate(`/user/${user?.id}/gig-create/${response.data.gig._id}/pricing`)
           }
         })
         .catch((error: any) => {

@@ -146,7 +146,7 @@ function CreateGigPricingPage() {
         .then((response) => {
           if (response.status === 200) {
             reset()
-            navigate(`/${user?.id}/gig-create/${response.data.gig.slug}/faq&gallery`)
+            navigate(`/user/${user?.id}/gig-create/${response.data.gig._id}/faq&gallery`)
           }
         })
         .catch((error: any) => {
@@ -255,7 +255,7 @@ function CreateGigPricingPage() {
               <td className='border border-gray-300'>
                 <select
                   {...register('basicDeliveryTime')}
-                  defaultValue={gig?.packages && gig?.packages[0].deliveryTime ? gig?.packages[0].deliveryTime : 0}
+                  defaultValue={gig?.packages && gig?.packages[0]?.deliveryTime ? gig?.packages[0]?.deliveryTime : 0}
                   name='basicDeliveryTime'
                   id=''
                   className='w-full text-sm text-gray-500 select-none '
@@ -273,7 +273,7 @@ function CreateGigPricingPage() {
               <td className='border border-gray-300'>
                 <select
                   {...register('standardDeliveryTime')}
-                  defaultValue={gig?.packages && gig?.packages[1].deliveryTime ? gig?.packages[1].deliveryTime : 0}
+                  defaultValue={gig?.packages && gig?.packages[1]?.deliveryTime ? gig?.packages[1]?.deliveryTime : 0}
                   name='standardDeliveryTime'
                   id=''
                   className='w-full text-sm text-gray-500 select-none '
@@ -291,7 +291,7 @@ function CreateGigPricingPage() {
               <td className='border border-gray-300'>
                 <select
                   {...register('premiumDeliveryTime')}
-                  defaultValue={gig?.packages && gig?.packages[2].deliveryTime ? gig?.packages[2].deliveryTime : 0}
+                  defaultValue={gig?.packages && gig?.packages[2]?.deliveryTime ? gig?.packages[2]?.deliveryTime : 0}
                   name='premiumDeliveryTime'
                   id=''
                   className='w-full text-sm text-gray-500 select-none '
@@ -312,7 +312,7 @@ function CreateGigPricingPage() {
               <td className='border border-gray-300'>
                 <select
                   {...register('basicRevisions')}
-                  defaultValue={gig?.packages && gig?.packages[0].revisions ? gig?.packages[0].revisions : 0}
+                  defaultValue={gig?.packages && gig?.packages[0]?.revisions ? gig?.packages[0]?.revisions : 0}
                   name='basicRevisions'
                   id=''
                   className='w-full text-sm text-gray-500 select-none '
@@ -330,7 +330,7 @@ function CreateGigPricingPage() {
               <td className='border border-gray-300'>
                 <select
                   {...register('standardRevisions')}
-                  defaultValue={gig?.packages && gig?.packages[1].revisions ? gig?.packages[1].revisions : 0}
+                  defaultValue={gig?.packages && gig?.packages[1]?.revisions ? gig?.packages[1]?.revisions : 0}
                   name='standardRevisions'
                   id=''
                   className='w-full text-sm text-gray-500 select-none '
@@ -348,7 +348,7 @@ function CreateGigPricingPage() {
               <td className='border border-gray-300'>
                 <select
                   {...register('premiumRevisions')}
-                  defaultValue={gig?.packages && gig?.packages[2].revisions ? gig?.packages[2].revisions : 0}
+                  defaultValue={gig?.packages && gig?.packages[2]?.revisions ? gig?.packages[2]?.revisions : 0}
                   name='premiumRevisions'
                   id=''
                   className='w-full text-sm text-gray-500 select-none '
@@ -444,7 +444,7 @@ function CreateGigPricingPage() {
                   </span>
                   <input
                     {...register('basicPrice')}
-                    defaultValue={gig?.packages && gig?.packages[0].price ? gig?.packages[0].price : 0}
+                    defaultValue={gig?.packages && gig?.packages[0]?.price ? gig?.packages[0]?.price : 0}
                     type='number'
                     className='w-full text-sm select-none'
                   />
@@ -457,7 +457,7 @@ function CreateGigPricingPage() {
                   </span>
                   <input
                     {...register('standardPrice')}
-                    defaultValue={gig?.packages && gig?.packages[1].price ? gig?.packages[1].price : 0}
+                    defaultValue={gig?.packages && gig?.packages[1]?.price ? gig?.packages[1]?.price : 0}
                     type='number'
                     className='w-full text-sm select-none'
                   />
@@ -470,7 +470,7 @@ function CreateGigPricingPage() {
                   </span>
                   <input
                     {...register('premiumPrice')}
-                    defaultValue={gig?.packages && gig?.packages[2].price ? gig?.packages[2].price : 0}
+                    defaultValue={gig?.packages && gig?.packages[2]?.price ? gig?.packages[2]?.price : 0}
                     type='number'
                     className='w-full text-sm select-none'
                   />

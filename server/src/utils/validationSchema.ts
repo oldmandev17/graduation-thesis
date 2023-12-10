@@ -62,7 +62,14 @@ export const userUpdateSchema = Joi.object({
     .allow(null)
     .valid(...Object.values(UserStatus)),
   avatar: Joi.binary(),
-  target: Joi.array().items(Joi.string())
+  target: Joi.array().items(Joi.string()),
+  description: Joi.string().allow(null),
+  language: Joi.string().allow(null),
+  occupation: Joi.string().allow(null),
+  skill: Joi.string().allow(null),
+  education: Joi.string().allow(''),
+  certification: Joi.string().allow(''),
+  reason: Joi.string().allow('')
 })
 
 export const authForgotPasswordSchema = Joi.object({

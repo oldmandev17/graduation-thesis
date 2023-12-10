@@ -143,6 +143,16 @@ function updateUserStatus(arrIds: Array<string>, status: string, accessToken: st
   })
 }
 
+function updateUser(id: string, data: any, accessToken: string | undefined) {
+  const url = `/auth/admin/update/${id}`
+  return axiosJson.put(url, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 function updateGigStatus(
   arrIds: Array<string>,
   status: string,
@@ -274,6 +284,26 @@ function getGigDetailById(id: string | undefined, accessToken: string | undefine
   })
 }
 
+function getAllNotification(accessToken: string | undefined) {
+  const url = '/auth/notification'
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function seenNotification(id: string, accessToken: string | undefined) {
+  const url = `/auth/seen-notification/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   createCategory,
   createUser,
@@ -291,5 +321,8 @@ export {
   updateCategoryStatus,
   updateGigStatus,
   updateUserStatus,
-  getGigDetailById
+  getGigDetailById,
+  updateUser,
+  getAllNotification,
+  seenNotification
 }

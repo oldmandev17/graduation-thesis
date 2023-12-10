@@ -1,15 +1,23 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { ClickAwayListener, Grow, Paper, Popper } from '@mui/material'
+import { getAllNotification, seenNotification } from 'apis/api'
 import ThemeSwitcher from 'components/common/ThemeSwitcher'
+import parse from 'html-react-parser'
+import { INotification, NotificationStatus } from 'modules/notification'
 import { useEffect, useRef, useState } from 'react'
+import { MdOutlineNotificationsActive } from 'react-icons/md'
 import { SiFiverr } from 'react-icons/si'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { authLogout } from 'stores/auth/auth-slice'
 import { useAppDispatch, useAppSelector } from 'stores/hooks'
 import { getToken } from 'utils/auth'
+import timeAgo from 'utils/timeAgo'
 
 function HeaderAdmin() {
   const navigate = useNavigate()
@@ -70,7 +78,39 @@ function HeaderAdmin() {
 
   const { user } = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
-  const { refreshToken } = getToken()
+  const [notifications, setNotifications] = useState<Array<INotification>>([])
+  const { refreshToken, accessToken } = getToken()
+
+  const getAllNotifications = async () => {
+    await getAllNotification(accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setNotifications(response.data.notifications)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+  }
+
+  useEffect(() => {
+    getAllNotifications()
+    const intervalId = setInterval(() => {
+      getAllNotifications()
+    }, 10000)
+    return () => clearInterval(intervalId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSeenNotification = async (id: string) => {
+    await seenNotification(id, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          getAllNotifications()
+        }
+      })
+      .catch((error: any) => toast.error(error.response.error.data.message))
+  }
 
   return (
     <nav className='fixed top-0 left-0 right-0 z-50 px-4 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
@@ -174,7 +214,7 @@ function HeaderAdmin() {
             aria-haspopup='true'
             onClick={handleToggleNotification}
             data-dropdown-toggle='notification-dropdown'
-            className='p-2 mr-1 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600'
+            className='relative p-2 mr-1 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600'
           >
             <span className='sr-only'>View notifications</span>
             <svg
@@ -186,6 +226,11 @@ function HeaderAdmin() {
             >
               <path d='M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z' />
             </svg>
+            {notifications.filter((noti) => noti.status === NotificationStatus.SENT).length > 0 && (
+              <span className='absolute flex items-center justify-center w-4 h-4 text-sm font-semibold text-white bg-red-600 rounded-full right-1 top-1'>
+                {notifications.filter((noti) => noti.status === NotificationStatus.SENT).length}
+              </span>
+            )}
           </button>
           <Popper
             open={openNotification}
@@ -205,189 +250,44 @@ function HeaderAdmin() {
                 <Paper className='!rounded-xl'>
                   <ClickAwayListener onClickAway={handleCloseNotification}>
                     <div
-                      className='z-50 max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-gray-700 rounded-xl'
+                      className='max-w-sm my-4 text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-gray-700 rounded-xl h-[500px]'
                       id='notification-dropdown'
+                      style={{ overflowY: 'auto' }}
                     >
                       <div className='block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-gray-600 dark:text-gray-300'>
-                        Notifications
+                        Notifications ({notifications.filter((noti) => noti.status === NotificationStatus.SENT).length})
                       </div>
-                      <div>
-                        <a
-                          href='//#'
-                          className='flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600'
-                        >
-                          <div className='flex-shrink-0'>
-                            <img
-                              className='rounded-full w-11 h-11'
-                              src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png'
-                              alt='Bonnie Green avatar'
-                            />
-                            <div className='absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 border border-white rounded-full bg-primary-700 dark:border-gray-700'>
-                              <svg
-                                aria-hidden='true'
-                                className='w-3 h-3 text-white'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path d='M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z' />
-                                <path d='M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z' />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className='w-full pl-3'>
-                            <div className='text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400'>
-                              New message from
-                              <span className='font-semibold text-gray-900 dark:text-white'>Bonnie Green</span>: "Hey,
-                              what's up? All set for the presentation?"
-                            </div>
-                            <div className='text-xs font-medium text-primary-600 dark:text-primary-500'>
-                              a few moments ago
-                            </div>
-                          </div>
-                        </a>
-                        <a
-                          href='/#'
-                          className='flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600'
-                        >
-                          <div className='flex-shrink-0'>
-                            <img
-                              className='rounded-full w-11 h-11'
-                              src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/jese-leos.png'
-                              alt='Jese Leos avatar'
-                            />
-                            <div className='absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-gray-900 border border-white rounded-full dark:border-gray-700'>
-                              <svg
-                                aria-hidden='true'
-                                className='w-3 h-3 text-white'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path d='M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z' />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className='w-full pl-3'>
-                            <div className='text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400'>
-                              <span className='font-semibold text-gray-900 dark:text-white'>Jese leos</span>
-                              and
-                              <span className='font-medium text-gray-900 dark:text-white'>5 others</span>
-                              started following you.
-                            </div>
-                            <div className='text-xs font-medium text-primary-600 dark:text-primary-500'>
-                              10 minutes ago
-                            </div>
-                          </div>
-                        </a>
-                        <a
-                          href='/#'
-                          className='flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600'
-                        >
-                          <div className='flex-shrink-0'>
-                            <img
-                              className='rounded-full w-11 h-11'
-                              src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/joseph-mcfall.png'
-                              alt='Joseph McFall avatar'
-                            />
-                            <div className='absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 border border-white rounded-full bgRed-600 dark:border-gray-700'>
-                              <svg
-                                aria-hidden='true'
-                                className='w-3 h-3 text-white'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path
-                                  fillRule='evenodd'
-                                  d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
-                                  clipRule='evenodd'
+                      <div className=''>
+                        {notifications.length > 0 &&
+                          notifications.map((notification, index) => (
+                            <div
+                              onClick={() => handleSeenNotification(notification._id)}
+                              key={notification._id + index}
+                              className='flex px-4 py-3 border-b cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600'
+                            >
+                              <div className='relative flex-shrink-0'>
+                                <div className='relative flex items-center justify-center bg-white rounded-full dark:bg-gray-800 h-11 w-11'>
+                                  <MdOutlineNotificationsActive className='w-6 h-6 text-gray-700 dark:text-gray-300' />
+                                </div>
+                                <div
+                                  className={`absolute flex items-center justify-center w-4 h-4 -mt-3 border border-white rounded-full ml-7 ${
+                                    notification.status === NotificationStatus.SENT ? 'bg-red-700' : 'bg-green-700'
+                                  } dark:border-gray-700`}
                                 />
-                              </svg>
+                              </div>
+                              <div className='w-full pl-3'>
+                                <span className='font-semibold text-gray-900 dark:text-white'>{notification.name}</span>
+                                <div className='text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400'>
+                                  {parse(notification.content)}
+                                </div>
+                                <div className='text-xs font-medium text-primary-600 dark:text-primary-500'>
+                                  {timeAgo(new Date(notification.createdAt))}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className='w-full pl-3'>
-                            <div className='text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400'>
-                              <span className='font-semibold text-gray-900 dark:text-white'>Joseph Mcfall</span>
-                              and
-                              <span className='font-medium text-gray-900 dark:text-white'>141 others</span>
-                              love your story. See it and view more stories.
-                            </div>
-                            <div className='text-xs font-medium text-primary-600 dark:text-primary-500'>
-                              44 minutes ago
-                            </div>
-                          </div>
-                        </a>
-                        <a
-                          href='/#'
-                          className='flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600'
-                        >
-                          <div className='flex-shrink-0'>
-                            <img
-                              className='rounded-full w-11 h-11'
-                              src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/roberta-casas.png'
-                              alt='Roberta Casas'
-                            />
-                            <div className='absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-green-400 border border-white rounded-full dark:border-gray-700'>
-                              <svg
-                                aria-hidden='true'
-                                className='w-3 h-3 text-white'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path
-                                  fillRule='evenodd'
-                                  d='M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z'
-                                  clipRule='evenodd'
-                                />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className='w-full pl-3'>
-                            <div className='text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400'>
-                              <span className='font-semibold text-gray-900 dark:text-white'>Leslie Livingston</span>
-                              mentioned you in a comment:
-                              <span className='font-medium text-primary-600 dark:text-primary-500'>@bonnie.green</span>
-                              what do you say?
-                            </div>
-                            <div className='text-xs font-medium text-primary-600 dark:text-primary-500'>1 hour ago</div>
-                          </div>
-                        </a>
-                        <a href='/#' className='flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600'>
-                          <div className='flex-shrink-0'>
-                            <img
-                              className='rounded-full w-11 h-11'
-                              src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/robert-brown.png'
-                              alt='Robert'
-                            />
-                            <div className='absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-700'>
-                              <svg
-                                aria-hidden='true'
-                                className='w-3 h-3 text-white'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path d='M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z' />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className='w-full pl-3'>
-                            <div className='text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400'>
-                              <span className='font-semibold text-gray-900 dark:text-white'>Robert Brown</span>
-                              posted a new video: Glassmorphism - learn how to implement the new design trend.
-                            </div>
-                            <div className='text-xs font-medium text-primary-600 dark:text-primary-500'>
-                              3 hours ago
-                            </div>
-                          </div>
-                        </a>
+                          ))}
                       </div>
-                      <a
-                        href='/#'
-                        className='block py-2 font-medium text-center text-gray-900 text-md bg-gray-50 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:underline'
-                      >
+                      <div className='block py-2 font-medium text-center text-gray-900 text-md bg-gray-50 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:underline'>
                         <div className='inline-flex items-center'>
                           <svg
                             aria-hidden='true'
@@ -405,7 +305,7 @@ function HeaderAdmin() {
                           </svg>
                           View all
                         </div>
-                      </a>
+                      </div>
                     </div>
                   </ClickAwayListener>
                 </Paper>

@@ -41,7 +41,7 @@ function BecomeSellerPage() {
           <div className='flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0'>
             <button
               type='button'
-              onClick={() => navigate('/auth/login')}
+              onClick={() => navigate('/seller-onboarding/overview')}
               className='inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-500'
             >
               Become a Seller
@@ -127,7 +127,7 @@ function BecomeSellerPage() {
       <div className='flex flex-col items-center justify-center gap-5 pb-10'>
         <p className='text-xl font-semibold text-gray-600'>Sign up and create your first Gig totday</p>
         <button
-          onClick={() => navigate('/auth/login')}
+          onClick={() => navigate('/seller-onboarding/overview')}
           type='button'
           className='px-10 py-2 text-xl font-semibold text-white bg-green-600 hover:bg-green-500 '
         >
