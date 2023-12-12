@@ -56,6 +56,11 @@ function CreateGigFaqGalleryPage() {
       .then((response) => {
         if (response.status === 200) {
           setGig(response?.data?.gig)
+          if (response?.data?.gig && response?.data?.gig.FAQs && response?.data?.gig?.FAQs?.length > 0) {
+            const temp: Array<FAQ> = []
+            response?.data?.gig.FAQs.forEach((FAQ: FAQ) => temp.push({ question: FAQ.question, answer: FAQ.answer }))
+            setFAQs(temp)
+          }
         }
       })
       .catch((error: any) => {
@@ -108,9 +113,6 @@ function CreateGigFaqGalleryPage() {
   }
 
   useEffect(() => {
-    if (gig && gig.FAQs && gig?.FAQs?.length > 0) {
-      gig.FAQs.forEach((FAQ) => setFAQs([...FAQs, { question: FAQ.question, answer: FAQ.answer }]))
-    }
     if (gig && gig.images && gig.images.length > 0) {
       setImages(gig.images)
     }

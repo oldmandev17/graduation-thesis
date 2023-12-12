@@ -88,12 +88,13 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
     const files = req.files as Express.Multer.File[]
 
     const result = await gigSchema.validateAsync(req.body)
+
     const slug = await createUniqueSlug(Gig, result.name, gigExist.slug)
     const images: string[] = []
     if (result.images) {
       result.images.forEach((image: string) => images.push(image))
     }
-    if (files) {
+    if (files.length > 0) {
       gigExist?.images?.map((image) => {
         if (existsSync(image) && result?.images?.filter((imageOld: string) => imageOld === image).length !== 0) {
           unlinkSync(image)
@@ -111,7 +112,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       description: result.description ? result.description : gigExist.description,
       packages: result.packages ? result.packages : gigExist.packages,
       FAQs: result.FAQs ? result.FAQs : gigExist.FAQs,
-      images: files ? images : gigExist.images,
+      images: files.length > 0 ? images : gigExist.images,
       status: result.status ? result.status : gigExist.status,
       category: result.category ? result.category : gigExist.category
     }
@@ -121,6 +122,24 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       ;(updateField.updatedAdminAt = Date.now()), (updateField.updatedAdminBy = req.payload.userId)
     }
     const gigUpdate = await Gig.findOneAndUpdate({ _id: req.params.id }, updateField)
+    if (result.status === GigStatus.WAITING) {
+      createNotification(
+        null,
+        'New Gig Create Or Update',
+        `Just a heads up, we've received a new gig  ${gigUpdate?.name} created or updated.`,
+        NotificationType.ADMIN,
+        next
+      )
+      if (user?.role.includes(UserRole.SELLER)) {
+        createNotification(
+          req.payload.userId,
+          'Launch Your Gig Now!',
+          `<p>Waiting for admin approval. Thanks for your patience!</p><p>You can review gig by <a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate?._id}'>here</a>.</p>`,
+          NotificationType.USER,
+          next
+        )
+      }
+    }
     logger({
       user: req.payload.userId,
       name: user?.role.includes(UserRole.SELLER) ? LogName.UPDATE_GIG : LogName.UPDATE_GIG_BY_ADMIN,
@@ -130,24 +149,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       errorMessage: '',
       content: req.body
     })
-    if (gigExist.status === GigStatus.NONE && gigUpdate?.status === GigStatus.WAITING) {
-      createNotification(
-        null,
-        'New Gig Create Or Update',
-        `Just a heads up, we've received a new gig  ${gigUpdate.name} created or updated.`,
-        NotificationType.ADMIN,
-        next
-      )
-      if (user?.role.includes(UserRole.SELLER)) {
-        createNotification(
-          req.payload.userId,
-          'Launch Your Gig Now!',
-          `<p>Waiting for admin approval. Thanks for your patience!</p><p>You can review gig by <a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate._id}'>here</a>.</p>`,
-          NotificationType.USER,
-          next
-        )
-      }
-    }
+
     res.status(200).json({ gig: gigUpdate })
   } catch (error: any) {
     logger({

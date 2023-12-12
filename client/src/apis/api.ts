@@ -107,6 +107,16 @@ function updateProfile(data: any, accessToken: string | undefined) {
   })
 }
 
+function getProfile(accessToken: string | undefined) {
+  const url = '/auth/me'
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   getAllCategory,
   createGig,
@@ -116,5 +126,6 @@ export {
   getGigDetailBySlug,
   getAllNotification,
   updateProfile,
-  seenNotification
+  seenNotification,
+  getProfile
 }

@@ -286,8 +286,13 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
     delete userExist?.password
 
+    const orders: IOrder[] = await Order.find({ createdBy: userExist?._id }).populate('gig').sort({ createdAt: 'desc' })
+    const gigs: IGig[] = await Gig.find({ createdBy: userExist?._id }).populate('category').sort({ createdAt: 'desc' })
+
     res.status(200).json({
-      profile: userExist
+      profile: userExist,
+      orders,
+      gigs
     })
   } catch (error: any) {
     next(error)
