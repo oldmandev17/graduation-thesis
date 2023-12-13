@@ -60,10 +60,7 @@ const router = createBrowserRouter([
             path: '/',
             element: <LandingPage />
           },
-          {
-            path: '/*',
-            element: <NotFoundPage />
-          },
+
           {
             path: '/gig-detail/:slug',
             element: <GigDetailPage />
@@ -81,6 +78,10 @@ const router = createBrowserRouter([
             element: <GigsPage />
           }
         ]
+      },
+      {
+        path: '/*',
+        element: <NotFoundPage />
       },
       {
         path: '/seller-onboarding',
@@ -125,6 +126,10 @@ const router = createBrowserRouter([
       {
         path: '/message/:userId',
         element: <MessagePage />
+      },
+      {
+        path: '/dashboard',
+        element: <DashboardPage />
       },
       {
         path: '/user/:userId',

@@ -77,11 +77,7 @@ function GuestPage() {
     <div className='relative flex flex-col justify-between'>
       <div className='h-[680px] relative bg-cover'>
         <div className='absolute top-0 right-0 w-[110vw] h-full transition-opacity z-0'>
-          <img
-            alt='hero'
-            src='/banners/bg-hero1.webp'
-            className={`${image === 1 ? 'block' : 'hidden'} transition-all duration-1000 w-full`}
-          />
+        relative bg-cover
           <img
             alt='hero'
             src='/banners/bg-hero2.webp'
