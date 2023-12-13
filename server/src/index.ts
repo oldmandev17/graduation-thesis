@@ -42,6 +42,7 @@ const options = {
   // looks for configuration in specified directories
   apis: ['src/routes/*.ts']
 }
+
 const swaggerSpec = swaggerJsdoc(options)
 // Create app
 const app = express()
@@ -51,6 +52,7 @@ app.use(
     credentials: true
   })
 )
+
 app.use('/uploads', express.static('./uploads'))
 app.use(express.json())
 app.use(morgan('dev'))

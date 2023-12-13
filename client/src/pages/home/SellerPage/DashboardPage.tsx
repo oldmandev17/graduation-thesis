@@ -3,13 +3,13 @@ import { Divider } from '@mui/material'
 import { getProfile } from 'apis/api'
 import { OrderStatus } from 'modules/order'
 import { IUser } from 'modules/user'
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AiOutlineNotification } from 'react-icons/ai'
+import { GrCertificate } from 'react-icons/gr'
 import { IoBookOutline } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
-import { GrCertificate } from 'react-icons/gr'
 
 const becomeSellerData = [
   {
@@ -47,14 +47,14 @@ function DashboardPage() {
   }, [accessToken])
 
   useEffect(() => {
-    // getUserProfile()
+    getUserProfile()
   }, [getUserProfile])
 
   return (
-    <div className='grid grid-cols-7 gap-16 px-28 py-10'>
-      <div className='flex flex-col gap-3 w-full col-span-2'>
-        <div className='p-4 flex flex-col gap-5 bg-white w-full'>
-          <div className='flex gap-5 items-center'>
+    <div className='grid grid-cols-7 gap-16 py-10 px-28'>
+      <div className='flex flex-col w-full col-span-2 gap-5'>
+        <div className='flex flex-col w-full gap-5 p-5 bg-white'>
+          <div className='flex items-center gap-5'>
             {profile?.avatar ? (
               <img
                 src={`${
@@ -135,14 +135,14 @@ function DashboardPage() {
           </div>
           <Divider />
           <div className='flex justify-between'>
-            <p className='text-lg text-gray-600 font-semibold'>Earned in December</p>
+            <p className='text-lg font-semibold text-gray-600'>Earned in December</p>
             <span className='text-lg font-semibold'>US$0</span>
           </div>
         </div>
-        <div className='w-full p-4 flex justify-between'>
-          <p className='text-lg text-gray-600 font-semibold'>Inbox</p>
+        <div className='flex justify-between w-full p-5 bg-white'>
+          <p className='text-lg font-semibold text-gray-600'>Inbox</p>
           <button
-            className='text-blue-600 font-semibold'
+            className='font-semibold text-blue-600'
             type='button'
             onClick={() => navigate(`/message/${profile?.id}`)}
           >
@@ -150,13 +150,13 @@ function DashboardPage() {
           </button>
         </div>
       </div>
-      <div className='flex flex-col gap-3 ww-full col-span-5'>
+      <div className='flex flex-col col-span-5 gap-5 ww-full'>
         <div className='inline-flex items-center w-full gap-5'>
           <p className='text-lg font-semibold text-gray-600 min-w-max'>Upgrade Your Business</p>
           <hr className='bg-gray-300 w-full h-0.5 rounded-full' />
         </div>
-        <div className='grid grid-cols-3 p-4 gap-5 bg-white'>
-          <div className='col-span-3 flex flex-col gap-3'>
+        <div className='grid grid-cols-3 gap-10 p-5 bg-white'>
+          <div className='flex flex-col col-span-3 gap-3'>
             <h4 className='text-2xl font-semibold text'>3 steps to become a top seller on Fiverr</h4>
             <p className='text-gray-600'>
               The key to your success on Fiverr is the brand you build for yourself through your Fiverr reputation. We

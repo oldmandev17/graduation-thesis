@@ -6,15 +6,15 @@
 import { getAllCategory } from 'apis/api'
 import { arrCategory, everythingData, popularServicesData } from 'assets/data'
 import { ICategory } from 'modules/category'
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { BsCheckCircle } from 'react-icons/bs'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { FreeMode } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
+import { FreeMode } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 function GuestPage() {
   const [keyword, setKeyword] = useState<string>('')
@@ -77,7 +77,7 @@ function GuestPage() {
     <div className='relative flex flex-col justify-between'>
       <div className='h-[680px] relative bg-cover'>
         <div className='absolute top-0 right-0 w-[110vw] h-full transition-opacity z-0'>
-        relative bg-cover
+          relative bg-cover
           <img
             alt='hero'
             src='/banners/bg-hero2.webp'

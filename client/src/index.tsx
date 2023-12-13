@@ -34,6 +34,10 @@ const SellerOverviewDoPage = lazy(() => import('pages/home/SellerPage/SellerOver
 const SellerOverviewDontPage = lazy(() => import('pages/home/SellerPage/SellerOverviewDontPage'))
 const SellerPersonalInfo = lazy(() => import('pages/home/SellerPage/SellerPersonalInfo'))
 const DashboardPage = lazy(() => import('pages/home/SellerPage/DashboardPage'))
+const ManageGigPage = lazy(() => import('pages/home/SellerPage/ManageGigPage'))
+const ManageOrderPage = lazy(() => import('pages/home/SellerPage/ManageOrderPage'))
+const AnalyticPage = lazy(() => import('pages/home/SellerPage/AnalyticPage'))
+const PersonalInfoPage = lazy(() => import('pages/home/PersonalInfoPage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -60,7 +64,6 @@ const router = createBrowserRouter([
             path: '/',
             element: <LandingPage />
           },
-
           {
             path: '/gig-detail/:slug',
             element: <GigDetailPage />
@@ -124,12 +127,12 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: '/message/:userId',
+        path: '/user/:userId/message',
         element: <MessagePage />
       },
       {
-        path: '/dashboard',
-        element: <DashboardPage />
+        path: '/user/:userId/profile',
+        element: <PersonalInfoPage />
       },
       {
         path: '/user/:userId',
@@ -142,6 +145,18 @@ const router = createBrowserRouter([
               {
                 path: '/user/:userId/',
                 element: <DashboardPage />
+              },
+              {
+                path: '/user/:userId/gig',
+                element: <ManageGigPage />
+              },
+              {
+                path: '/user/:userId/order',
+                element: <ManageOrderPage />
+              },
+              {
+                path: '/user/:userId/analytic',
+                element: <AnalyticPage />
               },
               {
                 path: '/user/:userId/gig-create/overview',

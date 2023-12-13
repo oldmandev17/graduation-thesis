@@ -11,7 +11,7 @@ function SellerOnboardLayout() {
   return (
     <div>
       <HeaderSeller />
-      <div className='bg-gray-50 '>
+      <div className='bg-[#f7f7f7]'>
         <Outlet />
       </div>
       <Footer />

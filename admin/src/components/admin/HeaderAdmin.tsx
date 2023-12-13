@@ -251,7 +251,7 @@ function HeaderAdmin() {
                   <ClickAwayListener onClickAway={handleCloseNotification}>
                     <div
                       className='max-w-sm my-4 text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-gray-700 rounded-xl h-[500px]'
-                      id='notification-dropdown'
+                      id='notification-dropdown min-w-[384px]'
                       style={{ overflowY: 'auto' }}
                     >
                       <div className='block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-gray-600 dark:text-gray-300'>

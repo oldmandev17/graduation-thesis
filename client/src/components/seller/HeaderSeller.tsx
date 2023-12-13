@@ -89,7 +89,7 @@ function HeaderSeller() {
     <div className='flex flex-row justify-between py-5 border border-gray-100 px-28 border-y-2'>
       <div className='flex flex-row items-center gap-10'>
         <img
-          onClick={() => navigate('/')}
+          onClick={() => navigate(`/user/${user?.id}`)}
           src='/images/Fiverr-Logo.png'
           alt='logo'
           width='80'
@@ -97,7 +97,12 @@ function HeaderSeller() {
           className='cursor-pointer'
         />
         <div className='flex flex-row items-center gap-5'>
-          <Button className='!font-sans !text-lg !text-gray-500 !capitalize '>Dashboard</Button>
+          <Button
+            onClick={() => navigate(`/user/${user?.id}`)}
+            className='!font-sans !text-lg !text-gray-500 !capitalize '
+          >
+            Dashboard
+          </Button>
           <div>
             <Button
               className='!font-sans !text-lg !text-gray-500 !capitalize !flex  !flex-row !items-center !gap-1 !mr-2 '
@@ -120,18 +125,41 @@ function HeaderSeller() {
               onClose={handleClose}
               TransitionComponent={Fade}
             >
-              <MenuItem className='!pr-24 !py-2' onClick={handleClose}>
+              <MenuItem
+                className='!pr-24 !py-2'
+                onClick={() => {
+                  navigate(`/user/${user?.id}/order`)
+                  handleClose()
+                }}
+              >
                 Orders
               </MenuItem>
-              <MenuItem className='!pr-24 !py-2' onClick={handleClose}>
+              <MenuItem
+                className='!pr-24 !py-2'
+                onClick={() => {
+                  navigate(`/user/${user?.id}/gig`)
+                  handleClose()
+                }}
+              >
                 Gigs
               </MenuItem>
-              <MenuItem className='!pr-24  !py-2' onClick={handleClose}>
+              <MenuItem
+                className='!pr-24  !py-2'
+                onClick={() => {
+                  navigate(`/user/${user?.id}/profile`)
+                  handleClose()
+                }}
+              >
                 Profile
               </MenuItem>
             </Menu>
           </div>
-          <Button className='!font-sans !text-lg !text-gray-500 !capitalize '>Analytics</Button>
+          <Button
+            onClick={() => navigate(`/user/${user?.id}/analytic`)}
+            className='!font-sans !text-lg !text-gray-500 !capitalize '
+          >
+            Analytics
+          </Button>
         </div>
       </div>
       <div className='flex gap-5'>
@@ -288,7 +316,7 @@ function HeaderSeller() {
               className=' !py-2 !px-4 !text-gray-500'
               onClick={() => {
                 handleCloseUser()
-                navigate(`/profile/${user?.id}`)
+                navigate(`/user/${user?.id}/profile`)
               }}
             >
               Profile
@@ -297,7 +325,7 @@ function HeaderSeller() {
               className=' !py-2 !px-4 !text-gray-500'
               onClick={() => {
                 handleCloseUser()
-                navigate('/setting')
+                navigate(`/user/${user?.id}/setting`)
               }}
             >
               Setting
@@ -306,7 +334,7 @@ function HeaderSeller() {
               className=' !py-2 !px-4 !text-gray-500'
               onClick={() => {
                 handleCloseUser()
-                navigate('/help-support')
+                navigate(`/user/${user?.id}/help-support`)
               }}
             >
               Help & support
