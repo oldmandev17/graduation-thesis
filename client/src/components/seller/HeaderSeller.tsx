@@ -128,8 +128,8 @@ function HeaderSeller() {
               <MenuItem
                 className='!pr-24 !py-2'
                 onClick={() => {
-                  navigate(`/user/${user?.id}/order`)
                   handleClose()
+                  navigate(`/user/${user?.id}/orders`)
                 }}
               >
                 Orders
@@ -137,8 +137,8 @@ function HeaderSeller() {
               <MenuItem
                 className='!pr-24 !py-2'
                 onClick={() => {
-                  navigate(`/user/${user?.id}/gig`)
                   handleClose()
+                  navigate(`/user/${user?.id}/gigs`)
                 }}
               >
                 Gigs
@@ -146,8 +146,8 @@ function HeaderSeller() {
               <MenuItem
                 className='!pr-24  !py-2'
                 onClick={() => {
-                  navigate(`/user/${user?.id}/profile`)
                   handleClose()
+                  navigate(`/user/${user?.id}/profile`)
                 }}
               >
                 Profile
@@ -249,7 +249,7 @@ function HeaderSeller() {
             </div>
           </Menu>
           <span
-            onClick={() => navigate(`/message/${user?.id}`)}
+            onClick={() => navigate(`/user/${user?.id}/messages`)}
             className='flex flex-row items-center justify-center h-9 w-9 hover:rounded-full hover:bg-gray-100'
           >
             <Badge color='error'>
@@ -325,7 +325,7 @@ function HeaderSeller() {
               className=' !py-2 !px-4 !text-gray-500'
               onClick={() => {
                 handleCloseUser()
-                navigate(`/user/${user?.id}/setting`)
+                navigate(`/setting`)
               }}
             >
               Setting
@@ -334,7 +334,7 @@ function HeaderSeller() {
               className=' !py-2 !px-4 !text-gray-500'
               onClick={() => {
                 handleCloseUser()
-                navigate(`/user/${user?.id}/help-support`)
+                navigate(`/help-support`)
               }}
             >
               Help & support

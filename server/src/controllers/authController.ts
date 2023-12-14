@@ -433,7 +433,7 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
         updatedAt: Date.now()
       }
     )
-    if (result.role.includes(UserRole.REQUEST_SELLER)) {
+    if (result.role && result.role.includes(UserRole.REQUEST_SELLER)) {
       await createNotification(
         user._id,
         'Account Request Seller',

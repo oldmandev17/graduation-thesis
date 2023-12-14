@@ -8,6 +8,7 @@ import StepNavigate from 'components/seller/StepNavigate'
 import { ICategory } from 'modules/category'
 import { GigStatus, IGig } from 'modules/gig'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -159,89 +160,94 @@ function CreateGigOverviewPage() {
   }
 
   return (
-    <div>
-      <StepNavigate index={1} />
-      <form onSubmit={handleSubmit(handleCreateOrUpdateGigOverview)} className='flex flex-col items-center bg-gray-50 '>
-        <div className='border-[1px] border-gray-500 rounded-md w-full max-w-4xl bg-white my-10 flex flex-col p-10 gap-5'>
-          <div className='flex flex-row gap-4'>
-            <div className='flex flex-col w-1/2 '>
-              <span className='text-lg font-semibold'>Gig Title</span>
-              <span className='text-base'>
-                As your Gig storefront, your
-                <span className='font-bold'> title is the most important place </span>
-                to include keywords that buyers would likely use to search for a service like yours.
-              </span>
-            </div>
-            <textarea
-              rows={5}
-              id='title'
-              {...register('name')}
-              className='resize-none rounded-lg border-[1px] border-gray-500 text-base font-normal focus:text-gray-900 text-gray-700 p-2 w-full no-scrollbar'
-            />
-          </div>
-          <div className='flex flex-row gap-4'>
-            <div className='flex flex-col w-1/2'>
-              <span className='text-lg font-semibold'>Categories</span>
-              <span className='text-base'>Choose the category and sub-category most suitable for your Gig.</span>
-            </div>
-            <div className='grid w-full grid-cols-2 gap-10'>
-              <div>
-                <select
-                  defaultValue=''
-                  onChange={handleChangeCategory}
-                  name='parentCategory'
-                  id=''
-                  className='w-full border-[1px] p-2 border-gray-500 text-sm rounded-lg '
-                >
-                  <option value='' disabled>
-                    CATEGORY
-                  </option>
-                  {arrParentCategory.length > 0 &&
-                    arrParentCategory.map((parentCategory, index) => (
-                      <option key={index + parentCategory.value} value={parentCategory.value}>
-                        {parentCategory.label}
-                      </option>
-                    ))}
-                </select>
+    <>
+      <Helmet>
+        <title>{id ? 'Edit Gig' : 'Create A New Gig'} | Freelancer</title>
+      </Helmet>
+      <div>
+        <StepNavigate index={1} />
+        <form
+          onSubmit={handleSubmit(handleCreateOrUpdateGigOverview)}
+          className='flex flex-col items-center py-10 bg-gray-50'
+        >
+          <div className='border-[1px] border-slate-300 w-full max-w-4xl bg-white flex flex-col p-10 gap-10'>
+            <div className='flex flex-row gap-4'>
+              <div className='flex flex-col w-1/2 '>
+                <span className='text-lg font-semibold'>Gig Title</span>
+                <span className='text-base'>
+                  As your Gig storefront, your
+                  <span className='font-bold'> title is the most important place </span>
+                  to include keywords that buyers would likely use to search for a service like yours.
+                </span>
               </div>
-              <div>
-                <select
-                  defaultValue={gig ? gig?.category?._id : ''}
-                  {...register('category')}
-                  name='category'
-                  id=''
-                  className='w-full border-[1px] p-2 border-gray-500 text-sm rounded-lg '
-                >
-                  <option value='' disabled>
-                    SUB-CATEGORY
-                  </option>
-                  {categories.length > 0 &&
-                    categories.map((category, index) => (
-                      <option key={index + category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                </select>
+              <textarea
+                rows={5}
+                id='title'
+                {...register('name')}
+                className='resize-none rounded-lg border-[1px] border-gray-500 text-base font-normal focus:text-gray-900 text-gray-700 p-2 w-full no-scrollbar'
+              />
+            </div>
+            <div className='flex flex-row gap-4'>
+              <div className='flex flex-col w-1/2'>
+                <span className='text-lg font-semibold'>Categories</span>
+                <span className='text-base'>Choose the category and sub-category most suitable for your Gig.</span>
+              </div>
+              <div className='grid w-full grid-cols-2 gap-10'>
+                <div>
+                  <select
+                    defaultValue=''
+                    onChange={handleChangeCategory}
+                    name='parentCategory'
+                    id=''
+                    className='w-full border-[1px] p-2 border-gray-500 text-sm rounded-lg '
+                  >
+                    <option value='' disabled>
+                      CATEGORY
+                    </option>
+                    {arrParentCategory.length > 0 &&
+                      arrParentCategory.map((parentCategory, index) => (
+                        <option key={index + parentCategory.value} value={parentCategory.value}>
+                          {parentCategory.label}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                  <select
+                    defaultValue={gig ? gig?.category?._id : ''}
+                    {...register('category')}
+                    name='category'
+                    id=''
+                    className='w-full border-[1px] p-2 border-gray-500 text-sm rounded-lg '
+                  >
+                    <option value='' disabled>
+                      SUB-CATEGORY
+                    </option>
+                    {categories.length > 0 &&
+                      categories.map((category, index) => (
+                        <option key={index + category.value} value={category.value}>
+                          {category.label}
+                        </option>
+                      ))}
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-          <div className='flex flex-row gap-4'>
-            <div className='flex flex-col w-1/2 '>
-              <span className='text-lg font-semibold'>Description</span>
-              <span className='text-base'>Briefly Describe Your Gig</span>
+            <div className='flex flex-row gap-4'>
+              <div className='flex flex-col w-1/2 '>
+                <span className='text-lg font-semibold'>Description</span>
+                <span className='text-base'>Briefly Describe Your Gig</span>
+              </div>
+              <textarea
+                rows={5}
+                id='describe'
+                {...register('description')}
+                className='no-scrollbar rounded-lg border-[1px] border-gray-500 w-full h-36 p-2 text-base font-normal focus:text-gray-900 text-gray-700 '
+              />
             </div>
-            <textarea
-              rows={5}
-              id='describe'
-              {...register('description')}
-              className='no-scrollbar rounded-lg border-[1px] border-gray-500 w-full h-36 p-2 text-base font-normal focus:text-gray-900 text-gray-700 '
-            />
           </div>
-          <div className='flex justify-end'>
-            <button
-              type='submit'
-              className='p-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800 min-w-[100px]'
-            >
+          <div className='flex justify-end w-full max-w-4xl mt-5'>
+            <button type='submit' className='px-5 py-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800'>
               {isSubmitting ? (
                 <div role='status'>
                   <svg
@@ -267,9 +273,9 @@ function CreateGigOverviewPage() {
               )}
             </button>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   )
 }
 

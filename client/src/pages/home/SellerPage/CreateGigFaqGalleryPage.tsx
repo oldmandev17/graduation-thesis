@@ -146,10 +146,10 @@ function CreateGigFaqGalleryPage() {
   }
 
   return (
-    <div className='bg-gray-50 '>
+    <div>
       <StepNavigate index={3} />
-      <div className='flex flex-col items-center w-full max-w-4xl mx-auto mt-10 gap-7'>
-        <div className='flex flex-row justify-between w-full py-5 border-b border-slate-300'>
+      <div className='flex flex-col items-center w-full max-w-4xl gap-5 py-10 mx-auto'>
+        <div className='flex flex-row justify-between w-full pb-5 border-b border-slate-300'>
           <span className='text-2xl font-semibold text-gray-500'>Frequently Asked Questions</span>
           <span
             onClick={() => setShow(false)}
@@ -201,7 +201,7 @@ function CreateGigFaqGalleryPage() {
           )}
           {FAQs.map((FAQ, index) => (
             <div
-              className='flex flex-col gap-2 p-2 font-semibold border border-gray-300'
+              className='flex flex-col gap-2 p-2 font-semibold bg-white border border-gray-300'
               key={(FAQ?.question as string) + index}
             >
               <p className='p-2 border rounded-md'>{FAQ.question}</p>
@@ -216,7 +216,7 @@ function CreateGigFaqGalleryPage() {
         <div className='w-full '>
           <div className='grid grid-cols-3 gap-2 '>
             {images.map((image, index) => (
-              <div key={index} className='relative border border-gray-700'>
+              <div key={index} className='relative bg-white border border-gray-700'>
                 <img
                   className='flex items-center justify-center object-contain w-full h-32'
                   alt='gig'
@@ -236,9 +236,9 @@ function CreateGigFaqGalleryPage() {
             {images.length < 5 && (
               <div
                 {...getRootProps()}
-                className='flex flex-col items-center justify-center h-32 border border-gray-700 border-dashed cursor-pointer'
+                className='flex flex-col items-center justify-center h-32 bg-white border border-gray-700 border-dashed cursor-pointer'
               >
-                <CiImageOn className='w-8 h-8 fill-gray-400 ' />
+                <CiImageOn className='w-8 h-8 fill-gray-400' />
                 <span className='text-base text-gray-500'>Drag & drop a photo or</span>
                 <span className='text-[#5070e7] text-sm cursor-pointer'>browser</span>
                 <input type='file' {...getInputProps()} name='file' className='hidden' />
@@ -246,15 +246,22 @@ function CreateGigFaqGalleryPage() {
             )}
           </div>
         </div>
-      </div>
-      <div className='flex justify-center mt-10 mb-10'>
-        <button
-          onClick={handleCreateOrUpdateGigFaqGallery}
-          type='button'
-          className='p-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800'
-        >
-          Save & Continue
-        </button>
+        <div className='flex justify-end w-full gap-10 '>
+          <button
+            onClick={() => navigate(`/user/${user?.id}/gig-create/${gig?._id}/pricing`)}
+            type='button'
+            className='text-lg text-green-600 hover:underline'
+          >
+            Back
+          </button>
+          <button
+            onClick={handleCreateOrUpdateGigFaqGallery}
+            type='button'
+            className='px-5 py-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800'
+          >
+            Save & Continue
+          </button>
+        </div>
       </div>
     </div>
   )

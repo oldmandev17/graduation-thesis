@@ -202,7 +202,7 @@ function HeaderBuyer() {
             </div>
           </Menu>
           <span
-            onClick={() => navigate(`/message/${user?.id}`)}
+            onClick={() => navigate(`/user/${user?.id}/messages`)}
             className='flex flex-row items-center justify-center h-9 w-9 hover:rounded-full hover:bg-gray-100'
           >
             <Badge color='error'>
@@ -210,7 +210,7 @@ function HeaderBuyer() {
             </Badge>
           </span>
           <span
-            onClick={() => navigate(`/wishlist/${user?.id}`)}
+            onClick={() => navigate(`/user/${user?.id}/wishlists`)}
             className='flex flex-row items-center justify-center w-8 h-8 '
           >
             <AiOutlineHeart className='cursor-pointer w-7 h-7 fill-gray-400' />
@@ -218,7 +218,7 @@ function HeaderBuyer() {
         </div>
         <button
           type='button'
-          onClick={() => navigate(`/orders/${user?.id}`)}
+          onClick={() => navigate(`/user/${user?.id}/buyer-orders`)}
           className='text-lg font-semibold text-gray-400 hover:text-green-500'
         >
           Orders
@@ -277,7 +277,7 @@ function HeaderBuyer() {
               className=' !py-2 !px-4 !text-gray-500'
               onClick={() => {
                 handleCloseUser()
-                navigate(`/profile/${user?.id}`)
+                navigate(`/user/${user?.id}/profile`)
               }}
             >
               Profile

@@ -7,6 +7,7 @@ import { arrDeliveryTime, arrRevisions } from 'assets/data'
 import StepNavigate from 'components/seller/StepNavigate'
 import { Feature, GigPackageType, GigStatus, IGig, Package } from 'modules/gig'
 import { useCallback, useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { BiDollar } from 'react-icons/bi'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -180,337 +181,356 @@ function CreateGigPricingPage() {
   }, [gig?.packages, setValue])
 
   return (
-    <div>
-      <StepNavigate index={2} />
-      <form
-        onSubmit={handleSubmit(handleCreateOrUpdateGigPricing)}
-        className='flex flex-col items-center w-full bg-gray-50'
-      >
-        <table className='w-full max-w-4xl mt-10 border border-slate-300'>
-          <thead>
-            <tr>
-              <th className='bg-gray-100 min-w-[150px]'> </th>
-              <th className='p-5 text-base font-semibold text-left text-gray-500 bg-gray-200 border border-slate-300'>
-                BASIC
-              </th>
-              <th className='p-5 text-base font-semibold text-left text-gray-500 bg-gray-200 border border-slate-300'>
-                STANDARD
-              </th>
-              <th className='p-5 text-base font-semibold text-left text-gray-500 bg-gray-200 border border-slate-300'>
-                PREMIUM
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className='bg-gray-100'> </td>
-              <td className='border border-slate-300 '>
-                <textarea
-                  {...register('basicName')}
-                  className='w-full text-sm font-normal text-gray-500 textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
-                  placeholder='Name your package'
-                />
-              </td>
-              <td className='border border-slate-300 '>
-                <textarea
-                  {...register('standardName')}
-                  className='w-full text-sm font-normal text-gray-500 textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
-                  placeholder='Name your package'
-                />
-              </td>
-              <td className='border border-slate-300 '>
-                <textarea
-                  {...register('premiumName')}
-                  className='w-full text-sm font-normal text-gray-500 textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
-                  placeholder='Name your package'
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className='bg-gray-100'> </td>
-              <td className='border border-slate-300 '>
-                <textarea
-                  {...register('basicDescription')}
-                  className='w-full h-full text-sm font-normal text-gray-500 textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
-                  placeholder='Describe the detail of your offering'
-                />
-              </td>
-              <td className='border border-slate-300 '>
-                <textarea
-                  {...register('standardDescription')}
-                  className='w-full text-sm font-normal text-gray-500 textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
-                  placeholder='Describe the detail of your offering'
-                />
-              </td>
-              <td className='border border-slate-300 '>
-                <textarea
-                  {...register('premiumDescription')}
-                  className='w-full text-sm font-normal text-gray-500 textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
-                  placeholder='Describe the detail of your offering'
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className='px-2 bg-gray-100 py-[22px]'> </td>
-              <td className='border border-gray-300'>
-                <select
-                  {...register('basicDeliveryTime')}
-                  defaultValue={gig?.packages && gig?.packages[0]?.deliveryTime ? gig?.packages[0]?.deliveryTime : 0}
-                  name='basicDeliveryTime'
-                  id=''
-                  className='w-full text-sm text-gray-500 select-none '
-                >
-                  <option value={0} disabled className='p-10 text-black'>
-                    DELIVERY TIME
-                  </option>
-                  {arrDeliveryTime.map((time, index) => (
-                    <option key={time.label + index} value={time.value} className='text-black'>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className='border border-gray-300'>
-                <select
-                  {...register('standardDeliveryTime')}
-                  defaultValue={gig?.packages && gig?.packages[1]?.deliveryTime ? gig?.packages[1]?.deliveryTime : 0}
-                  name='standardDeliveryTime'
-                  id=''
-                  className='w-full text-sm text-gray-500 select-none '
-                >
-                  <option value={0} disabled className='p-10 text-black'>
-                    DELIVERY TIME
-                  </option>
-                  {arrDeliveryTime.map((time, index) => (
-                    <option key={time.label + index} value={time.value} className='text-black'>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className='border border-gray-300'>
-                <select
-                  {...register('premiumDeliveryTime')}
-                  defaultValue={gig?.packages && gig?.packages[2]?.deliveryTime ? gig?.packages[2]?.deliveryTime : 0}
-                  name='premiumDeliveryTime'
-                  id=''
-                  className='w-full text-sm text-gray-500 select-none '
-                >
-                  <option value={0} disabled className='p-10 text-black'>
-                    DELIVERY TIME
-                  </option>
-                  {arrDeliveryTime.map((time, index) => (
-                    <option key={time.label + index} value={time.value} className='text-black'>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td className='px-2 py-3 text-sm font-semibold text-left text-gray-500 bg-gray-100 '> Revisons</td>
-              <td className='border border-gray-300'>
-                <select
-                  {...register('basicRevisions')}
-                  defaultValue={gig?.packages && gig?.packages[0]?.revisions ? gig?.packages[0]?.revisions : 0}
-                  name='basicRevisions'
-                  id=''
-                  className='w-full text-sm text-gray-500 select-none '
-                >
-                  <option value={0} disabled className='p-10 text-black'>
-                    REVISIONS
-                  </option>
-                  {arrRevisions.map((time, index) => (
-                    <option key={time.label + index} value={time.value} className='text-black'>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className='border border-gray-300'>
-                <select
-                  {...register('standardRevisions')}
-                  defaultValue={gig?.packages && gig?.packages[1]?.revisions ? gig?.packages[1]?.revisions : 0}
-                  name='standardRevisions'
-                  id=''
-                  className='w-full text-sm text-gray-500 select-none '
-                >
-                  <option value={0} disabled className='p-10 text-black'>
-                    REVISIONS
-                  </option>
-                  {arrRevisions.map((time, index) => (
-                    <option key={time.label + index} value={time.value} className='text-black'>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className='border border-gray-300'>
-                <select
-                  {...register('premiumRevisions')}
-                  defaultValue={gig?.packages && gig?.packages[2]?.revisions ? gig?.packages[2]?.revisions : 0}
-                  name='premiumRevisions'
-                  id=''
-                  className='w-full text-sm text-gray-500 select-none '
-                >
-                  <option value={0} disabled className='p-10 text-black'>
-                    REVISIONS
-                  </option>
-                  {arrRevisions.map((time, index) => (
-                    <option key={time.label + index} value={time.value} className='text-black'>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
-            {gig?.category &&
-              gig?.category.features.length > 0 &&
-              gig?.category.features.map((feature, index) => (
-                <tr key={index + feature}>
-                  <td className='px-2 py-3 text-sm font-semibold text-left text-gray-500 bg-gray-100 border border-gray-200 '>
-                    {feature}
-                  </td>
-                  <td className='border border-gray-200'>
-                    <div className='flex justify-center '>
-                      <input
-                        id={`basicFeature${index}`}
-                        type='checkbox'
-                        defaultChecked={
-                          gig &&
-                          gig.packages &&
-                          gig?.packages?.length > 0 &&
-                          gig?.packages[0] &&
-                          gig?.packages[0].features &&
-                          gig?.packages[0].features.length > 0 &&
-                          gig?.packages[0].features[index]
-                            ? (gig?.packages[0].features[index].status as boolean)
-                            : false
-                        }
-                        className='rounded-sm cursor-pointer checked:bg-black focus:ring-0'
-                      />
-                    </div>
-                  </td>
-                  <td className='border border-gray-200'>
-                    <div className='flex justify-center'>
-                      <input
-                        id={`standardFeature${index}`}
-                        defaultChecked={
-                          gig &&
-                          gig.packages &&
-                          gig?.packages?.length > 0 &&
-                          gig?.packages[1] &&
-                          gig?.packages[1].features &&
-                          gig?.packages[1].features.length > 0 &&
-                          gig?.packages[1].features[index]
-                            ? (gig?.packages[1].features[index].status as boolean)
-                            : false
-                        }
-                        type='checkbox'
-                        className='rounded-sm cursor-pointer checked:bg-black focus:ring-0'
-                      />
-                    </div>
-                  </td>
-                  <td className='border border-gray-200'>
-                    <div className='flex justify-center'>
-                      <input
-                        id={`premiumFeature${index}`}
-                        defaultChecked={
-                          gig &&
-                          gig.packages &&
-                          gig?.packages?.length > 0 &&
-                          gig?.packages[2] &&
-                          gig?.packages[2].features &&
-                          gig?.packages[2].features.length > 0 &&
-                          gig?.packages[2].features[index]
-                            ? (gig?.packages[2].features[index].status as boolean)
-                            : false
-                        }
-                        type='checkbox'
-                        className='rounded-sm cursor-pointer checked:bg-black focus:ring-0'
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            <tr>
-              <td className='px-2 py-3 text-sm font-semibold text-left text-gray-500 bg-gray-100 border border-gray-200 '>
-                Price
-              </td>
-              <td className='border border-gray-200'>
-                <div className='flex flex-row justify-around w-full'>
-                  <span className='flex flex-col justify-center'>
-                    <BiDollar className='w-4 h-4 fill-gray-500' />
-                  </span>
-                  <input
-                    {...register('basicPrice')}
-                    defaultValue={gig?.packages && gig?.packages[0]?.price ? gig?.packages[0]?.price : 0}
-                    type='number'
-                    className='w-full text-sm select-none'
+    <>
+      <Helmet>
+        <title>Edit Gig | Freelancer</title>
+      </Helmet>
+      <div>
+        <StepNavigate index={2} />
+        <form
+          onSubmit={handleSubmit(handleCreateOrUpdateGigPricing)}
+          className='flex flex-col items-center w-full py-10'
+        >
+          <table className='w-full max-w-4xl border border-slate-300'>
+            <thead>
+              <tr>
+                <th className='bg-gray-100 min-w-[150px]'> </th>
+                <th className='p-5 text-base font-semibold text-left text-gray-500 bg-gray-200 border border-slate-300'>
+                  BASIC
+                </th>
+                <th className='p-5 text-base font-semibold text-left text-gray-500 bg-gray-200 border border-slate-300'>
+                  STANDARD
+                </th>
+                <th className='p-5 text-base font-semibold text-left text-gray-500 bg-gray-200 border border-slate-300'>
+                  PREMIUM
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className='bg-gray-100'> </td>
+                <td className='p-2 bg-white border border-slate-300'>
+                  <textarea
+                    {...register('basicName')}
+                    className='w-full font-normal text-gray-500 text-md textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
+                    placeholder='Name your package'
+                    rows={3}
                   />
+                </td>
+                <td className='p-2 bg-white border border-slate-300'>
+                  <textarea
+                    {...register('standardName')}
+                    className='w-full font-normal text-gray-500 text-md textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
+                    placeholder='Name your package'
+                    rows={3}
+                  />
+                </td>
+                <td className='p-2 bg-white border border-slate-300'>
+                  <textarea
+                    {...register('premiumName')}
+                    className='w-full font-normal text-gray-500 text-md textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
+                    placeholder='Name your package'
+                    rows={3}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className='bg-gray-100'> </td>
+                <td className='p-2 bg-white border border-slate-300'>
+                  <textarea
+                    {...register('basicDescription')}
+                    className='w-full h-full font-normal text-gray-500 text-md textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
+                    placeholder='Describe the detail of your offering'
+                    rows={5}
+                  />
+                </td>
+                <td className='p-2 bg-white border border-slate-300'>
+                  <textarea
+                    {...register('standardDescription')}
+                    className='w-full font-normal text-gray-500 text-md textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
+                    placeholder='Describe the detail of your offering'
+                    rows={5}
+                  />
+                </td>
+                <td className='p-2 bg-white border border-slate-300'>
+                  <textarea
+                    {...register('premiumDescription')}
+                    className='w-full font-normal text-gray-500 text-md textarea-none placeholder:font-normal overscroll-none focus:text-gray-800'
+                    placeholder='Describe the detail of your offering'
+                    rows={5}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className='px-2 bg-gray-100 py-[22px]'> </td>
+                <td className='p-2 bg-white border border-gray-300'>
+                  <select
+                    {...register('basicDeliveryTime')}
+                    defaultValue={gig?.packages && gig?.packages[0]?.deliveryTime ? gig?.packages[0]?.deliveryTime : 0}
+                    name='basicDeliveryTime'
+                    id=''
+                    className='w-full text-gray-500 select-none text-md '
+                  >
+                    <option value={0} disabled className='p-10 text-black'>
+                      DELIVERY TIME
+                    </option>
+                    {arrDeliveryTime.map((time, index) => (
+                      <option key={time.label + index} value={time.value} className='text-black'>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className='p-2 bg-white border border-gray-300'>
+                  <select
+                    {...register('standardDeliveryTime')}
+                    defaultValue={gig?.packages && gig?.packages[1]?.deliveryTime ? gig?.packages[1]?.deliveryTime : 0}
+                    name='standardDeliveryTime'
+                    id=''
+                    className='w-full text-gray-500 select-none text-md '
+                  >
+                    <option value={0} disabled className='p-10 text-black'>
+                      DELIVERY TIME
+                    </option>
+                    {arrDeliveryTime.map((time, index) => (
+                      <option key={time.label + index} value={time.value} className='text-black'>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className='p-2 bg-white border border-gray-300'>
+                  <select
+                    {...register('premiumDeliveryTime')}
+                    defaultValue={gig?.packages && gig?.packages[2]?.deliveryTime ? gig?.packages[2]?.deliveryTime : 0}
+                    name='premiumDeliveryTime'
+                    id=''
+                    className='w-full text-gray-500 select-none text-md '
+                  >
+                    <option value={0} disabled className='p-10 text-black'>
+                      DELIVERY TIME
+                    </option>
+                    {arrDeliveryTime.map((time, index) => (
+                      <option key={time.label + index} value={time.value} className='text-black'>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td className='px-2 py-3 font-semibold text-left text-gray-500 bg-gray-100 text-md '> Revisons</td>
+                <td className='p-2 bg-white border border-gray-300'>
+                  <select
+                    {...register('basicRevisions')}
+                    defaultValue={gig?.packages && gig?.packages[0]?.revisions ? gig?.packages[0]?.revisions : 0}
+                    name='basicRevisions'
+                    id=''
+                    className='w-full text-gray-500 select-none text-md '
+                  >
+                    <option value={0} disabled className='p-10 text-black'>
+                      REVISIONS
+                    </option>
+                    {arrRevisions.map((time, index) => (
+                      <option key={time.label + index} value={time.value} className='text-black'>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className='p-2 bg-white border border-gray-300'>
+                  <select
+                    {...register('standardRevisions')}
+                    defaultValue={gig?.packages && gig?.packages[1]?.revisions ? gig?.packages[1]?.revisions : 0}
+                    name='standardRevisions'
+                    id=''
+                    className='w-full text-gray-500 select-none text-md '
+                  >
+                    <option value={0} disabled className='p-10 text-black'>
+                      REVISIONS
+                    </option>
+                    {arrRevisions.map((time, index) => (
+                      <option key={time.label + index} value={time.value} className='text-black'>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className='p-2 bg-white border border-gray-300'>
+                  <select
+                    {...register('premiumRevisions')}
+                    defaultValue={gig?.packages && gig?.packages[2]?.revisions ? gig?.packages[2]?.revisions : 0}
+                    name='premiumRevisions'
+                    id=''
+                    className='w-full text-gray-500 select-none text-md '
+                  >
+                    <option value={0} disabled className='p-10 text-black'>
+                      REVISIONS
+                    </option>
+                    {arrRevisions.map((time, index) => (
+                      <option key={time.label + index} value={time.value} className='text-black'>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+              {gig?.category &&
+                gig?.category.features.length > 0 &&
+                gig?.category.features.map((feature, index) => (
+                  <tr key={index + feature}>
+                    <td className='px-2 py-3 font-semibold text-left text-gray-500 bg-gray-100 border border-gray-200 text-md '>
+                      {feature}
+                    </td>
+                    <td className='p-2 bg-white border border-gray-200'>
+                      <div className='flex justify-center '>
+                        <input
+                          id={`basicFeature${index}`}
+                          type='checkbox'
+                          defaultChecked={
+                            gig &&
+                            gig.packages &&
+                            gig?.packages?.length > 0 &&
+                            gig?.packages[0] &&
+                            gig?.packages[0].features &&
+                            gig?.packages[0].features.length > 0 &&
+                            gig?.packages[0].features[index]
+                              ? (gig?.packages[0].features[index].status as boolean)
+                              : false
+                          }
+                          className='w-4 h-4 rounded-sm cursor-pointer accent-black checked:bg-black focus:ring-0'
+                        />
+                      </div>
+                    </td>
+                    <td className='p-2 bg-white border border-gray-200'>
+                      <div className='flex justify-center'>
+                        <input
+                          id={`standardFeature${index}`}
+                          defaultChecked={
+                            gig &&
+                            gig.packages &&
+                            gig?.packages?.length > 0 &&
+                            gig?.packages[1] &&
+                            gig?.packages[1].features &&
+                            gig?.packages[1].features.length > 0 &&
+                            gig?.packages[1].features[index]
+                              ? (gig?.packages[1].features[index].status as boolean)
+                              : false
+                          }
+                          type='checkbox'
+                          className='w-4 h-4 rounded-sm cursor-pointer accent-black checked:bg-black focus:ring-0'
+                        />
+                      </div>
+                    </td>
+                    <td className='p-2 bg-white border border-gray-200'>
+                      <div className='flex justify-center'>
+                        <input
+                          id={`premiumFeature${index}`}
+                          defaultChecked={
+                            gig &&
+                            gig.packages &&
+                            gig?.packages?.length > 0 &&
+                            gig?.packages[2] &&
+                            gig?.packages[2].features &&
+                            gig?.packages[2].features.length > 0 &&
+                            gig?.packages[2].features[index]
+                              ? (gig?.packages[2].features[index].status as boolean)
+                              : false
+                          }
+                          type='checkbox'
+                          className='w-4 h-4 rounded-sm cursor-pointer accent-black checked:bg-black focus:ring-0'
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              <tr>
+                <td className='px-2 py-3 font-semibold text-left text-gray-500 bg-gray-100 border border-gray-200 text-md '>
+                  Price
+                </td>
+                <td className='p-2 bg-white border border-gray-200'>
+                  <div className='flex flex-row justify-around w-full'>
+                    <span className='flex flex-col justify-center'>
+                      <BiDollar className='w-4 h-4 fill-gray-500' />
+                    </span>
+                    <input
+                      {...register('basicPrice')}
+                      defaultValue={gig?.packages && gig?.packages[0]?.price && gig?.packages[0]?.price}
+                      type='number'
+                      className='w-full select-none text-md'
+                    />
+                  </div>
+                </td>
+                <td className='p-2 bg-white border border-gray-200'>
+                  <div className='flex flex-row justify-around w-full'>
+                    <span className='flex flex-col justify-center'>
+                      <BiDollar className='w-4 h-4 fill-gray-500' />
+                    </span>
+                    <input
+                      {...register('standardPrice')}
+                      defaultValue={gig?.packages && gig?.packages[1]?.price && gig?.packages[1]?.price}
+                      type='number'
+                      className='w-full select-none text-md'
+                    />
+                  </div>
+                </td>
+                <td className='p-2 bg-white border border-gray-200'>
+                  <div className='flex flex-row justify-around w-full'>
+                    <span className='flex flex-col justify-center'>
+                      <BiDollar className='w-4 h-4 fill-gray-500' />
+                    </span>
+                    <input
+                      {...register('premiumPrice')}
+                      defaultValue={gig?.packages && gig?.packages[2]?.price && gig?.packages[2]?.price}
+                      type='number'
+                      className='w-full select-none text-md'
+                    />
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div className='flex justify-end w-full max-w-4xl gap-10 mt-5'>
+            <button
+              onClick={() => navigate(`/user/${user?.id}/gig-create/${gig?._id}/overview`)}
+              type='button'
+              className='text-lg text-green-600 hover:underline'
+            >
+              Back
+            </button>
+            <button type='submit' className='px-5 py-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800'>
+              {isSubmitting ? (
+                <div role='status'>
+                  <svg
+                    aria-hidden='true'
+                    className='inline w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300'
+                    viewBox='0 0 100 101'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      d='M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z'
+                      fill='currentColor'
+                    />
+                    <path
+                      d='M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z'
+                      fill='currentFill'
+                    />
+                  </svg>
+                  <span className='sr-only'>Loading...</span>
                 </div>
-              </td>
-              <td className='border border-gray-200'>
-                <div className='flex flex-row justify-around w-full'>
-                  <span className='flex flex-col justify-center'>
-                    <BiDollar className='w-4 h-4 fill-gray-500' />
-                  </span>
-                  <input
-                    {...register('standardPrice')}
-                    defaultValue={gig?.packages && gig?.packages[1]?.price ? gig?.packages[1]?.price : 0}
-                    type='number'
-                    className='w-full text-sm select-none'
-                  />
-                </div>
-              </td>
-              <td className='border border-gray-200'>
-                <div className='flex flex-row justify-around w-full'>
-                  <span className='flex flex-col justify-center'>
-                    <BiDollar className='w-4 h-4 fill-gray-500' />
-                  </span>
-                  <input
-                    {...register('premiumPrice')}
-                    defaultValue={gig?.packages && gig?.packages[2]?.price ? gig?.packages[2]?.price : 0}
-                    type='number'
-                    className='w-full text-sm select-none'
-                  />
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div className='flex justify-end mt-5 mb-10'>
-          <button
-            type='submit'
-            className='p-2 font-bold text-white bg-black rounded-xl focus:bg-blue-800 min-w-[100px]'
-          >
-            {isSubmitting ? (
-              <div role='status'>
-                <svg
-                  aria-hidden='true'
-                  className='inline w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300'
-                  viewBox='0 0 100 101'
-                  fill='none'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    d='M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z'
-                    fill='currentColor'
-                  />
-                  <path
-                    d='M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z'
-                    fill='currentFill'
-                  />
-                </svg>
-                <span className='sr-only'>Loading...</span>
-              </div>
-            ) : (
-              <span>{gig ? 'Update & Continue' : 'Save & Continue'}</span>
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+              ) : (
+                <span>
+                  {gig && gig.packages && gig.packages.length > 0 && gig.packages[0]?.name
+                    ? 'Update & Continue'
+                    : 'Save & Continue'}
+                </span>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
   )
 }
 

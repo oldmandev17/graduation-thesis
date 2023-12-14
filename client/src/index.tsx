@@ -3,6 +3,8 @@ import { UserRole } from 'modules/user'
 import RequiredAuth from 'pages/auth/RequiredAuth'
 import NotFoundPage from 'pages/home/NotFoundPage'
 import BecomeSellerPage from 'pages/home/SellerPage/BecomeSellerPage'
+import ManageGigPage from 'pages/home/SellerPage/ManageGigPage'
+import ManageOrderPage from 'pages/home/SellerPage/ManageOrderPage'
 import { ReactNode, Suspense, lazy, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
@@ -34,8 +36,6 @@ const SellerOverviewDoPage = lazy(() => import('pages/home/SellerPage/SellerOver
 const SellerOverviewDontPage = lazy(() => import('pages/home/SellerPage/SellerOverviewDontPage'))
 const SellerPersonalInfo = lazy(() => import('pages/home/SellerPage/SellerPersonalInfo'))
 const DashboardPage = lazy(() => import('pages/home/SellerPage/DashboardPage'))
-const ManageGigPage = lazy(() => import('pages/home/SellerPage/ManageGigPage'))
-const ManageOrderPage = lazy(() => import('pages/home/SellerPage/ManageOrderPage'))
 const AnalyticPage = lazy(() => import('pages/home/SellerPage/AnalyticPage'))
 const PersonalInfoPage = lazy(() => import('pages/home/PersonalInfoPage'))
 
@@ -127,7 +127,7 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: '/user/:userId/message',
+        path: '/user/:userId/messages',
         element: <MessagePage />
       },
       {
@@ -147,15 +147,15 @@ const router = createBrowserRouter([
                 element: <DashboardPage />
               },
               {
-                path: '/user/:userId/gig',
+                path: '/user/:userId/gigs',
                 element: <ManageGigPage />
               },
               {
-                path: '/user/:userId/order',
+                path: '/user/:userId/orders',
                 element: <ManageOrderPage />
               },
               {
-                path: '/user/:userId/analytic',
+                path: '/user/:userId/analytics',
                 element: <AnalyticPage />
               },
               {
