@@ -164,6 +164,10 @@ const arrUserRole = [
     value: UserRole.BUYER
   },
   {
+    label: 'REQUEST SELLER',
+    value: UserRole.REQUEST_SELLER
+  },
+  {
     label: 'SELLER',
     value: UserRole.SELLER
   },

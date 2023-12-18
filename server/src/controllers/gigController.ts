@@ -5,7 +5,7 @@ import Category, { ICategory } from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import { NotificationType } from 'src/models/notificationModel'
-import Order from 'src/models/orderModel'
+import Order, { OrderStatus } from 'src/models/orderModel'
 import User, { UserRole } from 'src/models/userModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
@@ -15,10 +15,20 @@ import { createNotification } from 'src/utils/notification'
 import { sendEmail } from 'src/utils/sendEmail'
 import { gigDeleteSchema, gigSchema, gigStatusSchema } from 'src/utils/validationSchema'
 
+export enum SortFilter {
+  BEST_SELLING = 'BEST_SELLING',
+  LATEST = 'LATEST',
+  PRICE_DESCENDING = 'PRICE_DESCENDING',
+  PRICE_ASCENDING = 'PRICE_ASCENDING'
+}
+
 interface GigQuery {
   status?: GigStatus
   creator?: string
   categoryId?: string
+  sort?: SortFilter
+  budget?: string
+  time?: string
 }
 
 export async function createGig(req: Request, res: Response, next: NextFunction) {
@@ -326,6 +336,11 @@ export async function getAllLandingGigByUser(req: Request, res: Response, next: 
       .limit(10)
     const mostOrderedGig = await Order.aggregate([
       {
+        $match: {
+          status: OrderStatus.COMPLETE
+        }
+      },
+      {
         $group: {
           _id: '$gig',
           count: { $sum: 1 }
@@ -348,6 +363,11 @@ export async function getAllLandingGigByUser(req: Request, res: Response, next: 
       category = await Category.findOne({ _id: gigExist?.category })
     } else {
       const mostCategoriedGig = await Gig.aggregate([
+        {
+          $match: {
+            status: GigStatus.ACTIVE
+          }
+        },
         {
           $group: {
             _id: '$category',
@@ -391,7 +411,10 @@ export async function getAllLandingGigByUser(req: Request, res: Response, next: 
 export async function getAllGig(req: Request, res: Response, next: NextFunction) {
   try {
     const { creator, categoryId, ...restQuery } = req.query as unknown as GigQuery
-    const apiFeature = new APIFeature(Gig.find().populate('category').populate('createdBy'), restQuery)
+    const apiFeature = new APIFeature(
+      Gig.find().populate('category').populate('orders').populate('reviews').populate('createdBy'),
+      restQuery
+    )
       .search()
       .filter()
     if (creator) {
@@ -418,7 +441,12 @@ export async function getAllGig(req: Request, res: Response, next: NextFunction)
       }
       apiFeature.query.where({ category: { $in: categoryIds } })
     }
-    let gigs: IGig[] = await apiFeature.query.populate('category').populate('createdBy').exec()
+    let gigs: IGig[] = await apiFeature.query
+      .populate('category')
+      .populate('orders')
+      .populate('reviews')
+      .populate('createdBy')
+      .exec()
     const filteredCount = gigs.length
     apiFeature.sorting().pagination()
     gigs = await apiFeature.query
@@ -501,6 +529,70 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
       }
     })
   } catch (error) {
+    next(error)
+  }
+}
+
+export async function getAllGigFilter(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { budget, time, sort, ...restQuery } = req.query as unknown as GigQuery
+    const filter: any = {
+      status: GigStatus.ACTIVE
+    }
+    if (budget) {
+      filter['packages.0.price'] = { $lte: Number(budget) }
+    }
+    if (time) {
+      const daysAgo = Number(time)
+      const startTime = new Date(new Date().getTime() - daysAgo * 24 * 60 * 60 * 1000)
+      filter.createdAt = { $gte: startTime, $lte: new Date() }
+    }
+
+    let sortOption: any = {}
+    switch (sort) {
+      case SortFilter.BEST_SELLING:
+        sortOption = { 'orders.length': -1 }
+        break
+      case SortFilter.LATEST:
+        sortOption = { createdAt: -1 }
+        break
+      case SortFilter.PRICE_DESCENDING:
+        sortOption = { 'packages.0.price': -1 }
+        break
+      case SortFilter.PRICE_ASCENDING:
+        sortOption = { 'packages.0.price': 1 }
+        break
+      default:
+        sortOption = { createdAt: -1 }
+    }
+    const apiFeature = new APIFeature(
+      Gig.find(filter)
+        .populate('category')
+        .populate('orders')
+        .populate('reviews')
+        .populate('createdBy')
+        .sort(sortOption),
+      restQuery
+    )
+      .search()
+      .filter()
+    let gigs: IGig[] = await apiFeature.query
+      .populate('category')
+      .populate('orders')
+      .populate('reviews')
+      .populate('createdBy')
+      .exec()
+    const filteredCount = gigs.length
+    apiFeature.sorting().pagination()
+    gigs = await apiFeature.query
+      .clone()
+      .populate('category')
+      .populate('createdBy')
+      .populate('orders')
+      .populate('reviews')
+      .exec()
+    res.status(200).json({ gigs, filteredCount })
+  } catch (error: any) {
     next(error)
   }
 }

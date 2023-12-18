@@ -12,7 +12,12 @@ function AuthenticationLayout() {
 
   useEffect(() => {
     if (user && user._id) {
-      navigate('/')
+      if (localStorage.getItem('redirect')) {
+        navigate(`${localStorage.getItem('redirect')?.toString()}`)
+        localStorage.removeItem('redirect')
+      } else {
+        navigate('/')
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

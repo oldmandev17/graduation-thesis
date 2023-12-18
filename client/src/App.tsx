@@ -8,7 +8,7 @@ import { getToken, logout } from 'utils/auth'
 
 function App({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
-  const { handleAddWishlist } = useMessage()
+  const { handleWishlist } = useMessage()
   const { user } = useAppSelector((state) => state.auth)
   useEffect(() => {
     if (user && user._id) {
@@ -19,7 +19,7 @@ function App({ children }: { children: ReactNode }) {
           accessToken
         })
       )
-      handleAddWishlist(user.wishlist)
+      handleWishlist(user.wishlist)
     } else {
       const { refreshToken } = getToken()
       if (refreshToken) dispatch(authRefreshToken(refreshToken))

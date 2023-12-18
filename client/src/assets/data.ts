@@ -77,7 +77,7 @@ const arrDeliveryTimeFilter = [
   },
   {
     label: 'Anytime',
-    value: null
+    value: -1
   }
 ]
 

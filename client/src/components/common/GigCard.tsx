@@ -19,7 +19,7 @@ import { EffectFade, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { getToken } from 'utils/auth'
 
-function GigCard({ gig, type }: { gig: IGig; type: string }) {
+function GigCard({ gig, type, height }: { gig: IGig; type: string; height: number }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { accessToken } = getToken()
@@ -31,7 +31,8 @@ function GigCard({ gig, type }: { gig: IGig; type: string }) {
 
   const handleWishlist = async () => {
     if (!user) {
-      navigate(`/auth/login?redirect=${location.pathname}`)
+      navigate('/auth/login')
+      localStorage.setItem('redirect', String(location.pathname))
     } else {
       await addOrRemoveWishlist(accessToken, gig._id)
         .then((response) => {
@@ -88,7 +89,7 @@ function GigCard({ gig, type }: { gig: IGig; type: string }) {
             clickable: true
           }}
           modules={[EffectFade, Navigation]}
-          className='h-40 mySwiper'
+          className={`h-[${height}px] mySwiper`}
         >
           {gig &&
             gig.images &&
@@ -99,7 +100,7 @@ function GigCard({ gig, type }: { gig: IGig; type: string }) {
                   <img
                     src={`${process.env.REACT_APP_URL_SERVER}/${image}`}
                     alt={gig?.name}
-                    className='object-contain w-full rounded-lg h-44'
+                    className={`object-contain w-full rounded-lg h-[${height}px]`}
                   />
                 </div>
               </SwiperSlide>

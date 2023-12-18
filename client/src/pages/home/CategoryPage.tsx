@@ -208,7 +208,7 @@ function CategoryPage() {
               gigs.length > 0 &&
               gigs.map((gig, index) => (
                 <SwiperSlide key={gig._id + index} className='rounded-lg'>
-                  <GigCard type='like' gig={gig} />
+                  <GigCard height={160} type='like' gig={gig} />
                 </SwiperSlide>
               ))}
           </Swiper>

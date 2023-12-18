@@ -1,13 +1,17 @@
+/* eslint-disable no-unsafe-optional-chaining */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { ClickAwayListener, Divider, Grow, Paper, Popper } from '@mui/material'
-import { getCategoryDetailBySlug } from 'apis/api'
+import { getAllGigFilter, getCategoryDetailBySlug } from 'apis/api'
 import { SortFilter, arrDeliveryTimeFilter, arrSortFilter } from 'assets/data'
+import GigCard from 'components/common/GigCard'
 import ModalCustom from 'components/common/ModalCustom'
 import { ICategory } from 'modules/category'
+import { GigStatus, IGig } from 'modules/gig'
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { FaCheck } from 'react-icons/fa'
@@ -23,6 +27,7 @@ function GigsPage() {
   const [category, setCategory] = useState<ICategory>()
   const [parentCategory, setParentCategory] = useState<ICategory>()
   const navigate = useNavigate()
+  const [gigs, setGigs] = useState<Array<IGig>>([])
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [openBudget, setOpenBudget] = useState<boolean>(false)
   const [openDeliveryTime, setOpenDeliveryTime] = useState<boolean>(false)
@@ -31,9 +36,42 @@ function GigsPage() {
   const anchorRefBudget = useRef<HTMLButtonElement>(null)
   const anchorRefSort = useRef<HTMLButtonElement>(null)
   const [budget, setBudget] = useState<number | null>(null)
-  const [deliveryTime, setDeliveryTime] = useState<number | null>(null)
+  const [deliveryTime, setDeliveryTime] = useState<number>(-1)
   const [selectedValue, setSelectedValue] = useState<number | null>(null)
   const [sortBy, setSortBy] = useState<SortFilter>(SortFilter.BEST_SELLING)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [count, setCount] = useState<number>(0)
+  const [filteredCount, setFilteredCount] = useState<number>(0)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [page, setPage] = useState<number>(1)
+
+  const getAllGigFilters = useCallback(async () => {
+    await getAllGigFilter(
+      page,
+      20,
+      GigStatus.ACTIVE,
+      search.get('keyword'),
+      category?._id,
+      budget,
+      deliveryTime,
+      sortBy
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          setGigs(response.data.gigs)
+          setCount(Math.ceil(response.data.filteredCount / 20))
+          setFilteredCount(response.data.filteredCount)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+  }, [page, search, category, budget, deliveryTime, sortBy])
+
+  useEffect(() => {
+    getAllGigFilters()
+  }, [getAllGigFilters])
+
   const handleToggleDeliveryTime = () => {
     setOpenDeliveryTime((prevOpenDeliveryTime) => !prevOpenDeliveryTime)
   }
@@ -120,10 +158,10 @@ function GigsPage() {
           keyword ? `Result For "${keyword}"` : `${category?.name} Service`
         } | Freelancer`}</title>
       </Helmet>
-      <div className='flex flex-col gap-8 py-10 px-28'>
+      <div className='flex flex-col gap-10 py-10 px-28'>
         {slug ? (
           <>
-            <div id='path' className='flex flex-row gap-2 mb-3'>
+            <div id='path' className='flex flex-row gap-2'>
               <IoHomeOutline className='w-5 h-5 cursor-pointer' onClick={() => navigate('/')} />
               <span className='text-sm font-semibold text-gray-400'>/</span>
               <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${parentCategory?.slug}`)}>
@@ -140,7 +178,7 @@ function GigsPage() {
                   className='flex items-center justify-center gap-1'
                   onClick={() => setOpenModal(true)}
                 >
-                  <MdSlowMotionVideo className='w-6 h-6' /> How Fiverr Works
+                  <MdSlowMotionVideo className='w-6 h-6' /> How Freelancer Works
                 </button>
               </div>
               <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
@@ -186,7 +224,7 @@ function GigsPage() {
                 >
                   <Paper className='!rounded-xl'>
                     <ClickAwayListener onClickAway={handleCloseBudget}>
-                      <div className='flex flex-col gap-3 p-3'>
+                      <div className='flex flex-col gap-2 p-2'>
                         <input
                           type='text'
                           id='budget'
@@ -212,7 +250,7 @@ function GigsPage() {
                               setBudget(Number(budgetElement.value))
                               handleCloseBudget(event)
                             }}
-                            className='p-2 font-semibold text-white bg-black rounded-lg hover:bg-gray-950'
+                            className='px-2 py-1 text-sm font-semibold text-white bg-black rounded-lg hover:bg-gray-950'
                           >
                             Apply
                           </button>
@@ -253,8 +291,8 @@ function GigsPage() {
                 >
                   <Paper className='!rounded-xl'>
                     <ClickAwayListener onClickAway={handleCloseDeliveryTime}>
-                      <div className='flex flex-col gap-3 p-3'>
-                        <div className='flex flex-col gap-4'>
+                      <div className='flex flex-col gap-2 p-2'>
+                        <div className='flex flex-col gap-2'>
                           {arrDeliveryTimeFilter.length > 0 &&
                             arrDeliveryTimeFilter.map((time, index) => (
                               <div key={index} className='flex items-center'>
@@ -267,7 +305,10 @@ function GigsPage() {
                                   onChange={handleRadioChange}
                                   className='w-4 h-4 text-black bg-transparent border-gray-600 '
                                 />
-                                <label htmlFor={time.label} className='text-sm font-medium text-gray-900 ms-2'>
+                                <label
+                                  htmlFor={time.label}
+                                  className='text-sm font-medium text-gray-900 cursor-pointer ms-2'
+                                >
                                   {time.label}
                                 </label>
                               </div>
@@ -277,7 +318,7 @@ function GigsPage() {
                         <div className='flex items-center gap-10'>
                           <button
                             onClick={(event: any) => {
-                              setDeliveryTime(null)
+                              setDeliveryTime(-1)
                               handleCloseDeliveryTime(event)
                             }}
                             type='button'
@@ -291,7 +332,7 @@ function GigsPage() {
                               handleCloseDeliveryTime(event)
                             }}
                             type='button'
-                            className='p-2 font-semibold text-white bg-black rounded-lg hover:bg-gray-950'
+                            className='px-2 py-1 text-sm font-semibold text-white bg-black rounded-lg hover:bg-gray-950'
                           >
                             Apply
                           </button>
@@ -335,7 +376,7 @@ function GigsPage() {
                 </button>
               </span>
             )}
-            {deliveryTime !== null && (
+            {deliveryTime !== -1 && (
               <span
                 id='badge-dismiss-dark'
                 className='inline-flex items-center px-2 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded me-2'
@@ -343,7 +384,7 @@ function GigsPage() {
                 {arrDeliveryTimeFilter.filter((time) => time.value === deliveryTime)[0]?.label}
                 <button
                   type='button'
-                  onClick={() => setDeliveryTime(null)}
+                  onClick={() => setDeliveryTime(-1)}
                   className='inline-flex items-center p-1 text-sm text-gray-400 bg-transparent rounded-sm ms-2 hover:bg-gray-200 hover:text-gray-900 '
                   data-dismiss-target='#badge-dismiss-dark'
                   aria-label='Remove'
@@ -371,7 +412,9 @@ function GigsPage() {
         <Divider />
         <div className='flex flex-col gap-4'>
           <div className='flex items-center justify-between w-full'>
-            <p className='text-base font-semibold text-gray-600'>260,205 services available</p>
+            <p className='text-lg font-semibold text-gray-600'>
+              {filteredCount.toLocaleString('en-US')} services available
+            </p>
             <div className='flex items-center justify-center gap-3'>
               <span className='text-lg text-gray-600'>Sort By</span>
               <button
@@ -428,6 +471,10 @@ function GigsPage() {
               </Popper>
             </div>
           </div>
+        </div>
+        <div className='grid grid-cols-4 gap-10'>
+          {gigs.length > 0 &&
+            gigs.map((gig, index) => <GigCard height={200} key={gig?._id + index} gig={gig} type='filter' />)}
         </div>
       </div>
     </>

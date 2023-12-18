@@ -631,8 +631,13 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 
 export const getAllUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const user = await findUser(req.payload.userId)
+    const queryField: any = {}
+    if (user && user.role.includes(UserRole.MANAGER)) {
+      queryField.role = { $in: [UserRole.NONE, UserRole.BUYER, UserRole.SELLER, UserRole.REQUEST_SELLER] }
+    }
     const apiFeature = new APIFeature(
-      User.find()
+      User.find(queryField)
         .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
         .populate({ path: 'updatedAdminBy', select: '_id name email phone provider verify role status' }),
       req.query
@@ -718,13 +723,13 @@ export async function wishlist(req: Request, res: Response, next: NextFunction) 
     if (!userExist) throw httpError.NotFound()
     if (userExist.wishlist.filter((gig) => gig._id.toString() === req.params.id).length > 0) {
       let arrIds = userExist.wishlist.map((gig) => gig._id)
-      arrIds = arrIds.filter((id) => id !== req.params.id)
-      await User.updateOne({ _id: req.payload.userId }, { gigs: arrIds })
+      arrIds = arrIds.filter((id) => id.toString() !== req.params.id)
+      await User.updateOne({ _id: req.payload.userId }, { wishlist: arrIds })
       res.status(200).json({ type: 'remove' })
     } else {
       const arrIds = userExist.wishlist.map((gig) => gig._id)
       arrIds.push(req.params.id)
-      await User.updateOne({ _id: req.payload.userId }, { gigs: arrIds })
+      await User.updateOne({ _id: req.payload.userId }, { wishlist: arrIds })
       res.status(200).json({ type: 'add' })
     }
   } catch (error: any) {

@@ -27,6 +27,7 @@ import { BsSendCheck } from 'react-icons/bs'
 import { HiOutlineViewGridAdd } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { useAppSelector } from 'stores/hooks'
 import { getToken } from 'utils/auth'
 import generateExcel from 'utils/generateExcel'
 import timeAgo from 'utils/timeAgo'
@@ -72,6 +73,7 @@ function User() {
   const [filteredCount, setFilteredCount] = useState<number>(0)
   const [roles, setRoles] = useState<Array<UserRole>>([])
   const navigate = useNavigate()
+  const { user } = useAppSelector((state) => state.auth)
   const [editorState, setEditorState] = useState(EditorState.createEmpty())
   const [title, setTitle] = useState<string>('')
 
@@ -333,7 +335,12 @@ function User() {
                 Search By Name
               </SearchCustom>
             </div>
-            <SelectCustom arrValue={arrUserRole} label='Choose the role' value={role} setValue={setRole}>
+            <SelectCustom
+              arrValue={arrUserRole.slice(0, user?.role.includes(UserRole.MANAGER) ? 3 : 5)}
+              label='Choose the role'
+              value={role}
+              setValue={setRole}
+            >
               Role
             </SelectCustom>
             <SelectCustom

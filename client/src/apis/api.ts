@@ -1,3 +1,4 @@
+import { SortFilter } from 'assets/data'
 import { CategoryStatus } from 'modules/category'
 import { GigStatus } from 'modules/gig'
 import { axiosFormData, axiosJson } from './axios'
@@ -194,6 +195,26 @@ function getAllGig(
   return axiosJson.get(url)
 }
 
+function getAllGigFilter(
+  page: number | null,
+  limit: number | null,
+  status: GigStatus | null,
+  keyword: string | null,
+  category: string | undefined,
+  budget: number | null,
+  time: number | null,
+  sort: SortFilter
+) {
+  let url = `/gig/filter?status=${status}`
+  if (keyword) url += `&&keyword=${keyword}`
+  if (page && limit) url += `&&page=${page}&&limit=${limit}`
+  if (budget) url += `&&budget=${budget}`
+  if (category) url += `&&category=${category}`
+  if (time !== -1) url += `&&time=${time}`
+  if (sort) url += `&&sort=${sort}`
+  return axiosJson.get(url)
+}
+
 export {
   getAllCategory,
   createGig,
@@ -209,5 +230,6 @@ export {
   updateGigStatus,
   getAllLandingGigByUser,
   addOrRemoveWishlist,
-  getAllGig
+  getAllGig,
+  getAllGigFilter
 }
