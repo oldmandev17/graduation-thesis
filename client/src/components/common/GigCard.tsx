@@ -2,39 +2,50 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/no-array-index-key */
+import { addOrRemoveWishlist } from 'apis/api'
+import { useMessage } from 'contexts/StateContext'
 import { IGig } from 'modules/gig'
-import { IUser } from 'modules/user'
 import { CSSProperties, useEffect, useState } from 'react'
 import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useAppSelector } from 'stores/hooks'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { EffectFade, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { getToken } from 'utils/auth'
 
-function GigCard({ gig, type, user }: { gig: IGig; type: string; user: IUser | undefined }) {
+function GigCard({ gig, type }: { gig: IGig; type: string }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { accessToken } = getToken()
+  const { user } = useAppSelector((state) => state.auth)
+  const { wishlist, handleAddWishlist, handleRemoveWishlist } = useMessage()
   const [hover, setHover] = useState<boolean>(false)
-  const [isWishlist, setIsWishlist] = useState<boolean>(false)
   const totalRating = gig?.reviews.reduce((sum, review) => sum + review.rating, 0)
   const avgRating = totalRating / gig.reviews.length || 0
-
-  useEffect(() => {
-    if (user && user?.wishlist.filter((wish) => wish._id === gig._id).length > 0) {
-      setIsWishlist(true)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const handleWishlist = async () => {
     if (!user) {
       navigate(`/auth/login?redirect=${location.pathname}`)
     } else {
-      setIsWishlist((prev) => !prev)
+      await addOrRemoveWishlist(accessToken, gig._id)
+        .then((response) => {
+          if (response.status === 200) {
+            if (response.data.type === 'remove') {
+              handleRemoveWishlist(gig)
+            } else {
+              handleAddWishlist(gig)
+            }
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error.response.data.error.message)
+        })
     }
   }
 
@@ -97,7 +108,7 @@ function GigCard({ gig, type, user }: { gig: IGig; type: string; user: IUser | u
         <BsFillSuitHeartFill
           onClick={handleWishlist}
           className={`absolute z-20 w-6 h-6 cursor-pointer stroke-1 ${
-            isWishlist ? 'fill-pink-600' : 'fill-gray-600'
+            wishlist.filter((wish) => wish._id === gig._id).length > 0 ? 'fill-pink-600' : 'fill-gray-600'
           } stroke-white top-3 right-3 cursor-pointer`}
         />
       </div>

@@ -162,6 +162,38 @@ function getAllLandingGigByUser(accessToken: string | undefined) {
   })
 }
 
+function addOrRemoveWishlist(accessToken: string | undefined, id: string) {
+  const url = `/auth/wishlist/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getAllGig(
+  page: number | null,
+  limit: number | null,
+  status: GigStatus | null,
+  keyword: string,
+  creator: string,
+  categoryId: string,
+  sortBy: string,
+  orderBy: string,
+  startDay: Date | null,
+  endDay: Date | null
+) {
+  let url = `/gig?sortBy=${sortBy}&&orderBy=${orderBy}`
+  if (startDay && endDay) url += `&&createdAt[gte]=${startDay}&&createdAt[lt]=${endDay}`
+  if (page && limit) url += `&&page=${page}&&limit=${limit}`
+  if (status) url += `&&status=${status}`
+  if (keyword) url += `&&keyword=${keyword}`
+  if (creator) url += `&&creator=${creator}`
+  if (categoryId) url += `&&categoryId=${categoryId}`
+  return axiosJson.get(url)
+}
+
 export {
   getAllCategory,
   createGig,
@@ -175,5 +207,7 @@ export {
   getProfile,
   getAllGigByUser,
   updateGigStatus,
-  getAllLandingGigByUser
+  getAllLandingGigByUser,
+  addOrRemoveWishlist,
+  getAllGig
 }

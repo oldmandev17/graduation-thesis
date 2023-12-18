@@ -211,7 +211,7 @@ function UserPage() {
             popularGigs.length > 0 &&
             popularGigs.map((gig, index) => (
               <SwiperSlide key={gig._id + index} className='rounded-lg'>
-                <GigCard user={user} type='popular' gig={gig} />
+                <GigCard type='popular' gig={gig} />
               </SwiperSlide>
             ))}
         </Swiper>
@@ -232,7 +232,7 @@ function UserPage() {
                 likeGigs.length > 0 &&
                 likeGigs.map((gig, index) => (
                   <SwiperSlide key={gig._id + index} className='rounded-lg'>
-                    <GigCard user={user} type='like' gig={gig} />
+                    <GigCard type='like' gig={gig} />
                   </SwiperSlide>
                 ))}
             </Swiper>
@@ -253,7 +253,7 @@ function UserPage() {
             latestGigs.length > 0 &&
             latestGigs.map((gig, index) => (
               <SwiperSlide key={gig._id + index} className='rounded-lg'>
-                <GigCard user={user} type='latest' gig={gig} />
+                <GigCard type='latest' gig={gig} />
               </SwiperSlide>
             ))}
         </Swiper>

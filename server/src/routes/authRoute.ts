@@ -13,7 +13,8 @@ import {
   updateUser,
   updateUserByAdmin,
   updateUserStatus,
-  verifyEmail
+  verifyEmail,
+  wishlist
 } from 'src/controllers/authController'
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
@@ -48,6 +49,7 @@ authRouter
 authRouter.route('/admin/:id').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getUserDetail)
 authRouter.route('/notification').get(verifyAccessToken, getAllNotification)
 authRouter.route('/seen-notification/:id').get(verifyAccessToken, seenNotification)
+authRouter.route('/wishlist/:id').get(verifyAccessToken, wishlist)
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
 authRouter.get(
   '/google/callback',

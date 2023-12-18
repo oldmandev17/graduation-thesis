@@ -711,3 +711,23 @@ export const sendMail = async (req: Request, res: Response, next: NextFunction) 
     next(error)
   }
 }
+
+export async function wishlist(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userExist = await User.findOne({ _id: req.payload.userId }).populate('wishlist')
+    if (!userExist) throw httpError.NotFound()
+    if (userExist.wishlist.filter((gig) => gig._id.toString() === req.params.id).length > 0) {
+      let arrIds = userExist.wishlist.map((gig) => gig._id)
+      arrIds = arrIds.filter((id) => id !== req.params.id)
+      await User.updateOne({ _id: req.payload.userId }, { gigs: arrIds })
+      res.status(200).json({ type: 'remove' })
+    } else {
+      const arrIds = userExist.wishlist.map((gig) => gig._id)
+      arrIds.push(req.params.id)
+      await User.updateOne({ _id: req.payload.userId }, { gigs: arrIds })
+      res.status(200).json({ type: 'add' })
+    }
+  } catch (error: any) {
+    next(error)
+  }
+}

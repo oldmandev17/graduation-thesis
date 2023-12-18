@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+import { useMessage } from 'contexts/StateContext'
 import { ReactNode, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { authRefreshToken, authUpdateUser } from 'stores/auth/auth-slice'
@@ -7,6 +8,7 @@ import { getToken, logout } from 'utils/auth'
 
 function App({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
+  const { handleAddWishlist } = useMessage()
   const { user } = useAppSelector((state) => state.auth)
   useEffect(() => {
     if (user && user._id) {
@@ -17,6 +19,7 @@ function App({ children }: { children: ReactNode }) {
           accessToken
         })
       )
+      handleAddWishlist(user.wishlist)
     } else {
       const { refreshToken } = getToken()
       if (refreshToken) dispatch(authRefreshToken(refreshToken))
@@ -30,6 +33,7 @@ function App({ children }: { children: ReactNode }) {
         logout()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, user])
 
   return (

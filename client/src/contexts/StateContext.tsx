@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+import { IGig } from 'modules/gig'
 import { IMessage } from 'modules/message'
 import { IUser } from 'modules/user'
 import { ReactNode, createContext, useContext, useState } from 'react'
@@ -7,11 +9,15 @@ type MessageContextType = {
   contactsPage: boolean
   messages: Array<IMessage>
   socket: any
+  wishlist: Array<IGig>
   handleCurrentChatUser: (value: any) => void
   handleContactsPage: () => void
   handleMessages: (value: any) => void
   handleSocket: (value: any) => void
   handleAddMessage: (value: any) => void
+  handleWishlist: (value: any) => void
+  handleAddWishlist: (value: any) => void
+  handleRemoveWishlist: (value: any) => void
 }
 
 const messageContextDefaultValues: MessageContextType = {
@@ -19,11 +25,15 @@ const messageContextDefaultValues: MessageContextType = {
   contactsPage: false,
   messages: [],
   socket: undefined,
+  wishlist: [],
   handleCurrentChatUser: () => {},
   handleContactsPage: () => {},
   handleMessages: () => {},
   handleSocket: () => {},
-  handleAddMessage: () => {}
+  handleAddMessage: () => {},
+  handleWishlist: () => {},
+  handleAddWishlist: () => {},
+  handleRemoveWishlist: () => {}
 }
 
 const MessageContext = createContext<MessageContextType>(messageContextDefaultValues)
@@ -41,6 +51,7 @@ export function MessageProvider({ children }: Props) {
   const [messages, setMessages] = useState<Array<any>>([])
   const [socket, setSocket] = useState<any>(undefined)
   const [contactsPage, setContactsPage] = useState<boolean>(false)
+  const [wishlist, setWishlist] = useState<Array<IGig>>([])
 
   const handleCurrentChatUser = (value: any) => {
     setCurrentChatUser(value)
@@ -62,17 +73,31 @@ export function MessageProvider({ children }: Props) {
     setContactsPage((prev: boolean) => !prev)
   }
 
+  const handleWishlist = (value: Array<IGig>) => {
+    setWishlist(value)
+  }
+  const handleAddWishlist = (value: IGig) => {
+    setWishlist((prev: any) => [...prev, value])
+  }
+  const handleRemoveWishlist = (value: IGig) => {
+    setWishlist(wishlist.filter((gig) => gig._id !== value._id))
+  }
+
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value = {
     currentChatUser,
     messages,
     socket,
     contactsPage,
+    wishlist,
     handleCurrentChatUser,
     handleMessages,
     handleSocket,
     handleAddMessage,
-    handleContactsPage
+    handleContactsPage,
+    handleWishlist,
+    handleAddWishlist,
+    handleRemoveWishlist
   }
   return <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
 }
