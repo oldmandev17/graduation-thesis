@@ -2,6 +2,7 @@
 import { ICategory } from './category'
 import { IGig } from './gig'
 import { IOrder } from './order'
+import { IReview } from './review'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -40,10 +41,12 @@ export interface IUser {
   provider: UserProvider
   verify: boolean
   role: Array<UserRole>
-  orders: Array<IOrder>
-  gigs: Array<IGig>
   contacts?: any
   target: Array<ICategory>
+  wishlist: Array<IGig>
+  gigs: Array<IGig>
+  orders: Array<IOrder>
+  reviews: Array<IReview>
   status: UserStatus
   language?: string
   description?: string

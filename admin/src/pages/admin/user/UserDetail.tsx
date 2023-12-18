@@ -22,6 +22,7 @@ import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import ReactApexChart from 'react-apexcharts'
 import { useDropzone } from 'react-dropzone'
 import { FormProvider, useForm } from 'react-hook-form'
+import { FcFlashOn } from 'react-icons/fc'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
@@ -36,10 +37,21 @@ interface MonthlyStats {
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
-  phone: Yup.string(),
+  phone: Yup.string()
+    .matches(
+      /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
+      'Phone number is not valid'
+    )
+    .nullable(),
   gender: Yup.string().oneOf(Object.values(UserGender)).nullable(),
   status: Yup.string().oneOf(Object.values(UserStatus)),
-  avatar: Yup.mixed()
+  avatar: Yup.mixed(),
+  description: Yup.string(),
+  language: Yup.string(),
+  occupation: Yup.string(),
+  skill: Yup.string(),
+  education: Yup.string(),
+  certification: Yup.string()
 })
 
 function UserDetail() {
@@ -145,9 +157,9 @@ function UserDetail() {
       await getUserDetail(id, accessToken)
         .then((response) => {
           if (response.status === 200) {
-            setUser({ ...response.data.user, gigs: response.data.gigs, orders: response.data.orders })
-            setGigs(response.data.gigs)
-            setOrders(response.data.orders)
+            setUser(response.data.user)
+            setGigs(response.data.user.gigs)
+            setOrders(response.data.user.orders)
           }
         })
         .catch((error: any) => {
@@ -167,6 +179,12 @@ function UserDetail() {
       setValue('gender', user.gender)
       setValue('status', user.status)
       setValue('avatar', user.avatar)
+      setValue('description', user.description)
+      setValue('language', user.language)
+      setValue('occupation', user.occupation)
+      setValue('skill', user.skill)
+      setValue('education', user.education)
+      setValue('certification', user.certification)
       setBirthday(user.birthday?.toString())
       setRoles(user.role)
     }
@@ -175,7 +193,14 @@ function UserDetail() {
   const handleUpdateUser = async () => {}
 
   const countGigsByStatus = (gigs: IGig[]): number[] => {
-    const statusOrder = [GigStatus.ACTIVE, GigStatus.INACTIVE, GigStatus.WAITING, GigStatus.BANNED, GigStatus.DELETED]
+    const statusOrder = [
+      GigStatus.ACTIVE,
+      GigStatus.INACTIVE,
+      GigStatus.WAITING,
+      GigStatus.BANNED,
+      GigStatus.DELETED,
+      GigStatus.NONE
+    ]
     const statusCount: Record<GigStatus, number> = {
       [GigStatus.ACTIVE]: 0,
       [GigStatus.INACTIVE]: 0,
@@ -200,7 +225,7 @@ function UserDetail() {
     title: {
       text: 'Gig Overview'
     },
-    labels: ['ACTIVE', 'INACTIVE', 'WAITING', 'BANNED', 'DELETED'],
+    labels: ['ACTIVE', 'INACTIVE', 'WAITING', 'BANNED', 'DELETED', 'NONE'],
     responsive: [
       {
         breakpoint: 480,
@@ -358,73 +383,33 @@ function UserDetail() {
     <div className='flex flex-col gap-5'>
       {user?.role.includes(UserRole.REQUEST_SELLER) && (
         <div>
-          <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Request Seller</h2>
-          <div className='grid grid-cols-3 gap-10 p-5 overflow-hidden font-light text-gray-500 whitespace-normal rounded-md dark:bg-gray-700 dark:text-gray-300 bg-gray-50'>
-            <div className='flex flex-col col-span-2 gap-2'>
-              <p className='text-lg'>
-                <span className='font-semibold'>Display Name: </span>
-                {user?.name}
-              </p>
-              <p className='text-lg'>
-                <span className='font-semibold'>Description: </span>
-                {user?.description}
-              </p>
-              <p className='text-lg'>
-                <span className='font-semibold'>Languages: </span>
-                {user?.language}
-              </p>
-              <p className='text-lg'>
-                <span className='font-semibold'>Your Occupation: </span>
-                {user?.occupation}
-              </p>
-              <p className='text-lg'>
-                <span className='font-semibold'>Skills: </span>
-                {user?.skill}
-              </p>
-              <p className='text-lg'>
-                <span className='font-semibold'>Education: </span>
-                {user?.education}
-              </p>
-              <p className='text-lg'>
-                <span className='font-semibold'>Certification: </span>
-                {user?.certification}
-              </p>
-              <div className='flex items-center w-full gap-10 mt-5'>
+          <div className='flex gap-10'>
+            <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Request Seller</h2>
+            <FcFlashOn className='w-8 h-8 p-1 border border-yellow-600 rounded-full animate-bounce' />
+          </div>
+          <div className='flex items-center w-full gap-10 mt-5'>
+            <button
+              type='button'
+              onClick={handleAccept}
+              className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+            >
+              Accept
+            </button>
+            <div className='flex items-center w-full gap-2'>
+              <div>
                 <button
                   type='button'
-                  onClick={handleAccept}
-                  className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                  onClick={handleRefuse}
+                  className='text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900'
                 >
-                  Accept
+                  Refuse
                 </button>
-                <div className='flex items-center w-full gap-2'>
-                  <div>
-                    <button
-                      type='button'
-                      onClick={handleRefuse}
-                      className='text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900'
-                    >
-                      Refuse
-                    </button>
-                  </div>
-                  <textarea
-                    className='hidden w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
-                    placeholder='Type the reason ...'
-                    id='reason'
-                    onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReason(event.target.value)}
-                  />
-                </div>
               </div>
-            </div>
-            <div className='flex items-center justify-center '>
-              <img
-                src={`${
-                  user?.avatar?.startsWith('upload')
-                    ? `${process.env.REACT_APP_URL_SERVER}/${user?.avatar}`
-                    : user?.avatar
-                }`}
-                alt={user?.name}
-                className='rounded-full w-60 h-60'
+              <textarea
+                className='hidden w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                placeholder='Type the reason ...'
+                id='reason'
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReason(event.target.value)}
               />
             </div>
           </div>
@@ -563,6 +548,78 @@ function UserDetail() {
                     ))}
                   </ul>
                 )}
+              </div>
+              <div className='w-full'>
+                <label htmlFor='language' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Languages
+                </label>
+                <input
+                  id='language'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  type='text'
+                  placeholder='Type the language ...'
+                  {...register('language')}
+                />
+              </div>
+              <div className='w-full'>
+                <label htmlFor='skill' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Skills
+                </label>
+                <input
+                  id='skill'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  type='text'
+                  placeholder='Type the skill ...'
+                  {...register('skill')}
+                />
+              </div>
+              <div className='w-full'>
+                <label htmlFor='education' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Education
+                </label>
+                <input
+                  id='education'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  type='text'
+                  placeholder='Type the education ...'
+                  {...register('education')}
+                />
+              </div>
+              <div className='w-full'>
+                <label htmlFor='occupation' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Occupation
+                </label>
+                <input
+                  id='occupation'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  type='text'
+                  placeholder='Type the occupation ...'
+                  {...register('occupation')}
+                />
+              </div>
+              <div className='w-full col-span-2'>
+                <label htmlFor='description' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Description
+                </label>
+                <textarea
+                  id='description'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  rows={2}
+                  placeholder='Type the description ...'
+                  {...register('description')}
+                />
+              </div>
+              <div className='w-full col-span-2'>
+                <label htmlFor='certification' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                  Certification
+                </label>
+                <textarea
+                  id='certification'
+                  className='w-full px-1 py-2 font-light text-center text-gray-500 border border-gray-300 rounded-md dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 dark:text-gray-300 bg-gray-50'
+                  rows={2}
+                  placeholder='Type the certification ...'
+                  {...register('certification')}
+                />
               </div>
               <div className='w-full'>
                 <label htmlFor='createdAt' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>

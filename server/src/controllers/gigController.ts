@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
-import Category from 'src/models/categoryModel'
+import Category, { ICategory } from 'src/models/categoryModel'
 import Gig, { GigStatus, IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import { NotificationType } from 'src/models/notificationModel'
-import Review from 'src/models/reviewModel'
+import Order from 'src/models/orderModel'
 import User, { UserRole } from 'src/models/userModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
@@ -50,7 +50,14 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
       createdBy: req.payload.userId,
       status: GigStatus.NONE
     })
-    res.status(201).json({ gig })
+    const userExist = await User.findOne({ _id: req.payload.userId })
+    if (userExist) {
+      const arrIds = userExist.gigs.map((gig) => gig._id)
+      if (gig) {
+        arrIds.push(gig._id)
+      }
+      await User.updateOne({ _id: req.payload.userId }, { gigs: arrIds })
+    }
     logger({
       user: req.payload.userId,
       name: LogName.CREATE_GIG,
@@ -60,6 +67,7 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
       errorMessage: '',
       content: req.body
     })
+    res.status(201).json({ gig })
   } catch (error: any) {
     logger({
       user: req.payload.userId,
@@ -126,7 +134,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       createNotification(
         null,
         'New Gig Create Or Update',
-        `Just a heads up, we've received a new gig  ${gigUpdate?.name} created or updated.`,
+        `<p>Just a heads up, we've received a new gig  ${gigUpdate?.name} created or updated.<a className="font-semibold text-blue-600" href="${process.env.URL_ADMIN}/gig-detail/${gigUpdate?._id}"> Learn more</a></p>`,
         NotificationType.ADMIN,
         next
       )
@@ -134,7 +142,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
         createNotification(
           req.payload.userId,
           'Launch Your Gig Now!',
-          `<p>Waiting for admin approval. Thanks for your patience!</p><p>You can review gig by <a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate?._id}'>here</a>.</p>`,
+          `<p>Waiting for admin approval. Thanks for your patience! You can review gig.<a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate?._id}'> Learn more</a></p>`,
           NotificationType.USER,
           next
         )
@@ -185,18 +193,18 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
     result.ids.forEach(async (id: string) => {
       const gigExist = await Gig.findOne({ _id: id })
       await Gig.updateOne({ _id: id }, updateField).populate('createdBy')
-      const title = 'Exciting News: Your Fiverr Gig Has Been Updated!'
-      const content =
-        "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Fiverr has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Fiverr's support email.</p><p>Thank you for working on Fiverr, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Fiverr Support Team]</p>"
-      await sendEmail(gigExist?.createdBy?.email as string, title, content, next)
       if (
         (user?.role.includes(UserRole.ADMIN) || user?.role.includes(UserRole.MANAGER)) &&
         (status === GigStatus.ACTIVE || status === GigStatus.BANNED)
       ) {
+        const title = 'Exciting News: Your Fiverr Gig Has Been Updated!'
+        const content =
+          "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Fiverr has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Fiverr's support email.</p><p>Thank you for working on Fiverr, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Fiverr Support Team]</p>"
+        await sendEmail(gigExist?.createdBy?.email as string, title, content, next)
         createNotification(
           gigExist?.createdBy?._id,
           'Your Fiverr Gig Has Been Updated!',
-          `<p>Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p>`,
+          `<p>Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly. <a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigExist?._id}'> Learn more</a></p>`,
           NotificationType.USER,
           next
         )
@@ -239,6 +247,13 @@ export async function deleteGigs(req: Request, res: Response, next: NextFunction
           }
         })
       }
+      const userExist = await User.findOne({ _id: gigExist?.createdBy?._id })
+      if (userExist) {
+        let arrIds = userExist.gigs.map((gig) => gig._id)
+        arrIds = arrIds.filter((id) => id !== gigExist?._id)
+        await User.updateOne({ _id: gigExist?.createdBy?._id }, { gigs: arrIds })
+      }
+
       await Gig.deleteOne({ _id: id })
     })
     logger({
@@ -262,6 +277,113 @@ export async function deleteGigs(req: Request, res: Response, next: NextFunction
       content: req.body
     })
     if (error.isJoi === true) error.status = 422
+    next(error)
+  }
+}
+
+export async function getAllGigByUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const apiFeature = new APIFeature(
+      Gig.find({ createdBy: req.payload.userId, status: { $ne: GigStatus.DELETED } })
+        .populate('category')
+        .populate('createdBy')
+        .populate('orders'),
+      req.query
+    )
+      .search()
+      .filter()
+    let gigs: IGig[] = await apiFeature.query
+    const filteredCount = gigs.length
+    apiFeature.sorting().pagination()
+    gigs = await apiFeature.query.clone()
+    res.status(200).json({ gigs, filteredCount })
+  } catch (error: any) {
+    next(error)
+  }
+}
+
+export async function getAllLandingGigByUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const latestGigs = await Gig.find({
+      status: GigStatus.ACTIVE
+    })
+      .populate('createdBy')
+      .populate('orders')
+      .populate('reviews')
+      .sort({ createdAt: 'desc' })
+      .limit(10)
+    const user = await findUser(req.payload.userId)
+    const likeGigs = await Gig.find({
+      status: GigStatus.ACTIVE,
+      category: {
+        $in: user?.target
+      }
+    })
+      .populate('createdBy')
+      .populate('orders')
+      .populate('reviews')
+      .sort({ createdAt: 'desc' })
+      .limit(10)
+    const mostOrderedGig = await Order.aggregate([
+      {
+        $group: {
+          _id: '$gig',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: {
+          count: -1
+        }
+      },
+      {
+        $limit: 1
+      }
+    ])
+
+    let category: ICategory | null
+    const mostOrderedGigId = mostOrderedGig.length > 0 ? mostOrderedGig[0]._id : null
+    if (mostOrderedGigId) {
+      const gigExist = await Gig.findOne({ _id: mostOrderedGigId })
+      category = await Category.findOne({ _id: gigExist?.category })
+    } else {
+      const mostCategoriedGig = await Gig.aggregate([
+        {
+          $group: {
+            _id: '$category',
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: {
+            count: -1
+          }
+        },
+        {
+          $limit: 1
+        }
+      ])
+      category = await Category.findOne({ _id: mostCategoriedGig[0]._id })
+    }
+    let popularGigs: Array<IGig> = []
+    if (category) {
+      popularGigs = await Gig.find({
+        status: GigStatus.ACTIVE,
+        category: category?._id
+      })
+        .populate('createdBy')
+        .populate('category')
+        .populate('orders')
+        .populate('reviews')
+        .sort({ createdAt: 'desc' })
+        .limit(10)
+    }
+    res.status(200).json({
+      latestGigs,
+      likeGigs,
+      popularGigs
+    })
+  } catch (error: any) {
     next(error)
   }
 }
@@ -299,7 +421,13 @@ export async function getAllGig(req: Request, res: Response, next: NextFunction)
     let gigs: IGig[] = await apiFeature.query.populate('category').populate('createdBy').exec()
     const filteredCount = gigs.length
     apiFeature.sorting().pagination()
-    gigs = await apiFeature.query.clone().populate('category').populate('createdBy').exec()
+    gigs = await apiFeature.query
+      .clone()
+      .populate('category')
+      .populate('createdBy')
+      .populate('orders')
+      .populate('reviews')
+      .exec()
     res.status(200).json({ gigs, filteredCount })
   } catch (error: any) {
     next(error)
@@ -314,23 +442,42 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
     } else {
       queryField.slug = req.params.slug
     }
-    const gigExist = await Gig.findOne(queryField).populate('createdBy').populate('category')
+    const gigExist = await Gig.findOne(queryField)
+      .populate('createdBy')
+      .populate('category')
+      .populate('orders')
+      .populate({
+        path: 'reviews',
+        populate: { path: 'reviewer' }
+      })
 
     if (!gigExist) {
       throw httpError.NotFound()
     }
 
-    gigExist.reviews = await Review.find({ gig: gigExist._id }).populate('reviewer')
+    if (req.params.id) {
+      const user = await findUser(req.payload.userId)
+      if (
+        user?.role.includes(UserRole.SELLER) &&
+        gigExist &&
+        gigExist.createdBy &&
+        gigExist.createdBy._id.toString() !== req.payload.userId
+      ) {
+        throw httpError.Forbidden()
+      }
+    }
 
     const ratings: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
     let totalRating = 0
+    let totalReviews = 0
+    if (gigExist && gigExist.reviews) {
+      gigExist.reviews.forEach((review) => {
+        ratings[review?.rating]++
+        totalRating += review.rating
+      })
 
-    gigExist.reviews.forEach((review) => {
-      ratings[review?.rating]++
-      totalRating += review.rating
-    })
-
-    const totalReviews = gigExist.reviews.length
+      totalReviews = gigExist.reviews.length
+    }
     const averageRating = totalReviews ? totalRating / totalReviews : 0
 
     const percentagePerStar: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }

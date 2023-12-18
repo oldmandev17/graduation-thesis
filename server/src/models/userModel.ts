@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt'
 import { NextFunction } from 'express'
 import mongoose from 'mongoose'
+import { ICategory } from './categoryModel'
 import { IGig } from './gigModel'
 import { IOrder } from './orderModel'
-import { ICategory } from './categoryModel'
+import { IReview } from './reviewModel'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -43,6 +44,10 @@ export interface IUser extends mongoose.Document {
   verify: boolean
   role: Array<UserRole>
   target: Array<ICategory>
+  wishlist: Array<IGig>
+  gigs: Array<IGig>
+  orders: Array<IOrder>
+  reviews: Array<IReview>
   status: UserStatus
   language?: string
   description?: string
@@ -122,6 +127,30 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'category'
+    }
+  ],
+  wishlist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'gig'
+    }
+  ],
+  gigs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'gig'
+    }
+  ],
+  orders: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'order'
+    }
+  ],
+  reviews: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'review'
     }
   ],
   status: {

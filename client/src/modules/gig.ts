@@ -49,8 +49,8 @@ export interface IGig {
   status?: GigStatus
   reason?: string
   category?: ICategory
-  reviews?: Array<IReview>
-  orders?: Array<IOrder>
+  reviews: Array<IReview>
+  orders: Array<IOrder>
   FAQs?: Array<FAQ>
   createdAt: Date
   createdBy?: IUser

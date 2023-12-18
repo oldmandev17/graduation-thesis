@@ -48,8 +48,8 @@ export interface IGig extends mongoose.Document {
   status?: GigStatus
   reason?: string
   category?: ICategory
-  reviews?: Array<IReview>
-  orders?: Array<IOrder>
+  reviews: Array<IReview>
+  orders: Array<IOrder>
   FAQs?: Array<FAQ>
   createdAt?: Date
   createdBy?: IUser
@@ -128,18 +128,18 @@ const gigSchema: mongoose.Schema = new mongoose.Schema<IGig>({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'category'
   },
-  // reviews: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'review'
-  //   }
-  // ],
-  // orders: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'order'
-  //   }
-  // ],
+  reviews: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'review'
+    }
+  ],
+  orders: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'order'
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now

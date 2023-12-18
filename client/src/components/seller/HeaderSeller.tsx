@@ -155,7 +155,7 @@ function HeaderSeller() {
             </Menu>
           </div>
           <Button
-            onClick={() => navigate(`/user/${user?.id}/analytic`)}
+            onClick={() => navigate(`/user/${user?.id}/analytics`)}
             className='!font-sans !text-lg !text-gray-500 !capitalize '
           >
             Analytics

@@ -2,18 +2,18 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-underscore-dangle */
-import { getAllCategory, updateProfile } from 'apis/api'
+import { getAllCategory, getAllLandingGigByUser, getProfile, updateProfile } from 'apis/api'
+import GigCard from 'components/common/GigCard'
 import ModalCustom from 'components/common/ModalCustom'
 import { ICategory } from 'modules/category'
+import { IGig } from 'modules/gig'
+import { IUser } from 'modules/user'
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { AiOutlineStar } from 'react-icons/ai'
-import { BsFillSuitHeartFill } from 'react-icons/bs'
 import { MdOutlineNavigateNext } from 'react-icons/md'
 import { PiMagicWandDuotone } from 'react-icons/pi'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useAppSelector } from 'stores/hooks'
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
@@ -23,11 +23,14 @@ import { getToken } from 'utils/auth'
 
 function UserPage() {
   const [openModal, setOpenModal] = useState<boolean>(false)
-  const { user } = useAppSelector((state) => state.auth)
+  const [user, setUser] = useState<IUser>()
   const [targets, setTargets] = useState<Array<string>>([])
   const [categories, setCategories] = useState<Array<ICategory>>([])
   const { accessToken } = getToken()
   const navigate = useNavigate()
+  const [latestGigs, setLatestGigs] = useState<Array<IGig>>()
+  const [likeGigs, setLikeGigs] = useState<Array<IGig>>()
+  const [popularGigs, setPopularGigs] = useState<Array<IGig>>()
 
   const pagination = {
     clickable: true,
@@ -35,6 +38,41 @@ function UserPage() {
       return `<span class="${className}">${index + 1}</span>`
     }
   }
+
+  const getUserProfile = useCallback(async () => {
+    await getProfile(accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setUser(response.data.profile)
+        }
+      })
+      .catch((error: any) => toast.error(error.response.data.error.message))
+  }, [accessToken])
+
+  useEffect(() => {
+    getUserProfile()
+  }, [getUserProfile])
+
+  const getAllLandingGigByUsers = useCallback(async () => {
+    await getAllLandingGigByUser(accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setLatestGigs(response.data.latestGigs)
+          setLikeGigs(response.data.likeGigs)
+          setPopularGigs(response.data.popularGigs)
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error.response.data.error.message)
+      })
+  }, [accessToken])
+
+  useEffect(() => {
+    if (accessToken) {
+      getAllLandingGigByUsers()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getAllLandingGigByUsers])
 
   const getAllCategories = useCallback(async () => {
     await getAllCategory(null, null, null, '', 'createdAt', 'asc', null, null, '', 1, undefined)
@@ -69,7 +107,7 @@ function UserPage() {
         if (response.status === 200) {
           setOpenModal(false)
           setTargets([])
-          window.location.reload()
+          getUserProfile()
         }
       })
       .catch((error: any) => {
@@ -118,14 +156,14 @@ function UserPage() {
                     <SwiperSlide key={target._id + index} className='rounded-lg'>
                       <div
                         onClick={() => navigate(`/sub-category/${target.slug}`)}
-                        className='flex flex-row items-center w-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
+                        className='flex flex-row items-center w-full gap-4 p-4 truncate border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
                       >
                         <img
                           className='w-10 h-10 rounded-lg'
                           src={`${process.env.REACT_APP_URL_SERVER}/${target.image}`}
                           alt={target.name}
                         />
-                        <span className='text-lg font-medium'>{target.name}</span>
+                        <span className='font-medium ext-lg '>{target.name}</span>
                       </div>
                     </SwiperSlide>
                   ))}
@@ -155,214 +193,70 @@ function UserPage() {
         )}
         <div className='flex flex-row gap-2 text-2xl font-bold'>
           <span className='text-gray-800'>Most popular Gigs in </span>
-          <span className='text-[#787de7]'>Web Developer</span>
+          <span className='text-[#787de7]'>
+            {popularGigs && popularGigs.length > 0 && popularGigs[0].category && popularGigs[0].category.name}
+          </span>
         </div>
-        <div className='grid grid-cols-5 gap-10'>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-              <div className='tooltip' data-tip='hello'>
-                <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-pink-600 stroke-white top-3 right-3' />
-              </div>
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-        </div>
-        <span className='text-2xl font-bold text-gray-800 '>Gigs you may like</span>
-        <div className='grid grid-cols-5 gap-10'>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='./thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='./roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-        </div>
+        <Swiper
+          slidesPerView={5}
+          spaceBetween={20}
+          freeMode
+          pagination={{
+            clickable: true
+          }}
+          modules={[FreeMode]}
+          className='w-full mySwiper'
+        >
+          {popularGigs &&
+            popularGigs.length > 0 &&
+            popularGigs.map((gig, index) => (
+              <SwiperSlide key={gig._id + index} className='rounded-lg'>
+                <GigCard user={user} type='popular' gig={gig} />
+              </SwiperSlide>
+            ))}
+        </Swiper>
+        {likeGigs && likeGigs.length > 0 && (
+          <>
+            <span className='text-2xl font-bold text-gray-800 '>Gigs you may like</span>
+            <Swiper
+              slidesPerView={5}
+              spaceBetween={20}
+              freeMode
+              pagination={{
+                clickable: true
+              }}
+              modules={[FreeMode]}
+              className='w-full mySwiper'
+            >
+              {likeGigs &&
+                likeGigs.length > 0 &&
+                likeGigs.map((gig, index) => (
+                  <SwiperSlide key={gig._id + index} className='rounded-lg'>
+                    <GigCard user={user} type='like' gig={gig} />
+                  </SwiperSlide>
+                ))}
+            </Swiper>
+          </>
+        )}
+        <span className='text-2xl font-bold text-gray-800 '>Gigs latest</span>
+        <Swiper
+          slidesPerView={5}
+          spaceBetween={20}
+          freeMode
+          pagination={{
+            clickable: true
+          }}
+          modules={[FreeMode]}
+          className='w-full mySwiper'
+        >
+          {latestGigs &&
+            latestGigs.length > 0 &&
+            latestGigs.map((gig, index) => (
+              <SwiperSlide key={gig._id + index} className='rounded-lg'>
+                <GigCard user={user} type='latest' gig={gig} />
+              </SwiperSlide>
+            ))}
+        </Swiper>
         <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
           <div className='p-3'>
             <span className='text-base font-semibold t-2'>You have selected {targets.length}/10 categories</span>
@@ -388,7 +282,7 @@ function UserPage() {
                                   key={subSubCategory._id + subSubIndex}
                                   className={`flex flex-row items-center w-full gap-4 p-4 border ${
                                     targets?.includes(subSubCategory._id) && 'bg-green-300'
-                                  } border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black`}
+                                  } border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black h-[90px]`}
                                 >
                                   <img
                                     className='w-10 h-10 rounded-lg'

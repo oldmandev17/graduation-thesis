@@ -41,7 +41,7 @@ function DashboardPage() {
     await getProfile(accessToken)
       .then((response) => {
         if (response.status === 200) {
-          setProfile({ ...response.data.profile, orders: response.data.orders, gigs: response.data.gigs })
+          setProfile(response.data.profile)
         }
       })
       .catch((error: any) => toast.error(error.response.data.error.message))

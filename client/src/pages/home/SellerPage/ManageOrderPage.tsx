@@ -25,11 +25,11 @@ function ManageOrderPage() {
           <table className='w-full my-5 bg-white'>
             <thead>
               <tr className='border border-gray-300'>
-                <th className='py-2 text-base font-semibold text-gray-400'>BUYER</th>
-                <th className='text-base font-semibold text-gray-400'>GIG</th>
-                <th className='text-base font-semibold text-gray-400'>DUE ON</th>
-                <th className='text-base font-semibold text-gray-400'>TOTAL</th>
-                <th className='text-base font-semibold text-gray-400'>NOTE</th>
+                <th className='py-5 text-base font-semibold text-gray-400'>BUYER</th>
+                <th className='py-5 text-base font-semibold text-gray-400'>GIG</th>
+                <th className='py-5 text-base font-semibold text-gray-400'>DUE ON</th>
+                <th className='py-5 text-base font-semibold text-gray-400'>TOTAL PRICE</th>
+                <th className='py-5 text-base font-semibold text-gray-400'>NOTE</th>
                 <th>
                   <div className='flex flex-row items-center justify-center gap-2 font-semibold text-gray-400'>
                     <span>STATUS</span>

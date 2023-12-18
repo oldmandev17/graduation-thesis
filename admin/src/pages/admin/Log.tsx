@@ -23,10 +23,12 @@ import timeAgo from 'utils/timeAgo'
 
 function Log() {
   const date = new Date()
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  const [startDay, setStartDay] = useState<Date>(firstDayOfMonth)
+  const [endDay, setEndDay] = useState<Date>(lastDayOfMonth)
   const [logs, setLogs] = useState<Array<ILog>>([])
   const [logDetail, setLogDetail] = useState<ILog>()
-  const [startDay, setStartDay] = useState<Date>(date)
-  const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
   const [orderBy, setOrderBy] = useState<string>('desc')
   const [status, setStatus] = useState<LogStatus | null>(null)

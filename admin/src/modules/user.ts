@@ -44,6 +44,7 @@ export interface IUser {
   gigs: Array<IGig>
   contacts?: any
   target: Array<ICategory>
+  wishlist: Array<IGig>
   status: UserStatus
   language?: string
   description?: string

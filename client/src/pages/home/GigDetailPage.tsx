@@ -22,17 +22,19 @@ import { IoHomeOutline } from 'react-icons/io5'
 import { MdExpandMore } from 'react-icons/md'
 import { useNavigate, useParams } from 'react-router-dom'
 // import { useAppSelector } from 'stores/hooks'
-import { getGigDetailBySlug } from 'apis/api'
+import { getGigDetailById, getGigDetailBySlug } from 'apis/api'
 import { ICategory } from 'modules/category'
 import { IReview } from 'modules/review'
 import { toast } from 'react-toastify'
 import * as searchjs from 'searchjs'
+import { getToken } from 'utils/auth'
 
 function GigDetailPage() {
   const [value, setValue] = useState(1)
   const navigate = useNavigate()
-  const { slug } = useParams<{ slug?: string }>()
+  const { slug, id } = useParams<{ slug?: string; id?: string }>()
   const [gig, setGig] = useState<IGig>()
+  const { accessToken } = getToken()
   const [grandParentCategory, setGrandParentCategory] = useState<ICategory>()
   const [ratings, setRatings] = useState<{ [key: number]: number }>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 })
   const [totalReviews, setTotalReviews] = useState(0)
@@ -56,13 +58,13 @@ function GigDetailPage() {
     await getGigDetailBySlug(slug)
       .then((response) => {
         if (response.status === 200) {
-          setGig(response?.data?.gig)
-          setGrandParentCategory(response?.data?.grandParentCategory)
-          setRatings(response?.data?.ratings.ratings)
-          setTotalReviews(response?.data?.ratings.totalReviews)
-          setAverageRating(response?.data?.ratings.averageRating)
-          setPercentagePerStar(response?.data?.ratings.percentagePerStar)
-          setFilteredReviews(response?.data?.gig.reviews)
+          setGrandParentCategory(response.data.grandParentCategory)
+          setGig(response.data.gig)
+          setRatings(response.data.ratings.ratings)
+          setTotalReviews(response.data.ratings.totalReviews)
+          setAverageRating(response.data.ratings.averageRating)
+          setPercentagePerStar(response.data.ratings.percentagePerStar)
+          setFilteredReviews(response.data.gig.reviews)
         }
       })
       .catch((error: any) => {
@@ -70,6 +72,36 @@ function GigDetailPage() {
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug])
+
+  const getGigDetailsById = useCallback(async () => {
+    await getGigDetailById(id, accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setGrandParentCategory(response.data.grandParentCategory)
+          setGig(response.data.gig)
+          setRatings(response.data.ratings.ratings)
+          setTotalReviews(response.data.ratings.totalReviews)
+          setAverageRating(response.data.ratings.averageRating)
+          setPercentagePerStar(response.data.ratings.percentagePerStar)
+          setFilteredReviews(response.data.gig.reviews)
+        }
+      })
+      .catch((error: any) => {
+        if (error.response.status === 403) {
+          navigate('/auth/un-authorize')
+        } else {
+          toast.error(error.response.data.error.message)
+        }
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, accessToken])
+
+  useEffect(() => {
+    if (id && accessToken) {
+      getGigDetailsById()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getGigDetailsById])
 
   useEffect(() => {
     if (slug) {
@@ -94,7 +126,7 @@ function GigDetailPage() {
           <IoHomeOutline className='w-5 h-5 cursor-pointer' onClick={() => navigate('/')} />
           <span className='text-sm font-semibold text-gray-400'>/</span>
           <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${grandParentCategory?.slug}`)}>
-            {grandParentCategory?.name}
+            {grandParentCategory && grandParentCategory.name}
           </span>
           <span className='text-sm font-semibold text-gray-400'>/</span>
           <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${gig?.category?.slug}`)}>
@@ -107,7 +139,11 @@ function GigDetailPage() {
         <div id='summary' className='flex flex-row items-center gap-4'>
           {gig?.createdBy?.avatar ? (
             <img
-              src={`${process.env.REACT_APP_URL_SERVER}/${gig?.createdBy?.avatar}`}
+              src={
+                gig?.createdBy?.avatar.startsWith('upload')
+                  ? `${process.env.REACT_APP_URL_SERVER}/${gig?.createdBy?.avatar}`
+                  : gig?.createdBy?.avatar
+              }
               alt='avata'
               className='rounded-full h-14 w-14'
             />

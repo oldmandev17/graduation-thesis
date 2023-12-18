@@ -4,22 +4,23 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/no-array-index-key */
-import ModalCustom from 'components/common/ModalCustom'
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
-import { MdExpandMore, MdSlowMotionVideo } from 'react-icons/md'
-import { FreeMode } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { LuMoveRight } from 'react-icons/lu'
-import { BsFillSuitHeartFill } from 'react-icons/bs'
-import { AiOutlineStar } from 'react-icons/ai'
 import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material'
-import { ICategory } from 'modules/category'
-import { useNavigate, useParams } from 'react-router-dom'
 import { getCategoryDetailBySlug } from 'apis/api'
+import ModalCustom from 'components/common/ModalCustom'
+import { ICategory } from 'modules/category'
+import { Fragment, useCallback, useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { AiOutlineStar } from 'react-icons/ai'
+import { BsFillSuitHeartFill } from 'react-icons/bs'
+import { LuMoveRight } from 'react-icons/lu'
+import { MdExpandMore, MdSlowMotionVideo } from 'react-icons/md'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import 'swiper/css'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
+import { FreeMode } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 function CategoryPage() {
   const [openModal, setOpenModal] = useState<boolean>(false)
@@ -70,228 +71,233 @@ function CategoryPage() {
   ]
 
   return (
-    <div className='flex flex-col gap-8 py-10 px-28'>
-      <figure className='relative w-full'>
-        <img
-          className='w-full rounded-lg'
-          src={`${process.env.REACT_APP_URL_SERVER}/${category?.image}`}
-          alt={category?.name}
-        />
-        <figcaption className='absolute flex flex-col justify-center w-full gap-1 px-4 text-lg text-white top-10'>
-          <h4 className='flex justify-center text-3xl font-bold'>{category?.name}</h4>
-          <p className='flex justify-center text-xl'>{category?.description}</p>
-          <div className='flex justify-center w-full mt-5'>
-            <button
-              onClick={() => setOpenModal(true)}
-              type='button'
-              className='flex items-center justify-center gap-2 p-2 px-4 border border-white rounded-md hover:bg-white hover:text-gray-600'
+    <>
+      <Helmet>
+        <title className='capitalize'>{`${category?.name} Service | Freelancer`}</title>
+      </Helmet>
+      <div className='flex flex-col gap-8 py-10 px-28'>
+        <figure className='relative w-full'>
+          <img
+            className='w-full rounded-lg'
+            src={`${process.env.REACT_APP_URL_SERVER}/${category?.image}`}
+            alt={category?.name}
+          />
+          <figcaption className='absolute flex flex-col justify-center w-full gap-1 px-4 text-lg text-white top-10'>
+            <h4 className='flex justify-center text-3xl font-bold'>{category?.name}</h4>
+            <p className='flex justify-center text-xl'>{category?.description}</p>
+            <div className='flex justify-center w-full mt-5'>
+              <button
+                onClick={() => setOpenModal(true)}
+                type='button'
+                className='flex items-center justify-center gap-2 p-2 px-4 border border-white rounded-md hover:bg-white hover:text-gray-600'
+              >
+                <MdSlowMotionVideo className='w-6 h-6' /> How Freelancer Works
+              </button>
+            </div>
+            <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
+              <video className='w-full' autoPlay muted controls>
+                <source src='/how_fiverr_works.mp4' type='video/mp4' />
+              </video>
+            </ModalCustom>
+          </figcaption>
+        </figure>
+        <div className='flex flex-col gap-4'>
+          <h4 className='text-2xl font-bold text-gray-600'>Most Popular in {category?.name}</h4>
+          <div className='w-full p-8 border border-gray-300 rounded-lg'>
+            <Swiper
+              slidesPerView={4}
+              spaceBetween={20}
+              freeMode
+              pagination={{
+                clickable: true
+              }}
+              modules={[FreeMode]}
+              className='mySwiper'
             >
-              <MdSlowMotionVideo className='w-6 h-6' /> How Fiverr Works
-            </button>
+              {category &&
+                category.subCategories.length > 0 &&
+                category.subCategories.map((subCategory, subIndex) => (
+                  <Fragment key={category._id + subIndex}>
+                    {subCategory &&
+                      subCategory.subCategories.length > 0 &&
+                      subCategory.subCategories.map((subSubCategory, subSubIndex) => (
+                        <SwiperSlide key={subSubCategory._id + subSubIndex} className='h-full rounded-lg'>
+                          <div
+                            onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
+                            className='flex flex-row items-center w-full h-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
+                          >
+                            <img
+                              className='w-10 h-10 rounded-lg'
+                              src={`${process.env.REACT_APP_URL_SERVER}/${subSubCategory.image}`}
+                              alt={subSubCategory.name}
+                            />
+                            <span className='text-lg font-medium'>{subSubCategory.name}</span>
+                          </div>
+                        </SwiperSlide>
+                      ))}
+                  </Fragment>
+                ))}
+            </Swiper>
           </div>
-          <ModalCustom onCancel={() => {}} open={openModal} setOpen={setOpenModal}>
-            <video className='w-full' autoPlay muted controls>
-              <source src='/how_fiverr_works.mp4' type='video/mp4' />
-            </video>
-          </ModalCustom>
-        </figcaption>
-      </figure>
-      <div className='flex flex-col gap-4'>
-        <h4 className='text-2xl font-bold text-gray-600'>Most Popular in {category?.name}</h4>
-        <div className='w-full p-8 border border-gray-300 rounded-lg'>
-          <Swiper
-            slidesPerView={4}
-            spaceBetween={20}
-            freeMode
-            pagination={{
-              clickable: true
-            }}
-            modules={[FreeMode]}
-            className='mySwiper'
-          >
+        </div>
+        <div className='flex flex-col gap-4'>
+          <h4 className='text-2xl font-bold text-gray-600'>Explore {category?.name}</h4>
+          <div className='grid grid-cols-4 gap-10'>
             {category &&
               category.subCategories.length > 0 &&
               category.subCategories.map((subCategory, subIndex) => (
-                <Fragment key={category._id + subIndex}>
-                  {subCategory &&
-                    subCategory.subCategories.length > 0 &&
-                    subCategory.subCategories.map((subSubCategory, subSubIndex) => (
-                      <SwiperSlide key={subSubCategory._id + subSubIndex} className='h-full rounded-lg'>
-                        <div
+                <div key={subCategory._id + subIndex} className='flex flex-col gap-4'>
+                  <div className='grid grid-rows-6 gap-4'>
+                    <img
+                      src={`${process.env.REACT_APP_URL_SERVER}/${subCategory?.image}`}
+                      alt={subCategory.name}
+                      className='row-span-5 px-2'
+                    />
+                    <h5 className='px-2 text-xl font-semibold'>{subCategory.name}</h5>
+                  </div>
+                  <div>
+                    {subCategory.subCategories.length > 0 &&
+                      subCategory.subCategories.map((subSubCategory, subSubIndex) => (
+                        <button
                           onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
-                          className='flex flex-row items-center w-full h-full gap-4 p-4 border border-gray-300 rounded-lg shadow-lg cursor-pointer hover:border-black'
+                          key={subSubCategory._id + subSubIndex}
+                          type='button'
+                          className='flex flex-row items-center justify-between w-full p-2 text-lg font-semibold text-gray-600 rounded-lg button-hover hover:bg-gray-100 hover:text-gray-900'
                         >
-                          <img
-                            className='w-10 h-10 rounded-lg'
-                            src={`${process.env.REACT_APP_URL_SERVER}/${subSubCategory.image}`}
-                            alt={subSubCategory.name}
-                          />
-                          <span className='text-lg font-medium'>{subSubCategory.name}</span>
-                        </div>
-                      </SwiperSlide>
-                    ))}
-                </Fragment>
+                          {subSubCategory.name} <LuMoveRight className='icon-move' />
+                        </button>
+                      ))}
+                  </div>
+                </div>
               ))}
-          </Swiper>
+          </div>
         </div>
-      </div>
-      <div className='flex flex-col gap-4'>
-        <h4 className='text-2xl font-bold text-gray-600'>Explore {category?.name}</h4>
-        <div className='grid grid-cols-4 gap-10'>
-          {category &&
-            category.subCategories.length > 0 &&
-            category.subCategories.map((subCategory, subIndex) => (
-              <div key={subCategory._id + subIndex} className='flex flex-col gap-4'>
-                <div className='grid grid-rows-6 gap-4'>
-                  <img
-                    src={`${process.env.REACT_APP_URL_SERVER}/${subCategory?.image}`}
-                    alt={subCategory.name}
-                    className='row-span-5 px-2'
-                  />
-                  <h5 className='px-2 text-xl font-semibold'>{subCategory.name}</h5>
-                </div>
-                <div>
-                  {subCategory.subCategories.length > 0 &&
-                    subCategory.subCategories.map((subSubCategory, subSubIndex) => (
-                      <button
-                        onClick={() => navigate(`/sub-category/${subSubCategory.slug}`)}
-                        key={subSubCategory._id + subSubIndex}
-                        type='button'
-                        className='flex flex-row items-center justify-between w-full p-2 text-lg font-semibold text-gray-600 rounded-lg button-hover hover:bg-gray-100 hover:text-gray-900'
-                      >
-                        {subSubCategory.name} <LuMoveRight className='icon-move' />
-                      </button>
-                    ))}
-                </div>
+        <div className='flex flex-col gap-4'>
+          <h4 className='text-2xl font-bold text-gray-600'>Gig of {category?.name}</h4>
+          <div className='grid grid-cols-5 gap-10'>
+            <div className='flex flex-col gap-2'>
+              <div className='relative'>
+                <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
+                <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-pink-600 stroke-white top-3 right-3' />
               </div>
-            ))}
-        </div>
-      </div>
-      <div className='flex flex-col gap-4'>
-        <h4 className='text-2xl font-bold text-gray-600'>Gig of {category?.name}</h4>
-        <div className='grid grid-cols-5 gap-10'>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-pink-600 stroke-white top-3 right-3' />
+              <div className='flex flex-row items-center gap-2'>
+                <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
+                <span className='text-sm font-bold'>Wispie_Clouda</span>
+              </div>
+              <span className='pt-2 text-base font-semibold text-gray-600 '>
+                I will design or redesign a responsive wordpress website and ecommerce ...
+              </span>
+              <div className='flex flex-row gap-1'>
+                <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
+                <span className='text-base font-bold text-yellow-500'>4.9</span>
+                <span className='text-base font-semibold text-gray-600'>(560)</span>
+              </div>
+              <span className='text-base font-bold text-black'>From $330</span>
             </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
+            <div className='flex flex-col gap-2'>
+              <div className='relative'>
+                <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
+                <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+              </div>
+              <div className='flex flex-row items-center gap-2'>
+                <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
+                <span className='text-sm font-bold'>Wispie_Clouda</span>
+              </div>
+              <span className='pt-2 text-base font-semibold text-gray-600 '>
+                I will design or redesign a responsive wordpress website and ecommerce ...
+              </span>
+              <div className='flex flex-row gap-1'>
+                <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
+                <span className='text-base font-bold text-yellow-500'>4.9</span>
+                <span className='text-base font-semibold text-gray-600'>(560)</span>
+              </div>
+              <span className='text-base font-bold text-black'>From $330</span>
             </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
-            </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
+            <div className='flex flex-col gap-2'>
+              <div className='relative'>
+                <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+                <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+              </div>
+              <div className='flex flex-row items-center gap-2'>
+                <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
+                <span className='text-sm font-bold'>Wispie_Clouda</span>
+              </div>
+              <span className='pt-2 text-base font-semibold text-gray-600 '>
+                I will design or redesign a responsive wordpress website and ecommerce ...
+              </span>
+              <div className='flex flex-row gap-1'>
+                <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
+                <span className='text-base font-bold text-yellow-500'>4.9</span>
+                <span className='text-base font-semibold text-gray-600'>(560)</span>
+              </div>
+              <span className='text-base font-bold text-black'>From $330</span>
             </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
+            <div className='flex flex-col gap-2'>
+              <div className='relative'>
+                <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+                <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+              </div>
+              <div className='flex flex-row items-center gap-2'>
+                <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
+                <span className='text-sm font-bold'>Wispie_Clouda</span>
+              </div>
+              <span className='pt-2 text-base font-semibold text-gray-600 '>
+                I will design or redesign a responsive wordpress website and ecommerce ...
+              </span>
+              <div className='flex flex-row gap-1'>
+                <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
+                <span className='text-base font-bold text-yellow-500'>4.9</span>
+                <span className='text-base font-semibold text-gray-600'>(560)</span>
+              </div>
+              <span className='text-base font-bold text-black'>From $330</span>
             </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <div className='relative'>
-              <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
+            <div className='flex flex-col gap-2'>
+              <div className='relative'>
+                <img src='/images/thumbnail.webp' height='200' width='300px' alt='thumbnail' className='rounded-lg' />
 
-              <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+                <BsFillSuitHeartFill className='absolute w-5 h-5 cursor-pointer stroke-1 fill-gray-600 stroke-white top-3 right-3 ' />
+              </div>
+              <div className='flex flex-row items-center gap-2'>
+                <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
+                <span className='text-sm font-bold'>Wispie_Clouda</span>
+              </div>
+              <span className='pt-2 text-base font-semibold text-gray-600 '>
+                I will design or redesign a responsive wordpress website and ecommerce ...
+              </span>
+              <div className='flex flex-row gap-1'>
+                <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
+                <span className='text-base font-bold text-yellow-500'>4.9</span>
+                <span className='text-base font-semibold text-gray-600'>(560)</span>
+              </div>
+              <span className='text-base font-bold text-black'>From $330</span>
             </div>
-            <div className='flex flex-row items-center gap-2'>
-              <img src='/images/roses.jpg' alt='avata' className='rounded-full h-9 w-9' />
-              <span className='text-sm font-bold'>Wispie_Clouda</span>
-            </div>
-            <span className='pt-2 text-base font-semibold text-gray-600 '>
-              I will design or redesign a responsive wordpress website and ecommerce ...
-            </span>
-            <div className='flex flex-row gap-1'>
-              <AiOutlineStar className='w-6 h-6 fill-yellow-500 ' />
-              <span className='text-base font-bold text-yellow-500'>4.9</span>
-              <span className='text-base font-semibold text-gray-600'>(560)</span>
-            </div>
-            <span className='text-base font-bold text-black'>From $330</span>
           </div>
         </div>
-      </div>
-      <div className='flex flex-col gap-4 text-lg'>
-        <h4 className='text-2xl font-bold text-center text-gray-600'>{category?.name} FAQs</h4>
-        <div>
-          {arrFAQs.length > 0 &&
-            arrFAQs.map((FAQ, index) => (
-              <Accordion key={index} sx={{ boxShadow: 'none' }}>
-                <AccordionSummary
-                  expandIcon={<MdExpandMore className='w-7 h-7' />}
-                  aria-controls='panel1a-content'
-                  id='panel1a-header'
-                  sx={{ padding: '0px' }}
-                >
-                  <Typography>{FAQ?.question}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography>{FAQ?.answer}</Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+        <div className='flex flex-col gap-4 text-lg'>
+          <h4 className='text-2xl font-bold text-center text-gray-600'>{category?.name} FAQs</h4>
+          <div>
+            {arrFAQs.length > 0 &&
+              arrFAQs.map((FAQ, index) => (
+                <Accordion key={index} sx={{ boxShadow: 'none' }}>
+                  <AccordionSummary
+                    expandIcon={<MdExpandMore className='w-7 h-7' />}
+                    aria-controls='panel1a-content'
+                    id='panel1a-header'
+                    sx={{ padding: '0px' }}
+                  >
+                    <Typography>{FAQ?.question}</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography>{FAQ?.answer}</Typography>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

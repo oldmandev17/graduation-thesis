@@ -160,16 +160,15 @@ function updateGigStatus(
   accessToken: string | undefined
 ) {
   const url = `/gig/update?status=${status}`
-  return axiosJson.put(
-    url,
-    { ids: arrIds, reason },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`
-      }
+  const data: any = {}
+  data.ids = arrIds
+  if (reason) data.reason = reason
+  return axiosJson.put(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
     }
-  )
+  })
 }
 
 function createUser(data: any, accessToken: string | undefined) {

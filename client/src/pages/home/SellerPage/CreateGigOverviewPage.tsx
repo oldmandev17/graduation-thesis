@@ -82,6 +82,8 @@ function CreateGigOverviewPage() {
       setValue('name', gig?.name as string)
       setValue('category', gig?.category?._id as string)
       setValue('description', gig?.description as string)
+    } else {
+      setValue('name', 'I will ')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gig])
@@ -184,6 +186,7 @@ function CreateGigOverviewPage() {
                 rows={5}
                 id='title'
                 {...register('name')}
+                placeholder='Type the title ...'
                 className='resize-none rounded-lg border-[1px] border-gray-500 text-base font-normal focus:text-gray-900 text-gray-700 p-2 w-full no-scrollbar'
               />
             </div>
@@ -242,6 +245,7 @@ function CreateGigOverviewPage() {
                 rows={5}
                 id='describe'
                 {...register('description')}
+                placeholder='Type the description ...'
                 className='no-scrollbar rounded-lg border-[1px] border-gray-500 w-full h-36 p-2 text-base font-normal focus:text-gray-900 text-gray-700 '
               />
             </div>

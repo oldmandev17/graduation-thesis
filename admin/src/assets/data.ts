@@ -245,6 +245,10 @@ const arrGigStatus = [
   {
     label: 'WAITING',
     value: GigStatus.WAITING
+  },
+  {
+    label: 'NONE',
+    value: GigStatus.NONE
   }
 ]
 
@@ -264,6 +268,14 @@ const arrOrderStatus = [
   {
     label: 'COMPLETE',
     value: OrderStatus.COMPLETE
+  },
+  {
+    label: 'BUYER COMFIRM',
+    value: OrderStatus.BUYER_COMFIRM
+  },
+  {
+    label: 'SELLER COMFIRM',
+    value: OrderStatus.SELLER_COMFIRM
   }
 ]
 

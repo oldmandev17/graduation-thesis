@@ -69,6 +69,10 @@ const router = createBrowserRouter([
             element: <GigDetailPage />
           },
           {
+            path: '/user/:userId/gig-detail/:id',
+            element: <GigDetailPage />
+          },
+          {
             path: '/category/:slug',
             element: <CategoryPage />
           },
@@ -78,6 +82,10 @@ const router = createBrowserRouter([
           },
           {
             path: '/sub-category/:slug',
+            element: <GigsPage />
+          },
+          {
+            path: '/search',
             element: <GigsPage />
           }
         ]

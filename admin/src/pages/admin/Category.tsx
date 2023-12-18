@@ -58,6 +58,10 @@ function Category() {
     handleSubmit
   } = formHandler
   const date = new Date()
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  const [startDay, setStartDay] = useState<Date>(firstDayOfMonth)
+  const [endDay, setEndDay] = useState<Date>(lastDayOfMonth)
   const [mode, setMode] = useState<string>('create')
   const [categories, setCategories] = useState<Array<ICategory>>([])
   const [categoryDetail, setCategoryDetail] = useState<ICategory>()
@@ -70,8 +74,6 @@ function Category() {
   const [categoryKey, setCategoryKey] = useState<string>('')
   const [arrParentCategory, setArrParentCategory] = useState<Array<{ label: string; value: string }>>([])
   const [arrCategory, setArrCategory] = useState<Array<{ label: string; value: string }>>([])
-  const [startDay, setStartDay] = useState<Date>(date)
-  const [endDay, setEndDay] = useState<Date>(date)
   const [sortBy, setSortBy] = useState<string>('createdAt')
   const [orderBy, setOrderBy] = useState<string>('desc')
   const [status, setStatus] = useState<CategoryStatus | null>(null)

@@ -24,8 +24,10 @@ import timeAgo from 'utils/timeAgo'
 function Gig() {
   const [gigs, setGigs] = useState<Array<IGig>>([])
   const date = new Date()
-  const [startDay, setStartDay] = useState<Date>(date)
-  const [endDay, setEndDay] = useState<Date>(date)
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  const [startDay, setStartDay] = useState<Date>(firstDayOfMonth)
+  const [endDay, setEndDay] = useState<Date>(lastDayOfMonth)
   const [sortBy, setSortBy] = useState<string>('createdAt')
   const [orderBy, setOrderBy] = useState<string>('desc')
   const [status, setStatus] = useState<GigStatus | null>(null)

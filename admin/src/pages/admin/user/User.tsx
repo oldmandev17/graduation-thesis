@@ -50,9 +50,11 @@ function User() {
     handleSubmit
   } = formHandler
   const date = new Date()
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
   const [users, setUsers] = useState<Array<IUser>>([])
-  const [startDay, setStartDay] = useState<Date>(date)
-  const [endDay, setEndDay] = useState<Date>(date)
+  const [startDay, setStartDay] = useState<Date>(firstDayOfMonth)
+  const [endDay, setEndDay] = useState<Date>(lastDayOfMonth)
   const [role, setRole] = useState<Array<UserRole> | null>(null)
   const [gender, setGender] = useState<UserGender | null>(null)
   const [provider, setProvider] = useState<UserProvider | null>(null)
@@ -813,7 +815,7 @@ function User() {
                   onClick={sendMails}
                   className='text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
                 >
-                  <BsSendCheck className='text-lg mr-2' />
+                  <BsSendCheck className='mr-2 text-lg' />
                   Send
                 </button>
               </div>

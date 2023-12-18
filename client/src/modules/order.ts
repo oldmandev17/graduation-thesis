@@ -7,7 +7,9 @@ export enum OrderStatus {
   PENDING = 'PENDING',
   PAID = 'PAID',
   COMPLETE = 'COMPLETE',
-  CANCEL = 'CANCEL'
+  CANCEL = 'CANCEL',
+  SELLER_COMFIRM = 'SELLER_COMFIRM',
+  BUYER_COMFIRM = 'BUYER_COMFIRM'
 }
 
 export enum OrderMethod {

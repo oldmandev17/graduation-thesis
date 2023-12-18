@@ -4,11 +4,9 @@ import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
 import client from 'src/helpers/initRedis'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middlewares/jwtHelper'
-import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Message from 'src/models/messageModel'
 import { NotificationType } from 'src/models/notificationModel'
-import Order, { IOrder } from 'src/models/orderModel'
 import User, { IUser, UserProvider, UserRole, UserStatus } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
 import UserVerification from 'src/models/userVerificationModel'
@@ -70,7 +68,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     await createNotification(
       null,
       'New Account Registration',
-      `Just a heads up, we've received a new account registration from Customer ${newUser.name}`,
+      `<p>Just a heads up, we've received a new account registration from Customer ${newUser.name}.<a className="font-semibold text-blue-600" href="${process.env.URL_ADMIN}/user-detail/${newUser?._id}"> Learn more</a></p>`,
       NotificationType.ADMIN,
       next
     )
@@ -232,7 +230,23 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
   try {
     const userExist = await User.findOne({
       _id: req.payload.userId
-    }).populate({ path: 'target' })
+    })
+      .populate({ path: 'target' })
+      .populate('wishlist')
+      .populate({
+        path: 'gigs',
+        options: {
+          sort: { createdAt: -1 }
+        },
+        populate: { path: 'category' }
+      })
+      .populate({
+        path: 'orders',
+        options: {
+          sort: { createdAt: -1 }
+        },
+        populate: { path: 'gig' }
+      })
     if (!userExist) throw httpError.NotFound()
     const messages = await Message.find({
       $or: [
@@ -286,13 +300,8 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
     delete userExist?.password
 
-    const orders: IOrder[] = await Order.find({ createdBy: userExist?._id }).populate('gig').sort({ createdAt: 'desc' })
-    const gigs: IGig[] = await Gig.find({ createdBy: userExist?._id }).populate('category').sort({ createdAt: 'desc' })
-
     res.status(200).json({
-      profile: userExist,
-      orders,
-      gigs
+      profile: userExist
     })
   } catch (error: any) {
     next(error)
@@ -444,7 +453,7 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
       await createNotification(
         null,
         'Account Request Seller',
-        `<p>Just a heads up, we've received a account request seller from Customer ${user.name}.<a className="font-bold" href='${process.env.URL_ADMIN}/user-detail/${user._id}'>Click here.</a></p>`,
+        `<p>Just a heads up, we've received a account request seller from Customer ${user.name}.<a className="font-semibold text-blue-600" href='${process.env.URL_ADMIN}/user-detail/${user._id}'> Learn more</a></p>`,
         NotificationType.ADMIN,
         next
       )
@@ -496,7 +505,7 @@ export async function updateUserByAdmin(req: any, res: Response, next: NextFunct
       createNotification(
         userExist._id,
         'Your request become a Seller has been denied.',
-        `Because of reasons: "${result.reason}"`,
+        `<p>Because of reasons: "${result.reason}".<a className="font-semibold text-blue-600" href="${process.env.URL_CLIENT}/user-detail"> Learn more</a></p>`,
         NotificationType.USER,
         next
       )
@@ -506,7 +515,7 @@ export async function updateUserByAdmin(req: any, res: Response, next: NextFunct
       createNotification(
         userExist._id,
         'Your request to become a Seller has been approved',
-        `<p>Congratulations on becoming a Seller. Let's start with my first gig.<a className="font-bold" href="${process.env.URL_CLIENT}/seller">Click here</a></p>`,
+        `<p>Congratulations on becoming a Seller. Let's start with my first gig.<a className="font-semibold text-blue-600" href="${process.env.URL_CLIENT}/user/${userExist?.id}/gig-create/overview"> Create now</a></p>`,
         NotificationType.USER,
         next
       )
@@ -645,11 +654,23 @@ export const getUserDetail = async (req: Request, res: Response, next: NextFunct
     const userExist = await User.findOne({ _id: req.params.id })
       .populate({ path: 'createdBy', select: 'name email phone provider verify role status' })
       .populate({ path: 'updatedAdminBy', select: 'name email phone provider verify role status' })
+      .populate({
+        path: 'gigs',
+        options: {
+          sort: { createdAt: -1 }
+        },
+        populate: { path: 'category' }
+      })
+      .populate({
+        path: 'orders',
+        options: {
+          sort: { createdAt: -1 }
+        },
+        populate: { path: 'gig' }
+      })
     if (!userExist) throw httpError.NotFound()
-    const orders: IOrder[] = await Order.find({ createdBy: userExist?._id }).populate('gig').sort({ createdAt: 'desc' })
-    const gigs: IGig[] = await Gig.find({ createdBy: userExist?._id }).populate('category').sort({ createdAt: 'desc' })
 
-    res.status(200).json({ user: userExist, gigs, orders })
+    res.status(200).json({ user: userExist })
   } catch (error: any) {
     next(error)
   }

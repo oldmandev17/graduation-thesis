@@ -1,4 +1,5 @@
 import { CategoryStatus } from 'modules/category'
+import { GigStatus } from 'modules/gig'
 import { axiosFormData, axiosJson } from './axios'
 
 function getAllCategory(
@@ -117,6 +118,50 @@ function getProfile(accessToken: string | undefined) {
   })
 }
 
+function getAllGigByUser(
+  accessToken: string | undefined,
+  status: GigStatus | undefined,
+  sortBy: string,
+  orderBy: string
+) {
+  let url = `/gig/user?sortBy=${sortBy}&&orderBy=${orderBy}`
+  if (status) url += `&&status=${status}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function updateGigStatus(
+  arrIds: Array<string>,
+  status: GigStatus,
+  reason: string | undefined,
+  accessToken: string | undefined
+) {
+  const url = `/gig/update?status=${status}`
+  const data: any = {}
+  data.ids = arrIds
+  if (reason) data.reason = reason
+  return axiosJson.put(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getAllLandingGigByUser(accessToken: string | undefined) {
+  const url = '/gig/landing'
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   getAllCategory,
   createGig,
@@ -127,5 +172,8 @@ export {
   getAllNotification,
   updateProfile,
   seenNotification,
-  getProfile
+  getProfile,
+  getAllGigByUser,
+  updateGigStatus,
+  getAllLandingGigByUser
 }

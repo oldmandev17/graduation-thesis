@@ -1,3 +1,6 @@
+import { GigStatus } from 'modules/gig'
+import { OrderStatus } from 'modules/order'
+
 export enum SortFilter {
   BEST_SELLING = 'BEST_SELLING',
   LATEST = 'LATEST',
@@ -230,6 +233,56 @@ const arrStory = [
   }
 ]
 
+const arrGigStatus = [
+  {
+    label: 'ACTIVE',
+    value: GigStatus.ACTIVE
+  },
+  {
+    label: 'INACTIVE',
+    value: GigStatus.INACTIVE
+  },
+  {
+    label: 'BANNED',
+    value: GigStatus.BANNED
+  },
+  {
+    label: 'WAITING',
+    value: GigStatus.WAITING
+  },
+  {
+    label: 'NONE',
+    value: GigStatus.NONE
+  }
+]
+
+const arrOrderStatus = [
+  {
+    label: 'PENDING',
+    value: OrderStatus.PENDING
+  },
+  {
+    label: 'PAID',
+    value: OrderStatus.PAID
+  },
+  {
+    label: 'CANCEL',
+    value: OrderStatus.CANCEL
+  },
+  {
+    label: 'COMPLETE',
+    value: OrderStatus.COMPLETE
+  },
+  {
+    label: 'BUYER COMFIRM',
+    value: OrderStatus.BUYER_COMFIRM
+  },
+  {
+    label: 'SELLER COMFIRM',
+    value: OrderStatus.SELLER_COMFIRM
+  }
+]
+
 export {
   arrDeliveryTime,
   arrRevisions,
@@ -239,5 +292,7 @@ export {
   everythingData,
   popularServicesData,
   arrQA,
-  arrStory
+  arrStory,
+  arrGigStatus,
+  arrOrderStatus
 }
