@@ -8,7 +8,7 @@ import { IGig } from 'modules/gig'
 import { CSSProperties, useEffect, useState } from 'react'
 import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAppSelector } from 'stores/hooks'
 import 'swiper/css'
@@ -129,17 +129,18 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
             <span className='text-2xl text-white'>{gig && gig?.createdBy?.email[0].toUpperCase()}</span>
           </div>
         )}
-        <button type='button' className='text-base font-bold hover:underline'>
+        <Link to='/' target='_blank' className='text-base font-bold hover:underline'>
           {gig?.createdBy?.name}
-        </button>
+        </Link>
       </div>
       <div className='flex flex-col gap-1'>
-        <span
-          onClick={() => navigate(`/gig-detail/${gig?.slug}`)}
+        <Link
+          to={`/gig-detail/${gig?.slug}`}
+          target='_blank'
           className='text-lg font-semibold text-gray-600 truncate cursor-pointer hover:underline'
         >
           {gig?.name}
-        </span>
+        </Link>
         <div className='flex flex-row gap-1'>
           <AiOutlineStar className='w-6 h-6 fill-yellow-500' />
           <span className='text-lg font-bold text-yellow-500'>{avgRating.toFixed(1)}</span>

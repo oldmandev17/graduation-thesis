@@ -4,6 +4,7 @@ import { existsSync, unlinkSync } from 'fs'
 import httpError from 'http-errors'
 import client from 'src/helpers/initRedis'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from 'src/middlewares/jwtHelper'
+import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Message from 'src/models/messageModel'
 import { NotificationType } from 'src/models/notificationModel'
@@ -232,7 +233,10 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       _id: req.payload.userId
     })
       .populate({ path: 'target' })
-      .populate('wishlist')
+      .populate({
+        path: 'wishlist',
+        populate: { path: 'category' }
+      })
       .populate({
         path: 'gigs',
         options: {
@@ -300,8 +304,18 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
     delete userExist?.password
 
+    let relatedGigs: IGig[] = []
+
+    if (userExist.wishlist.length > 0) {
+      const arrIds: string[] = []
+      userExist.wishlist.map((gig) => arrIds.push(gig.category?._id))
+      const categoryIds = Array.from(new Set(arrIds))
+      relatedGigs = await Gig.find({ category: { $in: categoryIds } }).limit(10)
+    }
+
     res.status(200).json({
-      profile: userExist
+      profile: userExist,
+      relatedGigs
     })
   } catch (error: any) {
     next(error)
