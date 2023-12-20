@@ -8,7 +8,7 @@ import { IGig } from 'modules/gig'
 import { CSSProperties, useEffect, useState } from 'react'
 import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAppSelector } from 'stores/hooks'
 import 'swiper/css'
@@ -89,7 +89,7 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
             clickable: true
           }}
           modules={[EffectFade, Navigation]}
-          className={`h-[${height}px] mySwiper`}
+          className='mySwiper'
         >
           {gig &&
             gig.images &&
@@ -100,7 +100,8 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
                   <img
                     src={`${process.env.REACT_APP_URL_SERVER}/${image}`}
                     alt={gig?.name}
-                    className={`object-contain w-full rounded-lg h-[${height}px]`}
+                    style={{ height: `${height}px` }}
+                    className='object-contain w-full rounded-lg'
                   />
                 </div>
               </SwiperSlide>

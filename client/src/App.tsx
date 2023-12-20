@@ -21,6 +21,7 @@ function App({ children }: { children: ReactNode }) {
       )
       handleWishlist(user.wishlist)
     } else {
+      handleWishlist([])
       const { refreshToken } = getToken()
       if (refreshToken) dispatch(authRefreshToken(refreshToken))
       else {

@@ -72,7 +72,7 @@ function UserPage() {
       getAllLandingGigByUsers()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getAllLandingGigByUsers])
+  }, [getAllLandingGigByUsers, user])
 
   const getAllCategories = useCallback(async () => {
     await getAllCategory(null, null, null, '', 'createdAt', 'asc', null, null, '', 1, undefined)

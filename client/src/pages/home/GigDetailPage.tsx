@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography'
 import Carousel from 'components/common/Carousel'
 import Fancybox from 'components/common/Fancybox'
 import { IGig } from 'modules/gig'
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { FaCheck, FaRegClock, FaStar } from 'react-icons/fa'
 import { HiRefresh } from 'react-icons/hi'
 import { IoHomeOutline } from 'react-icons/io5'
@@ -28,6 +28,7 @@ import { IReview } from 'modules/review'
 import { toast } from 'react-toastify'
 import * as searchjs from 'searchjs'
 import { getToken } from 'utils/auth'
+import OrderButton from 'components/common/OrderButton'
 
 function GigDetailPage() {
   const [value, setValue] = useState(1)
@@ -35,6 +36,7 @@ function GigDetailPage() {
   const { slug, id } = useParams<{ slug?: string; id?: string }>()
   const [gig, setGig] = useState<IGig>()
   const { accessToken } = getToken()
+  const ref = useRef(null)
   const [grandParentCategory, setGrandParentCategory] = useState<ICategory>()
   const [ratings, setRatings] = useState<{ [key: number]: number }>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 })
   const [totalReviews, setTotalReviews] = useState(0)
@@ -120,9 +122,9 @@ function GigDetailPage() {
   }
 
   return (
-    <div className='grid grid-cols-5 gap-20 px-32 py-10'>
+    <div className='grid grid-cols-5 gap-32 py-10 px-28'>
       <div className='flex flex-col col-span-3 gap-10'>
-        <div id='path' className='flex flex-row gap-2 mb-3'>
+        <div id='path' className='flex flex-row gap-2'>
           <IoHomeOutline className='w-5 h-5 cursor-pointer' onClick={() => navigate('/')} />
           <span className='text-sm font-semibold text-gray-400'>/</span>
           <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${grandParentCategory?.slug}`)}>
@@ -198,9 +200,9 @@ function GigDetailPage() {
           <span className='text-2xl font-bold text-gray-700'>About this gig</span>
           <span className='text-base font-medium text-gray-600'>{gig?.description}</span>
         </div>
-        <div id='gig_package_compare' className='flex flex-col gap-5'>
+        <div id='gig_package_compare' ref={ref} className='flex flex-col gap-5'>
           <span className='text-2xl font-bold text-gray-700'>Compare packages</span>
-          <table className='w-full max-w-3xl border-slate-300'>
+          <table className='w-full border-slate-300'>
             <thead>
               <tr className='bg-white border'>
                 <th className='p-5 font-normal text-gray-500 semibold'>
@@ -226,14 +228,14 @@ function GigDetailPage() {
                 gig?.packages[0]?.features &&
                 gig?.packages[0]?.features?.length > 0 &&
                 gig?.packages[0]?.features.map((feature, index) => (
-                  <tr key={index}>
+                  <tr key={index} className={`${index % 2 === 0 && 'bg-gray-50'}`}>
                     <td className='p-2 text-base text-left text-gray-500 border border-slate-300'>{feature.name}</td>
-                    <td className='p-5 border border-slate-300'>
-                      <FaCheck className={`h-5 w-5 ${feature.status ? 'fill-black' : 'fill-gray-300'}`} />
+                    <td className='p-5 text-center border border-slate-300'>
+                      <FaCheck className={`mx-auto h-5 w-5 ${feature.status ? 'fill-black' : 'fill-gray-300'}`} />
                     </td>
-                    <td className='p-5 border border-slate-300 '>
+                    <td className='p-5 text-center border border-slate-300'>
                       <FaCheck
-                        className={`h-5 w-5 ${
+                        className={`mx-auto h-5 w-5 ${
                           gig &&
                           gig?.packages &&
                           gig?.packages?.length > 0 &&
@@ -245,9 +247,9 @@ function GigDetailPage() {
                         }`}
                       />
                     </td>
-                    <td className='p-5 border border-slate-300 '>
+                    <td className='p-5 text-center border border-slate-300'>
                       <FaCheck
-                        className={`h-5 w-5 ${
+                        className={`mx-auto h-5 w-5 ${
                           gig &&
                           gig?.packages &&
                           gig?.packages?.length > 0 &&
@@ -261,75 +263,84 @@ function GigDetailPage() {
                     </td>
                   </tr>
                 ))}
-              <tr>
+              <tr
+                className={`${
+                  gig &&
+                  gig.packages &&
+                  gig.packages.length > 0 &&
+                  gig.packages[2].features &&
+                  gig.packages[2].features.length % 2 === 0 &&
+                  'bg-gray-50'
+                } text-gray-600`}
+              >
                 <td className='p-2 text-base text-left text-gray-500 border border-slate-300'> Revisions</td>
-                <td className='p-5 border border-slate-300'>
+                <td className='p-5 text-center border border-slate-300'>
                   {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.revisions !== 999
                     ? gig?.packages[0]?.revisions
                     : 'Unlimited'}
                 </td>
-                <td className='p-5 border border-slate-300'>
+                <td className='p-5 text-center border border-slate-300'>
                   {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.revisions !== 999
                     ? gig?.packages[1]?.revisions
                     : 'Unlimited'}
                 </td>
-                <td className='p-5 border border-slate-300'>
+                <td className='p-5 text-center border border-slate-300'>
                   {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.revisions !== 999
                     ? gig?.packages[2]?.revisions
                     : 'Unlimited'}
                 </td>
               </tr>
-              <tr className='text-gray-600'>
+              <tr
+                className={`${
+                  gig &&
+                  gig.packages &&
+                  gig.packages.length > 0 &&
+                  gig.packages[2].features &&
+                  gig.packages[2].features.length % 2 === 1 &&
+                  'bg-gray-50'
+                } text-gray-600`}
+              >
                 <td className='p-2 text-base text-left text-gray-500 border border-slate-300'> Delivery Time</td>
-                <td className='p-5 border border-slate-300'>
+                <td className='p-5 text-center border border-slate-300'>
                   {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.deliveryTime} days
                 </td>
-                <td className='p-5 border border-slate-300'>
+                <td className='p-5 text-center border border-slate-300'>
                   {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.deliveryTime} days
                 </td>
-                <td className='p-5 border border-slate-300'>
+                <td className='p-5 text-center border border-slate-300'>
                   {gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.deliveryTime} days
                 </td>
               </tr>
             </tbody>
             <tfoot>
-              <tr className='text-lg text-gray-600 '>
-                <td className='border border-b-0 border-slate-300'> </td>
-                <td className='p-5 border border-b-0 border-slate-300 '>
-                  ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.price}
+              <tr
+                className={`${
+                  gig &&
+                  gig.packages &&
+                  gig.packages.length > 0 &&
+                  gig.packages[2].features &&
+                  gig.packages[2].features.length % 2 === 0 &&
+                  'bg-gray-50'
+                } text-gray-600 text-xl font-bold`}
+              >
+                <td className='border border-slate-300'> </td>
+                <td className='p-5 text-center border border-slate-300'>
+                  <span className='inline-block w-full'>
+                    ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[0]?.price}
+                  </span>
+                  <OrderButton gig={gig} type='select' />
                 </td>
-                <td className='p-5 border border-b-0 border-slate-300'>
-                  ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.price}
+                <td className='p-5 text-center border border-slate-300'>
+                  <span className='inline-block w-full'>
+                    ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[1]?.price}
+                  </span>
+                  <OrderButton gig={gig} type='select' />
                 </td>
-                <td className='p-5 border border-b-0 border-slate-300'>
-                  ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.price}
-                </td>
-              </tr>
-              <tr className='text-lg text-gray-600 '>
-                <td className='border border-t-0 border-slate-300 '> </td>
-                <td className='p-5 text-center border border-t-0 border-slate-300'>
-                  <button
-                    type='button'
-                    className='px-8 py-1 font-semibold text-white bg-black rounded-md hover:bg-gray-900'
-                  >
-                    Select
-                  </button>
-                </td>
-                <td className='p-5 text-center border border-t-0 border-slate-300'>
-                  <button
-                    type='button'
-                    className='px-8 py-1 font-semibold text-white bg-black rounded-md hover:bg-gray-900'
-                  >
-                    Select
-                  </button>
-                </td>
-                <td className='p-5 text-center border border-t-0 border-slate-300'>
-                  <button
-                    type='button'
-                    className='px-8 py-1 font-semibold text-white bg-black rounded-md hover:bg-gray-900'
-                  >
-                    Select
-                  </button>
+                <td className='p-5 text-center border border-slate-300'>
+                  <span className='inline-block w-full'>
+                    ${gig && gig?.packages && gig?.packages?.length > 0 && gig?.packages[2]?.price}
+                  </span>
+                  <OrderButton gig={gig} type='select' />
                 </td>
               </tr>
             </tfoot>
@@ -506,56 +517,68 @@ function GigDetailPage() {
             ))}
         </div>
       </div>
-      <div className='col-span-2'>
-        <Box className='border border-gray-300' sx={{ width: '100%', typography: 'body1' }}>
-          <TabContext value={String(value)}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <TabList className='bg-gray-50' onChange={handleChange} aria-label='lab API tabs example'>
-                <Tab className='!font-bold' label='Basic' value='1' />
-                <Tab className='!font-bold ' label='Standard' value='2' />
-                <Tab className='!font-bold ' label='Premium' value='3' />
-              </TabList>
-            </Box>
-            {gig &&
-              gig.packages &&
-              gig?.packages?.length > 0 &&
-              gig?.packages?.map((pack, index) => (
-                <TabPanel key={index} className=' !p-0' value={String(index + 1)}>
-                  <div className='flex flex-col gap-2 p-10'>
-                    <div className='flex flex-row justify-between w-full'>
-                      <span className='font-bold text-gray-600 uppercase'>{pack.name}</span>
-                      <span className='text-2xl font-bold text-gray-600'>${pack.price}</span>
-                    </div>
-                    <p className='text-gray-600'>{pack.description}</p>
-                    <div className='flex flex-row gap-3'>
-                      <div className='flex flex-row items-center gap-2 text-gray-600'>
-                        <FaRegClock />
-                        <span className='font-medium'>{pack.deliveryTime} Days Delivery</span>
+      <div className='col-span-2 '>
+        <div className='sticky top-0 overflow-clip'>
+          <Box className='border border-gray-300 ' sx={{ width: '100%', typography: 'body1' }}>
+            <TabContext value={String(value)}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <TabList className='bg-gray-50' onChange={handleChange} aria-label='lab API tabs example'>
+                  <Tab className='!font-bold' label='Basic' value='1' />
+                  <Tab className='!font-bold ' label='Standard' value='2' />
+                  <Tab className='!font-bold ' label='Premium' value='3' />
+                </TabList>
+              </Box>
+              {gig &&
+                gig.packages &&
+                gig?.packages?.length > 0 &&
+                gig?.packages?.map((pack, index) => (
+                  <TabPanel key={index} className=' !p-0' value={String(index + 1)}>
+                    <div className='flex flex-col gap-2 p-10'>
+                      <div className='flex flex-row justify-between w-full'>
+                        <span className='font-bold text-gray-600 uppercase'>{pack.name}</span>
+                        <span className='text-2xl font-bold text-gray-600'>${pack.price}</span>
                       </div>
-                      <div className='flex flex-row items-center gap-2 text-gray-600'>
-                        <HiRefresh className='w-5 h-5' />
-                        <span className='font-medium'>
-                          {pack.revisions !== 999 ? pack.revisions : 'Unlimited'} Revisions
-                        </span>
+                      <p className='text-gray-600'>{pack.description}</p>
+                      <div className='flex flex-row gap-3'>
+                        <div className='flex flex-row items-center gap-2 text-gray-600'>
+                          <FaRegClock />
+                          <span className='font-medium'>{pack.deliveryTime} Days Delivery</span>
+                        </div>
+                        <div className='flex flex-row items-center gap-2 text-gray-600'>
+                          <HiRefresh className='w-5 h-5' />
+                          <span className='font-medium'>
+                            {pack.revisions !== 999 ? pack.revisions : 'Unlimited'} Revisions
+                          </span>
+                        </div>
+                      </div>
+                      <div className='flex flex-col '>
+                        {pack.features &&
+                          pack.features.length > 0 &&
+                          pack.features.map((feature, index) => (
+                            <div key={index} className='flex flex-row items-center gap-2'>
+                              <FaCheck
+                                className={`h-4 w-4 ${feature.status === true ? 'fill-black' : 'fill-gray-300'}`}
+                              />
+                              <span className='text-gray-600'>{feature.name}</span>
+                            </div>
+                          ))}
+                      </div>
+                      <OrderButton gig={gig} type='continune' />
+                      <div className='flex justify-center'>
+                        <button
+                          onClick={() => ref.current?.scrollIntoView({ behavior: 'smooth' })}
+                          className='mt-2 text-lg'
+                          type='button'
+                        >
+                          Compare packages
+                        </button>
                       </div>
                     </div>
-                    <div className='flex flex-col '>
-                      {pack.features &&
-                        pack.features.length > 0 &&
-                        pack.features.map((feature, index) => (
-                          <div key={index} className='flex flex-row items-center gap-2'>
-                            <FaCheck
-                              className={`h-4 w-4 ${feature.status === true ? 'fill-black' : 'fill-gray-300'}`}
-                            />
-                            <span className='text-gray-600'>{feature.name}</span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </TabPanel>
-              ))}
-          </TabContext>
-        </Box>
+                  </TabPanel>
+                ))}
+            </TabContext>
+          </Box>
+        </div>
       </div>
     </div>
   )

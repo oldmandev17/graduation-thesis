@@ -38,6 +38,8 @@ const SellerPersonalInfo = lazy(() => import('pages/home/SellerPage/SellerPerson
 const DashboardPage = lazy(() => import('pages/home/SellerPage/DashboardPage'))
 const AnalyticPage = lazy(() => import('pages/home/SellerPage/AnalyticPage'))
 const PersonalInfoPage = lazy(() => import('pages/home/PersonalInfoPage'))
+const WishlistPage = lazy(() => import('pages/home/WishlistPage'))
+const ProfilePage = lazy(() => import('pages/home/ProfilePage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -67,6 +69,14 @@ const router = createBrowserRouter([
           {
             path: '/gig-detail/:slug',
             element: <GigDetailPage />
+          },
+          {
+            path: '/user-detail/:id',
+            element: <ProfilePage />
+          },
+          {
+            path: '/user/:userId/wishlists',
+            element: <WishlistPage />
           },
           {
             path: '/user/:userId/gig-detail/:id',

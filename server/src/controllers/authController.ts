@@ -235,7 +235,7 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       .populate({ path: 'target' })
       .populate({
         path: 'wishlist',
-        populate: { path: 'category' }
+        populate: [{ path: 'category' }, { path: 'createdBy' }]
       })
       .populate({
         path: 'gigs',
@@ -308,9 +308,21 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
     if (userExist.wishlist.length > 0) {
       const arrIds: string[] = []
-      userExist.wishlist.map((gig) => arrIds.push(gig.category?._id))
+      const gigIds: string[] = []
+      userExist.wishlist.map((gig) => {
+        gigIds.push(gig._id)
+        arrIds.push(gig.category?._id)
+      })
       const categoryIds = Array.from(new Set(arrIds))
-      relatedGigs = await Gig.find({ category: { $in: categoryIds } }).limit(10)
+      relatedGigs = await Gig.find({
+        category: { $in: categoryIds },
+        _id: { $nin: gigIds }
+      })
+        .populate('category')
+        .populate('createdBy')
+        .populate('orders')
+        .populate('reviews')
+        .limit(10)
     }
 
     res.status(200).json({
