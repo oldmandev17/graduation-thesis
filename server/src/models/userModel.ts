@@ -55,7 +55,6 @@ export interface IUser extends mongoose.Document {
   skill?: string
   education?: string
   certification?: string
-  contacts?: any
   createdAt: Date
   createdBy?: IUser
   updatedAt?: Date

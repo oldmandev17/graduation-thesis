@@ -15,6 +15,14 @@ import APIFeature from 'src/utils/apiFeature'
 import { findUser } from 'src/utils/findUser'
 import { generateRandomPassword } from 'src/utils/generatePassword'
 import { logger } from 'src/utils/logger'
+import {
+  MESSAGE_BADREQUEST,
+  MESSAGE_CONFLICT,
+  MESSAGE_INTERNALSERVERERROR,
+  MESSAGE_NOTACCEPTABLE,
+  MESSAGE_NOTFOUND,
+  MESSAGE_UNAUTHORIZED
+} from 'src/utils/message'
 import { createNotification } from 'src/utils/notification'
 import { sendEmail, sendPasswordEmail, sendResetEmail, sendVerificationEmail } from 'src/utils/sendEmail'
 import {
@@ -43,7 +51,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     })
     if (userExist.length > 0) {
       if (userExist[0].verify || (!userExist[0].verify && userExist[0].createdAt.getTime() + 21600000 < Date.now())) {
-        throw httpError.Conflict()
+        throw httpError.Conflict(MESSAGE_CONFLICT)
       }
       if (!userExist[0].verify && userExist[0].createdAt.getTime() + 21600000 > Date.now()) {
         await User.deleteOne({ _id: userExist[0]._id })
@@ -91,18 +99,20 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 export async function verifyEmail(req: Request, res: Response, next: NextFunction) {
   const user = await findUser(req.params.userId)
   try {
+    if (!user) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const { userId, verificationString } = req.params
     const userVerificationExist = await UserVerification.findOne({
       user: userId
     })
-    if (!userVerificationExist) throw httpError.NotFound()
+    if (!userVerificationExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     if (userVerificationExist.isValidExpires()) {
       await User.deleteOne({
         _id: userId
       })
-      throw httpError.NotAcceptable()
+      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     } else {
-      if (!userVerificationExist.isValidVerificationString(verificationString)) throw httpError.Unauthorized()
+      if (!userVerificationExist.isValidVerificationString(verificationString))
+        throw httpError.Unauthorized(MESSAGE_UNAUTHORIZED)
       await User.updateOne(
         {
           _id: userId
@@ -116,6 +126,8 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
       await UserVerification.deleteOne({
         user: userId
       })
+      const accessToken = await signAccessToken(String(user?._id), user?.role)
+      const refreshToken = await signRefreshToken(String(user?._id))
       logger({
         user: user?._id,
         name: LogName.VERIFY_EMAIL_USER,
@@ -125,7 +137,7 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
         errorMessage: '',
         content: ''
       })
-      res.redirect(process.env.URL_CLIENT + '/login/' + user?.email + '/' + user?.password)
+      res.redirect(process.env.URL_CLIENT + '/auth/login/' + accessToken + '/' + refreshToken)
     }
   } catch (error: any) {
     logger({
@@ -148,11 +160,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       email: result.email,
       provider: UserProvider.EMAIL
     })
-    if (!userExist.length) throw httpError.NotFound()
-    if (!userExist[0].verify) throw httpError.BadRequest()
-    if (userExist[0].status !== UserStatus.ACTIVE) throw httpError.NotAcceptable()
+    if (!userExist.length) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist[0].verify) throw httpError.BadRequest(MESSAGE_BADREQUEST)
+    if (userExist[0].status !== UserStatus.ACTIVE) throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     const isMatch = await compare(result.password, userExist[0].password as string)
-    if (!isMatch) throw httpError.Unauthorized()
+    if (!isMatch) throw httpError.Unauthorized(MESSAGE_UNAUTHORIZED)
     const accessToken = await signAccessToken(String(userExist[0]._id), userExist[0].role)
     const refreshToken = await signRefreshToken(String(userExist[0]._id))
     logger({
@@ -174,7 +186,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       errorMessage: error.message,
       content: req.body
     })
-    if (error.isJoi === true) next(httpError.BadRequest())
+    if (error.isJoi === true) next(httpError.BadRequest(MESSAGE_BADREQUEST))
     next(error)
   }
 }
@@ -182,13 +194,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 export async function refreshToken(req: Request, res: Response, next: NextFunction) {
   try {
     const { refreshToken } = req.body
-    if (!refreshToken) throw httpError.BadRequest()
+    if (!refreshToken) throw httpError.BadRequest(MESSAGE_BADREQUEST)
     const userId = (await verifyRefreshToken(refreshToken)) as string
     const userExist = await User.findOne({
       _id: userId
     })
-    if (!userExist) throw httpError.NotFound()
-    if (userExist.status !== UserStatus.ACTIVE) throw httpError.NotAcceptable()
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (userExist.status !== UserStatus.ACTIVE) throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     const accessToken = await signAccessToken(userId, userExist.role)
     const newRefreshToken = await signRefreshToken(userId)
     res.status(200).json({ accessToken, refreshToken: newRefreshToken })
@@ -199,10 +211,10 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
   const { refreshToken } = req.params
-  if (!refreshToken) throw httpError.BadRequest()
+  if (!refreshToken) throw httpError.BadRequest(MESSAGE_BADREQUEST)
   const userId = (await verifyRefreshToken(refreshToken)) as string
   try {
-    client.DEL(userId).catch((next: NextFunction) => next(httpError.InternalServerError()))
+    client.DEL(userId).catch((next: NextFunction) => next(httpError.InternalServerError(MESSAGE_INTERNALSERVERERROR)))
     logger({
       user: userId,
       name: LogName.LOGOUT_USER,
@@ -251,14 +263,14 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
         },
         populate: { path: 'gig' }
       })
-    if (!userExist) throw httpError.NotFound()
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const messages = await Message.find({
       $or: [
         {
           sender: userExist._id
         },
         {
-          reciever: userExist._id
+          receiver: userExist._id
         }
       ]
     })
@@ -268,8 +280,8 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
     const uniqueContactsArray: any[] = []
 
     messages.forEach((message) => {
-      if (message.sender && !uniqueContactsSet.has(message.sender._id)) {
-        uniqueContactsSet.add(message.sender._id)
+      if (message.sender && !uniqueContactsSet.has(message.sender._id.toString())) {
+        uniqueContactsSet.add(message.sender._id.toString())
         uniqueContactsArray.push({
           _id: message.sender._id,
           name: message.sender.name,
@@ -278,8 +290,8 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
         })
       }
 
-      if (message.receiver && !uniqueContactsSet.has(message.receiver._id)) {
-        uniqueContactsSet.add(message.receiver._id)
+      if (message.receiver && !uniqueContactsSet.has(message.receiver._id.toString())) {
+        uniqueContactsSet.add(message.receiver._id.toString())
         uniqueContactsArray.push({
           _id: message.receiver._id,
           name: message.receiver.name,
@@ -300,7 +312,6 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
       usersGroupByInitialLetter[initialLetter].push(user)
     })
-    userExist.contacts = usersGroupByInitialLetter
 
     delete userExist?.password
 
@@ -327,7 +338,8 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
     res.status(200).json({
       profile: userExist,
-      relatedGigs
+      relatedGigs,
+      contacts: usersGroupByInitialLetter
     })
   } catch (error: any) {
     next(error)
@@ -381,7 +393,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
       email: result.email,
       provider: UserProvider.EMAIL
     })
-    if (userExist.length) throw httpError.Conflict()
+    if (userExist.length) throw httpError.Conflict(MESSAGE_CONFLICT)
     const newUser = await User.create({
       name: result.name,
       email: result.email,
@@ -451,13 +463,17 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
     const file = req.file as Express.Multer.File
     const result = await userUpdateSchema.validateAsync(req.body)
     const user = await User.findOne({ _id: req.payload.userId })
-    if (!user) throw httpError.NotFound()
+    if (!user) throw httpError.NotFound(MESSAGE_NOTFOUND)
     else {
       if (file) {
         if (existsSync(user?.avatar as string) && user.provider === UserProvider.EMAIL)
           unlinkSync(user?.avatar as string)
         result.avatar = file.path
       }
+    }
+    if (result.name) {
+      const id = String(result.name).replace(/ /g, '')
+      result.id = id.charAt(0).toLowerCase() + id.slice(1)
     }
     await User.updateOne(
       {
@@ -515,7 +531,7 @@ export async function updateUserByAdmin(req: any, res: Response, next: NextFunct
     const file = req.file as Express.Multer.File
     const result = await userUpdateSchema.validateAsync(req.body)
     const userExist = await User.findOne({ _id: req.params.id })
-    if (!userExist) throw httpError.NotFound()
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     else {
       if (file) {
         if (existsSync(userExist?.avatar as string) && userExist.provider === UserProvider.EMAIL)
@@ -586,8 +602,8 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
   try {
     const result = await authForgotPasswordSchema.validateAsync(req.body)
     const userExist = await User.findOne({ email: result.email })
-    if (!userExist) throw httpError.NotFound()
-    if (!userExist.verify) throw httpError.BadRequest()
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist.verify) throw httpError.BadRequest(MESSAGE_BADREQUEST)
     logger({
       user: userExist?._id,
       name: LogName.REQUEST_RESET_PASSWORD,
@@ -616,12 +632,12 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
   try {
     const result = await authResetPasswordSchema.validateAsync(req.body)
     const userReset = await UserReset.findOne({ user: result.userId })
-    if (!userReset) throw httpError.NotFound()
+    if (!userReset) throw httpError.NotFound(MESSAGE_NOTFOUND)
     if (!userReset.isValidExpires()) {
       await UserReset.deleteOne({ user: result.userId })
-      throw httpError.NotAcceptable()
+      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     } else {
-      if (!userReset.isValidResetString(result.resetString)) throw httpError.Unauthorized()
+      if (!userReset.isValidResetString(result.resetString)) throw httpError.Unauthorized(MESSAGE_UNAUTHORIZED)
       await User.updateOne({ _id: result.userId }, { password: result.password })
       await UserReset.deleteOne({ user: result.userId })
       logger({
@@ -699,7 +715,7 @@ export const getUserDetail = async (req: Request, res: Response, next: NextFunct
         },
         populate: { path: 'gig' }
       })
-    if (!userExist) throw httpError.NotFound()
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
 
     res.status(200).json({ user: userExist })
   } catch (error: any) {
@@ -746,7 +762,7 @@ export const sendMail = async (req: Request, res: Response, next: NextFunction) 
 export async function wishlist(req: Request, res: Response, next: NextFunction) {
   try {
     const userExist = await User.findOne({ _id: req.payload.userId }).populate('wishlist')
-    if (!userExist) throw httpError.NotFound()
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     if (userExist.wishlist.filter((gig) => gig._id.toString() === req.params.id).length > 0) {
       let arrIds = userExist.wishlist.map((gig) => gig._id)
       arrIds = arrIds.filter((id) => id.toString() !== req.params.id)
@@ -758,6 +774,16 @@ export async function wishlist(req: Request, res: Response, next: NextFunction) 
       await User.updateOne({ _id: req.payload.userId }, { wishlist: arrIds })
       res.status(200).json({ type: 'add' })
     }
+  } catch (error: any) {
+    next(error)
+  }
+}
+
+export async function getUserById(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userExist = await User.findOne({ id: req.params.id })
+    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    res.status(200).json({ user: userExist })
   } catch (error: any) {
     next(error)
   }

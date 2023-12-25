@@ -5,7 +5,8 @@ import {
   handleAuthLogInGoolge,
   handleAuthLogout,
   handleAuthRefreshToken,
-  handleAuthResetPassword
+  handleAuthResetPassword,
+  handleAuthSignUp
 } from './auth-handlers'
 import {
   authForgotPassowrd,
@@ -13,10 +14,12 @@ import {
   authLogInGoogle,
   authLogout,
   authRefreshToken,
-  authResetPassword
+  authResetPassword,
+  authSignUp
 } from './auth-slice'
 
 export default function* authSaga() {
+  yield takeLatest(authSignUp.type, handleAuthSignUp)
   yield takeLatest(authLogIn.type, handleAuthLogIn)
   yield takeLatest(authLogInGoogle.type, handleAuthLogInGoolge)
   yield takeLatest(authForgotPassowrd.type, handleAuthForgotPassword)

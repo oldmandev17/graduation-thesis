@@ -2,13 +2,13 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
 import axios from 'axios'
+import { useMessage } from 'contexts/StateContext'
+import EmojiPicker, { Theme } from 'emoji-picker-react'
 import { useEffect, useRef, useState } from 'react'
 import { BsEmojiSmile } from 'react-icons/bs'
-import EmojiPicker, { Theme } from 'emoji-picker-react'
 import { ImAttachment } from 'react-icons/im'
 import { MdSend } from 'react-icons/md'
 import { toast } from 'react-toastify'
-import { useMessage } from 'contexts/StateContext'
 import { useAppSelector } from 'stores/hooks'
 import PhotoPicker from '../common/PhotoPicker'
 
@@ -44,7 +44,8 @@ function MessageBar() {
     }
   }, [])
 
-  const sendMessage = async () => {
+  const sendMessage = async (e: any) => {
+    e.preventDefault()
     try {
       const { data } = await axios.post(`${process.env.REACT_APP_URL_SERVER}/api/message/add-message`, {
         to: currentChatUser?._id,
@@ -109,45 +110,47 @@ function MessageBar() {
   }, [grabPhoto])
 
   return (
-    <div className='bg-panel-header-background h-20 p-4 flex items-center gap-6 relative'>
+    <div className='relative flex items-center h-20 gap-6 p-4 shadow-lg'>
       <div className='flex gap-6'>
         <BsEmojiSmile
-          className='text-panel-header-icon cursor-pointer text-xl'
+          className='text-xl cursor-pointer text-panel-header-icon'
           title='Emoji'
           id='emoji-open'
           onClick={handleEmojiModel}
         />
         {showEmojiPicker && (
-          <div className='absolute bottom-24 left-16 z-40' ref={emojiPickerRef}>
+          <div className='absolute z-40 bottom-24 left-16' ref={emojiPickerRef}>
             <EmojiPicker onEmojiClick={handleEmojiClick} theme={Theme.DARK} />
           </div>
         )}
         <ImAttachment
-          className='text-panel-header-icon cursor-pointer text-xl'
+          className='text-xl cursor-pointer text-panel-header-icon'
           title='Attach File'
           onClick={() => setGrabPhoto(true)}
         />
       </div>
-      <div className='w-full rounded-lg h-10 flex items-center'>
-        <input
-          type='text'
-          placeholder='Type a message'
-          className='bg-input-background text-sm focus:outline-none text-white h-10 rounded-lg px-5 py-4 w-full'
-          onChange={(e: any) => setMessage(e.target.value)}
-          value={message}
-        />
-      </div>
-      <div className='flex w-10 items-center justify-center'>
-        <button type='button'>
-          {message.length && (
-            <MdSend
-              className='text-panel-header-icon cursor-pointer text-xl'
-              title='Send Message'
-              onClick={sendMessage}
-            />
+      <form className='flex items-center w-full gap-6' onSubmit={sendMessage}>
+        <div className='flex items-center w-full h-10 rounded-lg'>
+          <input
+            type='text'
+            placeholder='Type a message'
+            className='w-full h-10 px-5 py-4 text-sm text-white rounded-lg bg-input-background focus:outline-none'
+            onChange={(e: any) => setMessage(e.target.value)}
+            value={message}
+          />
+        </div>
+        <div className='flex items-center justify-center w-10'>
+          {message.length > 0 && (
+            <button type='submit'>
+              <MdSend
+                className='text-xl cursor-pointer text-panel-header-icon'
+                title='Send Message'
+                onClick={sendMessage}
+              />
+            </button>
           )}
-        </button>
-      </div>
+        </div>
+      </form>
       {grabPhoto && <PhotoPicker onChange={photoPickerChange} />}
     </div>
   )

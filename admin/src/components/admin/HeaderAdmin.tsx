@@ -11,7 +11,7 @@ import parse from 'html-react-parser'
 import { INotification, NotificationStatus } from 'modules/notification'
 import { useEffect, useRef, useState } from 'react'
 import { MdOutlineNotificationsActive } from 'react-icons/md'
-import { SiFiverr } from 'react-icons/si'
+import { SiFreelancer } from 'react-icons/si'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { authLogout } from 'stores/auth/auth-slice'
@@ -94,13 +94,14 @@ function HeaderAdmin() {
   }
 
   useEffect(() => {
-    getAllNotifications()
+    if (user) getAllNotifications()
+
     const intervalId = setInterval(() => {
-      getAllNotifications()
+      if (user) getAllNotifications()
     }, 10000)
     return () => clearInterval(intervalId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user])
 
   const handleSeenNotification = async (id: string) => {
     await seenNotification(id, accessToken)
@@ -152,7 +153,7 @@ function HeaderAdmin() {
             <span className='sr-only'>Toggle sidebar</span>
           </button>
           <div onClick={() => navigate('/')} className='flex items-center justify-between mr-4'>
-            <SiFiverr className='w-20 h-[72px] dark:fill-white fill-black' />
+            <SiFreelancer className='w-16 h-16 dark:fill-white fill-black' />
           </div>
           <form action='/#' method='GET' className='hidden md:block md:pl-2'>
             <label htmlFor='topbar-search' className='sr-only'>

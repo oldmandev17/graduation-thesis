@@ -3,6 +3,7 @@ import httpError from 'http-errors'
 import { NextFunction, Request, Response } from 'express'
 import { messageSchema } from 'src/utils/validationSchema'
 import User from 'src/models/userModel'
+import { MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
 
 interface MessageQuery {
   from?: string
@@ -13,18 +14,21 @@ export async function addMessage(req: Request, res: Response, next: NextFunction
   try {
     const result = await messageSchema.validateAsync(req.body)
     const fromExist = await User.findOne({ _id: result.from })
-    if (!fromExist) throw httpError.NotFound()
+    if (!fromExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const toExist = await User.findOne({ _id: result.to })
-    if (!toExist) throw httpError.NotFound()
+    if (!toExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const globalAny: any = global
     const getUser = globalAny.onlineUsers.get(result.to)
-    const message = await Message.create({
+    const newMessage = await Message.create({
       message: result.message,
       sender: result.from,
       type: MessageType.TEXT,
       receiver: result.to,
       status: getUser ? MessageStatus.DELIVERED : MessageStatus.SENT
     })
+    const message = await Message.findOne({ _id: newMessage._id })
+      .populate({ path: 'sender', select: '_id' })
+      .populate({ path: 'receiver', select: '_id' })
     res.status(201).json({ message })
   } catch (error: any) {
     if (error.isJoi === true) error.status = 422
@@ -36,9 +40,9 @@ export async function getMessages(req: Request, res: Response, next: NextFunctio
   try {
     const { from, to } = req.params
     const fromExist = await User.findOne({ _id: from })
-    if (!fromExist) throw httpError.NotFound()
+    if (!fromExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const toExist = await User.findOne({ _id: to })
-    if (!toExist) throw httpError.NotFound()
+    if (!toExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const messages = await Message.find({
       $or: [
         {
@@ -75,11 +79,11 @@ export async function addImageMessage(req: Request, res: Response, next: NextFun
   try {
     const file = req.file as Express.Multer.File
     const { from, to } = req.query as unknown as MessageQuery
-    if (!from || !to || !file) throw httpError.NotAcceptable()
+    if (!from || !to || !file) throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     const fromExist = await User.findOne({ _id: from })
-    if (!fromExist) throw httpError.NotFound()
+    if (!fromExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const toExist = await User.findOne({ _id: to })
-    if (!toExist) throw httpError.NotFound()
+    if (!toExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const globalAny: any = global
     const getUser = globalAny.onlineUsers.get(to)
     const message = await Message.create({

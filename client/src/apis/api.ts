@@ -1,6 +1,7 @@
 import { SortFilter } from 'assets/data'
 import { CategoryStatus } from 'modules/category'
 import { GigStatus } from 'modules/gig'
+import { OrderStatus } from 'modules/order'
 import { axiosFormData, axiosJson } from './axios'
 
 function getAllCategory(
@@ -215,6 +216,73 @@ function getAllGigFilter(
   return axiosJson.get(url)
 }
 
+function createOrder(data: any, accessToken: string | undefined) {
+  const url = '/order/create'
+  return axiosJson.post(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getOrderDetail(id: string | undefined, accessToken: string | undefined) {
+  const url = `/order/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getAllOrderByUser(
+  accessToken: string | undefined,
+  status: OrderStatus | undefined,
+  keyword: string,
+  sortBy: string,
+  orderBy: string,
+  role: string
+) {
+  let url = `/order/${role}/user?sortBy=${sortBy}&&orderBy=${orderBy}`
+  if (status) url += `&&status=${status}`
+  if (keyword) url += `&&keyword=${keyword}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function updateOrderStatus(
+  arrIds: Array<string>,
+  status: OrderStatus,
+  reason: string | undefined,
+  accessToken: string | undefined
+) {
+  const url = `/order/update?status=${status}`
+  const data: any = {}
+  data.ids = arrIds
+  if (reason) data.reason = reason
+  return axiosJson.put(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getUserById(id: string | undefined, accessToken: string | undefined) {
+  const url = `/auth/user/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   getAllCategory,
   createGig,
@@ -231,5 +299,10 @@ export {
   getAllLandingGigByUser,
   addOrRemoveWishlist,
   getAllGig,
-  getAllGigFilter
+  getAllGigFilter,
+  createOrder,
+  getOrderDetail,
+  getAllOrderByUser,
+  updateOrderStatus,
+  getUserById
 }

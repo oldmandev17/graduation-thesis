@@ -41,7 +41,6 @@ export interface IUser {
   provider: UserProvider
   verify: boolean
   role: Array<UserRole>
-  contacts?: any
   target: Array<ICategory>
   wishlist: Array<IGig>
   gigs: Array<IGig>

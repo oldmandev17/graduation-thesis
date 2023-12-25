@@ -1,31 +1,36 @@
 import mongoose from 'mongoose'
+import { GigPackageType, IGig } from './gigModel'
 import { IUser } from './userModel'
-import { IGig } from './gigModel'
-import { IMessage } from './messageModel'
 
 export enum OrderStatus {
   PENDING = 'PENDING',
   PAID = 'PAID',
   COMPLETE = 'COMPLETE',
   CANCEL = 'CANCEL',
+  ACCEPT = 'ACCEPT',
   SELLER_COMFIRM = 'SELLER_COMFIRM',
-  BUYER_COMFIRM = 'BUYER_COMFIRM'
+  BUYER_COMFIRM = 'BUYER_COMFIRM',
+  ADMIN_COMFIRM = 'ADMIN_CONFIRM'
 }
 
 export enum OrderMethod {
-  STRIPE = 'STRIPE'
+  STRIPE = 'STRIPE',
+  PAYPAL = 'PAYPAL'
 }
 
 export interface IOrder extends mongoose.Document {
-  paymentIntent: string
+  paymentID: string
   method: OrderMethod
   price: number
+  quantity: number
+  dueOn: Date
   name: string
   status: OrderStatus
-  messages: Array<IMessage>
   gig: IGig
+  type: GigPackageType
   createdAt: Date
   createdBy: IUser
+  reason: string
   updatedCustomerAt?: Date
   updatedCustomerBy?: IUser
   updatedAdminAt?: Date
@@ -33,14 +38,17 @@ export interface IOrder extends mongoose.Document {
 }
 
 const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
-  paymentIntent: {
+  paymentID: {
     type: String,
-    unique: true,
     required: true
   },
   method: {
     type: String,
     enum: Object.values(OrderMethod)
+  },
+  type: {
+    type: String,
+    enum: Object.values(GigPackageType)
   },
   name: {
     type: String,
@@ -51,17 +59,22 @@ const orderSchema: mongoose.Schema = new mongoose.Schema<IOrder>({
     type: Number,
     required: true
   },
+  quantity: {
+    type: Number,
+    required: true
+  },
+  dueOn: {
+    type: Date,
+    required: true
+  },
+  reason: {
+    type: String
+  },
   status: {
     type: String,
     enum: Object.values(OrderStatus),
     default: OrderStatus.PENDING
   },
-  messages: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'message'
-    }
-  ],
   gig: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'gig',

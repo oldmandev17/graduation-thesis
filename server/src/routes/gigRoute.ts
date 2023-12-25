@@ -35,7 +35,9 @@ gigRoutes
 gigRoutes.route('/').get(getAllGig)
 gigRoutes.route('/filter').get(getAllGigFilter)
 gigRoutes.route('/user').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getAllGigByUser)
-gigRoutes.route('/landing').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getAllLandingGigByUser)
+gigRoutes
+  .route('/landing')
+  .get(verifyAccessToken, authorizeRoles([UserRole.SELLER, UserRole.BUYER]), getAllLandingGigByUser)
 gigRoutes
   .route('/id/:id')
   .get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), getGigDetail)

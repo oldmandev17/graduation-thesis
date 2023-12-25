@@ -11,6 +11,7 @@ import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { findUser } from 'src/utils/findUser'
 import { logger } from 'src/utils/logger'
+import { MESSAGE_FORBIDDEN, MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
 import { createNotification } from 'src/utils/notification'
 import { sendEmail } from 'src/utils/sendEmail'
 import { gigDeleteSchema, gigSchema, gigStatusSchema } from 'src/utils/validationSchema'
@@ -37,10 +38,10 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
     const result = await gigSchema.validateAsync(req.body)
     const categoryExist = await Category.findOne({ _id: result.category })
     if (!categoryExist) {
-      throw httpError.NotFound()
+      throw httpError.NotFound(MESSAGE_NOTFOUND)
     }
     if (categoryExist.level !== 3) {
-      throw httpError.NotAcceptable()
+      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     }
     const slug = await createUniqueSlug(Gig, result.name)
     const images: string[] = []
@@ -98,10 +99,10 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
   try {
     const gigExist = await Gig.findOne({ _id: req.params.id })
     if (!gigExist) {
-      throw httpError.NotFound()
+      throw httpError.NotFound(MESSAGE_NOTFOUND)
     }
     if (user?.role.includes(UserRole.SELLER) && user._id !== gigExist.createdBy) {
-      httpError.NotAcceptable()
+      httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     }
     const files = req.files as Express.Multer.File[]
 
@@ -152,7 +153,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
         createNotification(
           req.payload.userId,
           'Launch Your Gig Now!',
-          `<p>Waiting for admin approval. Thanks for your patience! You can review gig.<a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate?._id}'> Learn more</a></p>`,
+          `<p>Waiting for admin approval. Thanks for your patience! You can review gig.<a className="font-semibold text-blue-600" href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigUpdate?._id}'> Learn more</a></p>`,
           NotificationType.USER,
           next
         )
@@ -190,7 +191,7 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
     const result = await gigStatusSchema.validateAsync(req.body)
     const { status } = req.query as unknown as GigQuery
     if (status === GigStatus.BANNED && !result.reason) {
-      throw httpError.NotAcceptable()
+      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
     }
     const updateField: any = { status, reason: result.reason }
     if (user?.role.includes(UserRole.SELLER)) {
@@ -207,14 +208,14 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
         (user?.role.includes(UserRole.ADMIN) || user?.role.includes(UserRole.MANAGER)) &&
         (status === GigStatus.ACTIVE || status === GigStatus.BANNED)
       ) {
-        const title = 'Exciting News: Your Fiverr Gig Has Been Updated!'
+        const title = 'Exciting News: Your Freelancer Gig Has Been Updated!'
         const content =
-          "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Fiverr has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Fiverr's support email.</p><p>Thank you for working on Fiverr, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Fiverr Support Team]</p>"
+          "<p>Hello,</p><p>We're writing to inform you that the status of your gig on Freelancer has just been updated. Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly.</p><p>If you have any questions or need assistance, feel free to contact us through the help section or Freelancer's support email.</p><p>Thank you for working on Freelancer, and we wish you a great day!</p><p>Best regards,<br>[Your Name or Freelancer Support Team]</p>"
         await sendEmail(gigExist?.createdBy?.email as string, title, content, next)
         createNotification(
           gigExist?.createdBy?._id,
-          'Your Fiverr Gig Has Been Updated!',
-          `<p>Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly. <a href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigExist?._id}'> Learn more</a></p>`,
+          'Your Freelancer Gig Has Been Updated!',
+          `<p>Please check the latest status of your gig to ensure that all information is accurate and reflects your skills and services correctly. <a className="font-semibold text-blue-600" href='${process.env.URL_CLIENT}/${user?.id}/gig-detail/review/${gigExist?._id}'> Learn more</a></p>`,
           NotificationType.USER,
           next
         )
@@ -425,7 +426,7 @@ export async function getAllGig(req: Request, res: Response, next: NextFunction)
     }
     if (categoryId) {
       const categoryExist = await Category.findOne({ _id: categoryId })
-      if (!categoryExist) throw httpError.NotFound()
+      if (!categoryExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
       const categoryIds: string[] = []
       if (categoryExist.level === 3) {
         categoryIds.push(categoryExist._id)
@@ -480,7 +481,7 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
       })
 
     if (!gigExist) {
-      throw httpError.NotFound()
+      throw httpError.NotFound(MESSAGE_NOTFOUND)
     }
 
     if (req.params.id) {
@@ -491,7 +492,7 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
         gigExist.createdBy &&
         gigExist.createdBy._id.toString() !== req.payload.userId
       ) {
-        throw httpError.Forbidden()
+        throw httpError.Forbidden(MESSAGE_FORBIDDEN)
       }
     }
 
@@ -543,9 +544,7 @@ export async function getAllGigFilter(req: Request, res: Response, next: NextFun
       filter['packages.0.price'] = { $lte: Number(budget) }
     }
     if (time) {
-      const daysAgo = Number(time)
-      const startTime = new Date(new Date().getTime() - daysAgo * 24 * 60 * 60 * 1000)
-      filter.createdAt = { $gte: startTime, $lte: new Date() }
+      filter['packages.0.deliveryTime'] = { $gte: 0, $lte: time }
     }
 
     let sortOption: any = {}

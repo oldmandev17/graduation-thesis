@@ -14,6 +14,7 @@ import { AiOutlineBell, AiOutlineHeart, AiOutlineMail, AiOutlineSearch } from 'r
 import { IoIosNotificationsOutline } from 'react-icons/io'
 import { IoNotificationsCircleOutline } from 'react-icons/io5'
 import { MdOutlineNotificationImportant } from 'react-icons/md'
+import { SiFreelancer } from 'react-icons/si'
 import { VscMail, VscMailRead } from 'react-icons/vsc'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -66,9 +67,9 @@ function HeaderBuyer() {
   }
 
   useEffect(() => {
-    getAllNotifications()
+    if (user) getAllNotifications()
     const intervalId = setInterval(() => {
-      getAllNotifications()
+      if (user) getAllNotifications()
     }, 10000)
     return () => clearInterval(intervalId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,14 +95,7 @@ function HeaderBuyer() {
   return (
     <div className='flex flex-col'>
       <div className='flex flex-row items-center gap-5 py-5 px-28 '>
-        <img
-          onClick={() => navigate('/')}
-          src='/images/Fiverr-Logo.png'
-          alt='logo'
-          width='80'
-          height='80'
-          className='cursor-pointer'
-        />
+        <SiFreelancer onClick={() => navigate('/')} className='w-12 h-12 cursor-pointer fill-green-600' />
         <form onSubmit={handleSearchKeyword} className='flex flex-row w-full'>
           <input
             type='text'
@@ -226,7 +220,7 @@ function HeaderBuyer() {
         {user?.role.includes(UserRole.SELLER) && (
           <button
             type='button'
-            onClick={() => navigate(`/user/${user?.id}`)}
+            onClick={() => navigate(`/user/${user?.id}/dashboard`)}
             className='text-lg font-semibold text-gray-400 hover:text-green-500 min-w-max'
           >
             Switch to Selling

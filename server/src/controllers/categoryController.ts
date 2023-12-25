@@ -7,6 +7,7 @@ import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { logger } from 'src/utils/logger'
+import { MESSAGE_CONFLICT, MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
 import { categoryDeleteSchema, categorySchema, categoryStatusSchema } from 'src/utils/validationSchema'
 
 interface CategoryQuery {
@@ -34,11 +35,11 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
     if (parent) {
       const parentCategory = await Category.findOne({ _id: parent })
       if (!parentCategory) {
-        throw httpError.NotFound()
+        throw httpError.NotFound(MESSAGE_NOTFOUND)
       }
       const level = parentCategory.level + 1
       if (level > 3) {
-        throw httpError.NotAcceptable()
+        throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
       }
       category.level = level
       parentCategory.subCategories.push(category)
@@ -78,7 +79,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
     const categoryExist = await Category.findOne({
       _id: req.params.id
     })
-    if (!categoryExist) throw httpError.NotFound()
+    if (!categoryExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     else {
       if (file && existsSync(categoryExist?.image)) unlinkSync(categoryExist?.image)
     }
@@ -98,7 +99,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
       { new: true }
     )
     if (parent === req.params.id) {
-      throw httpError.Conflict()
+      throw httpError.Conflict(MESSAGE_CONFLICT)
     }
     const currentParentCategory = await Category.findOne({ subCategories: req.params.id })
     if (currentParentCategory) {
@@ -312,12 +313,13 @@ export async function getCategoryDetail(req: Request, res: Response, next: NextF
       .populate({ path: 'createdBy', select: '_id name email phone provider verify role status' })
       .populate({ path: 'updatedBy', select: '_id name email phone provider verify role status' })
     if (!categoryExist) {
-      throw httpError.NotFound()
+      throw httpError.NotFound(MESSAGE_NOTFOUND)
     }
     const parentCategory = await Category.findOne({ subCategories: categoryExist._id })
     const gigs: IGig[] = await Gig.find({ category: req.params.id })
+    const parentParentCategory = await Category.findOne({ subCategories: parentCategory?._id })
     categoryExist.gigs = gigs
-    res.status(200).json({ category: categoryExist, parentCategory })
+    res.status(200).json({ category: categoryExist, parentCategory, parentParentCategory })
   } catch (error) {
     next(error)
   }

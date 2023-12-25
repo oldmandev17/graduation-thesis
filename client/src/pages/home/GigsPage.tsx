@@ -24,7 +24,7 @@ function GigsPage() {
   const { slug } = useParams<{ slug?: string }>()
   const [search] = useSearchParams()
   const [keyword, setKeyword] = useState<string | null>()
-  const [category, setCategory] = useState<ICategory>()
+  const [category, setCategory] = useState<ICategory | undefined>()
   const [parentCategory, setParentCategory] = useState<ICategory>()
   const navigate = useNavigate()
   const [gigs, setGigs] = useState<Array<IGig>>([])
@@ -136,7 +136,7 @@ function GigsPage() {
       .then((response) => {
         if (response.status === 200) {
           setCategory(response.data.category)
-          setParentCategory(response.data.parentCategory)
+          setParentCategory(response.data.parentParentCategory)
         }
       })
       .catch((error: any) => {
@@ -432,7 +432,7 @@ function GigsPage() {
                 open={openSort}
                 anchorEl={anchorRefSort.current}
                 role={undefined}
-                placement='bottom-end'
+                placement='top-end'
                 transition
                 disablePortal
               >

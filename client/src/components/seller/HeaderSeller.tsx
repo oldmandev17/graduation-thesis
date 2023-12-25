@@ -12,6 +12,7 @@ import { AiOutlineBell, AiOutlineMail } from 'react-icons/ai'
 import { IoIosArrowDown, IoIosNotificationsOutline } from 'react-icons/io'
 import { IoNotificationsCircleOutline } from 'react-icons/io5'
 import { MdOutlineNotificationImportant } from 'react-icons/md'
+import { SiFreelancer } from 'react-icons/si'
 import { VscMail, VscMailRead } from 'react-icons/vsc'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -67,9 +68,9 @@ function HeaderSeller() {
   }
 
   useEffect(() => {
-    getAllNotifications()
+    if (user) getAllNotifications()
     const intervalId = setInterval(() => {
-      getAllNotifications()
+      if (user) getAllNotifications()
     }, 10000)
     return () => clearInterval(intervalId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,17 +89,13 @@ function HeaderSeller() {
   return (
     <div className='flex flex-row justify-between py-5 border border-gray-100 px-28 border-y-2'>
       <div className='flex flex-row items-center gap-10'>
-        <img
-          onClick={() => navigate(`/user/${user?.id}`)}
-          src='/images/Fiverr-Logo.png'
-          alt='logo'
-          width='80'
-          height='80'
-          className='cursor-pointer'
+        <SiFreelancer
+          onClick={() => navigate(`/user/${user?.id}/dashboard`)}
+          className='w-12 h-12 cursor-pointer fill-green-600'
         />
         <div className='flex flex-row items-center gap-5'>
           <Button
-            onClick={() => navigate(`/user/${user?.id}`)}
+            onClick={() => navigate(`/user/${user?.id}/dashboard`)}
             className='!font-sans !text-lg !text-gray-500 !capitalize '
           >
             Dashboard

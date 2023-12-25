@@ -10,6 +10,8 @@ import categoryRoutes from './routes/categoryRoute'
 import gigRoutes from './routes/gigRoute'
 import logRoutes from './routes/logRoute'
 import messageRouter from './routes/messageRoute'
+import orderRoutes from './routes/orderRoute'
+import { MESSAGE_NOTFOUND } from './utils/message'
 
 // Use redis cluter
 require('src/helpers/initRedis')
@@ -60,6 +62,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/category', categoryRoutes)
 app.use('/api/log', logRoutes)
 app.use('/api/gig', gigRoutes)
+app.use('/api/order', orderRoutes)
 app.use('/api/message', messageRouter)
 // Swagger Page
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
@@ -72,7 +75,7 @@ app.get('/docs.json', (req: Request, res: Response) => {
 app.use(express.urlencoded({ extended: true }))
 
 app.use(async (req, res, next) => {
-  next(httpError.NotFound())
+  next(httpError.NotFound(MESSAGE_NOTFOUND))
 })
 app.use(
   (

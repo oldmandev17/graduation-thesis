@@ -10,6 +10,18 @@ export enum SortFilter {
 
 const arrDeliveryTime = [
   {
+    label: '1 DAYS DELIVERY',
+    value: 1
+  },
+  {
+    label: '2 DAYS DELIVERY',
+    value: 2
+  },
+  {
+    label: '3 DAYS DELIVERY',
+    value: 3
+  },
+  {
     label: '5 DAYS DELIVERY',
     value: 5
   },
@@ -270,8 +282,8 @@ const arrOrderStatus = [
     value: OrderStatus.CANCEL
   },
   {
-    label: 'COMPLETE',
-    value: OrderStatus.COMPLETE
+    label: 'ACCEPT',
+    value: OrderStatus.ACCEPT
   },
   {
     label: 'BUYER COMFIRM',
@@ -280,6 +292,10 @@ const arrOrderStatus = [
   {
     label: 'SELLER COMFIRM',
     value: OrderStatus.SELLER_COMFIRM
+  },
+  {
+    label: 'COMPLETE',
+    value: OrderStatus.COMPLETE
   }
 ]
 

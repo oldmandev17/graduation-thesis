@@ -457,6 +457,7 @@ function CreateGigPricingPage() {
                       {...register('basicPrice')}
                       defaultValue={gig?.packages && gig?.packages[0]?.price && gig?.packages[0]?.price}
                       type='number'
+                      step={0.01}
                       className='w-full select-none text-md'
                     />
                   </div>
@@ -470,6 +471,7 @@ function CreateGigPricingPage() {
                       {...register('standardPrice')}
                       defaultValue={gig?.packages && gig?.packages[1]?.price && gig?.packages[1]?.price}
                       type='number'
+                      step={0.01}
                       className='w-full select-none text-md'
                     />
                   </div>
@@ -483,6 +485,7 @@ function CreateGigPricingPage() {
                       {...register('premiumPrice')}
                       defaultValue={gig?.packages && gig?.packages[2]?.price && gig?.packages[2]?.price}
                       type='number'
+                      step={0.01}
                       className='w-full select-none text-md'
                     />
                   </div>

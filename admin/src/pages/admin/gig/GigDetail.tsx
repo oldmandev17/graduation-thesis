@@ -7,11 +7,11 @@ import Fancybox from 'components/common/Fancybox'
 import { ICategory } from 'modules/category'
 import { GigPackageType, GigStatus, IGig } from 'modules/gig'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { FcFlashOn } from 'react-icons/fc'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
 import timeAgo from 'utils/timeAgo'
-import { FcFlashOn } from 'react-icons/fc'
 
 function GigDetail() {
   const { id } = useParams<{ id?: string }>()
@@ -96,7 +96,7 @@ function GigDetail() {
       {gig?.status === GigStatus.WAITING && (
         <div>
           <div className='flex gap-10'>
-            <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Request Public Gig</h2>
+            <h2 className='mb-2 text-2xl font-bold text-gray-600 dark:text-white'>Request Public Gig</h2>
             <FcFlashOn className='w-8 h-8 p-1 border border-yellow-600 rounded-full animate-bounce' />
           </div>
           <div className='flex items-center w-full gap-10 mt-5'>
@@ -265,8 +265,8 @@ function GigDetail() {
         <p className='text-gray-500 dark:text-gray-400'>{gig?.description}</p>
       </div>
       <div id='detailed-pricing' className='w-full overflow-x-auto'>
-        <div className='overflow-hidden min-w-max'>
-          <div className='grid grid-cols-4 p-4 text-sm font-medium text-gray-900 bg-gray-100 border-t border-b border-gray-200 gap-x-16 dark:bg-gray-800 dark:border-gray-700 dark:text-white'>
+        <div className='overflow-hidden min-w-min'>
+          <div className='grid grid-cols-4 p-4 text-sm font-medium text-gray-600 bg-gray-100 border-t border-b border-gray-200 gap-x-16 dark:bg-gray-800 dark:border-gray-700 dark:text-white'>
             <div className='flex items-center'>Package</div>
             <div>{GigPackageType.BASIC}</div>
             <div>{GigPackageType.STANDARD}</div>
@@ -274,21 +274,33 @@ function GigDetail() {
           </div>
           <div className='grid grid-cols-4 px-4 py-5 text-sm text-gray-700 border-b border-gray-200 gap-x-16 dark:border-gray-700'>
             <div className='text-gray-500 dark:text-gray-400'>Name</div>
-            <div className='p-1'>{gig && gig.packages && gig?.packages[0]?.name}</div>
-            <div className='p-1'>{gig && gig.packages && gig?.packages[1]?.name}</div>
-            <div className='p-1'>{gig && gig.packages && gig?.packages[2]?.name}</div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>{gig && gig.packages && gig?.packages[0]?.name}</div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>{gig && gig.packages && gig?.packages[1]?.name}</div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>{gig && gig.packages && gig?.packages[2]?.name}</div>
           </div>
           <div className='grid grid-cols-4 px-4 py-5 text-sm text-gray-700 border-b border-gray-200 gap-x-16 dark:border-gray-700'>
             <div className='text-gray-500 dark:text-gray-400'>Description</div>
-            <div className='p-1'>{gig && gig.packages && gig?.packages[0]?.description}</div>
-            <div className='p-1'>{gig && gig.packages && gig?.packages[1]?.description}</div>
-            <div className='p-1'>{gig && gig.packages && gig?.packages[2]?.description}</div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
+              {gig && gig.packages && gig?.packages[0]?.description}
+            </div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
+              {gig && gig.packages && gig?.packages[1]?.description}
+            </div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
+              {gig && gig.packages && gig?.packages[2]?.description}
+            </div>
           </div>
           <div className='grid grid-cols-4 px-4 py-5 text-sm text-gray-700 border-b border-gray-200 gap-x-16 dark:border-gray-700'>
             <div className='text-gray-500 dark:text-gray-400'>Price</div>
-            <div className='p-1'>${gig && gig.packages && gig?.packages[0]?.price}</div>
-            <div className='p-1'>${gig && gig.packages && gig?.packages[1]?.price}</div>
-            <div className='p-1'>${gig && gig.packages && gig?.packages[2]?.price}</div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
+              ${gig && gig.packages && gig?.packages[0]?.price}
+            </div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
+              ${gig && gig.packages && gig?.packages[1]?.price}
+            </div>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
+              ${gig && gig.packages && gig?.packages[2]?.price}
+            </div>
           </div>
           {gig &&
             gig?.packages &&
@@ -420,13 +432,13 @@ function GigDetail() {
             ))}
           <div className='grid grid-cols-4 px-4 py-5 text-sm text-gray-700 border-b border-gray-200 gap-x-16 dark:border-gray-700'>
             <div className='text-gray-500 dark:text-gray-400'>Revisions</div>
-            <div className='p-1'>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
               {gig && gig.packages && gig?.packages[0]?.revisions !== 999 ? gig?.packages[0]?.revisions : 'Unlimited'}
             </div>
-            <div className='p-1'>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
               {gig && gig.packages && gig?.packages[0]?.revisions !== 999 ? gig?.packages[1]?.revisions : 'Unlimited'}
             </div>
-            <div className='p-1'>
+            <div className='p-1 text-gray-500 dark:text-gray-400'>
               {gig && gig.packages && gig?.packages[0]?.revisions !== 999 ? gig?.packages[2]?.revisions : 'Unlimited'}
             </div>
           </div>
@@ -493,7 +505,7 @@ function GigDetail() {
                         {timeAgo(review.reviewer.createdAt)}
                       </time>
                       <div className='text-sm font-normal text-gray-500 lex dark:text-gray-300'>
-                        <span className='mr-5 font-semibold text-gray-900 dark:text-white hover:underline'>
+                        <span className='mr-5 font-semibold text-gray-600 dark:text-white hover:underline'>
                           {review.reviewer.name}
                         </span>
                         {review.reviewer.id}

@@ -1,5 +1,6 @@
 import httpError from 'http-errors'
 import Log, { LogMethod, LogName, LogStatus } from 'src/models/logModel'
+import { MESSAGE_INTERNALSERVERERROR } from './message'
 
 interface Logger {
   user?: string
@@ -34,6 +35,6 @@ export const logger = async (logger: Logger) => {
       })
   } catch (error) {
     console.log('🚀 ~ file: logger.ts:5 ~ logger ~ error:', error)
-    return httpError.InternalServerError()
+    return httpError.InternalServerError(MESSAGE_INTERNALSERVERERROR)
   }
 }

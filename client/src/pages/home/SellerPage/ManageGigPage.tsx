@@ -4,6 +4,7 @@
 import { Fade, Menu, MenuItem } from '@mui/material'
 import { getAllGigByUser, updateGigStatus } from 'apis/api'
 import { arrGigStatus } from 'assets/data'
+import GigStatusTag from 'components/common/GigStatusTag'
 import { GigStatus, IGig } from 'modules/gig'
 import { MouseEvent, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
@@ -43,12 +44,14 @@ function Row({ gig, setReload }: { gig: IGig; setReload: any }) {
 
   return (
     <>
-      <td className='p-3 text-sm font-medium text-gray-500'>{gig?.name}</td>
-      <td className='p-3 text-sm font-medium text-gray-500'>{calculateTime(gig?.createdAt)}</td>
-      <td className='p-3 text-sm font-medium text-gray-500'>{gig.orders ? gig.orders.length : 0}</td>
-      <td className='p-3 text-sm font-medium text-gray-500'>{gig.reviews ? gig.reviews.length : 0}</td>
-      <td className='p-3 text-sm font-medium text-gray-500'>{gig?.reason}</td>
-      <td className='p-3 text-sm font-medium text-gray-500'>{gig?.status}</td>
+      <td className='p-4 text-sm font-medium text-gray-500'>{gig?.name}</td>
+      <td className='p-4 text-sm font-medium text-gray-500'>{calculateTime(gig?.createdAt)}</td>
+      <td className='p-4 text-sm font-medium text-gray-500'>{gig.orders ? gig.orders.length : 0}</td>
+      <td className='p-4 text-sm font-medium text-gray-500'>{gig.reviews ? gig.reviews.length : 0}</td>
+      <td className='p-4 text-sm font-medium text-gray-500'>{gig?.reason}</td>
+      <td className='p-4 text-sm font-medium text-gray-500'>
+        <GigStatusTag status={gig?.status} />
+      </td>
       <td>
         <button
           type='button'
@@ -189,7 +192,7 @@ function ManageGigPage() {
         <div>
           <table className='w-full my-5 bg-white'>
             <thead>
-              <tr className='bg-white border border-gray-300'>
+              <tr className='bg-gray-100 border border-gray-300'>
                 <th className='py-5 text-base font-semibold text-gray-500'>NAME</th>
                 <th
                   className='flex items-center justify-center gap-2 py-5 text-base font-semibold text-gray-500 cursor-pointer'
@@ -259,6 +262,7 @@ function ManageGigPage() {
                     </Menu>
                   </div>
                 </th>
+                <th className='py-5 text-base font-semibold text-gray-500'> </th>
               </tr>
             </thead>
             <tbody>

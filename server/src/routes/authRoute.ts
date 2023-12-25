@@ -4,6 +4,7 @@ import {
   createUser,
   getAllUser,
   getProfile,
+  getUserById,
   getUserDetail,
   login,
   logout,
@@ -29,6 +30,7 @@ authRouter.route('/login').post(login)
 authRouter.route('/refresh-token').post(refreshToken)
 authRouter.route('/logout/:refreshToken').delete(logout)
 authRouter.route('/me').get(verifyAccessToken, getProfile)
+authRouter.route('/user/:id').get(verifyAccessToken, authorizeRoles([UserRole.BUYER, UserRole.SELLER]), getUserById)
 authRouter.route('/admin').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getAllUser)
 authRouter.route('/admin/create-user').post(verifyAccessToken, authorizeRoles([UserRole.ADMIN]), createUser)
 authRouter

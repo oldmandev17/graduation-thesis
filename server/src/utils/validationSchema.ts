@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { CategoryStatus } from 'src/models/categoryModel'
 import { GigPackageType, GigStatus } from 'src/models/gigModel'
+import { OrderMethod } from 'src/models/orderModel'
 import { UserGender, UserRole, UserStatus } from 'src/models/userModel'
 
 export const authRegisterSchema = Joi.object({
@@ -46,9 +47,7 @@ export const userUpdateSchema = Joi.object({
   gender: Joi.string()
     .allow(null)
     .valid(...Object.values(UserGender)),
-  phone: Joi.string()
-    .allow(null)
-    .regex(/^[0-9]{10}$/),
+  phone: Joi.string().allow(null).allow('').optional(),
   password: Joi.string()
     .allow(null)
     .pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
@@ -129,10 +128,19 @@ export const gigStatusSchema = Joi.object({
 export const gigDeleteSchema = Joi.array().items(Joi.string()).min(1)
 
 export const orderSchema = Joi.object({
-  name: Joi.string()
+  paymentID: Joi.string().required(),
+  method: Joi.string().valid(...Object.values(OrderMethod)),
+  price: Joi.number().required(),
+  quantity: Joi.number().required(),
+  dueOn: Joi.date().required(),
+  gig: Joi.string().required(),
+  type: Joi.string().valid(...Object.values(GigPackageType))
 })
 
-export const orderStatusSchema = Joi.array().items(Joi.string()).min(1)
+export const orderStatusSchema = Joi.object({
+  ids: Joi.array().items(Joi.string()).min(1),
+  reason: Joi.string()
+})
 
 export const orderDeleteSchema = Joi.array().items(Joi.string()).min(1)
 

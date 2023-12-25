@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { AiOutlineSearch } from 'react-icons/ai'
+import { SiFreelancer } from 'react-icons/si'
 import { useLocation, useNavigate } from 'react-router-dom'
 import NavigationBar from './NavigationBar'
 
@@ -47,14 +48,7 @@ function HeaderBasic() {
     >
       <div className='flex flex-row items-center justify-between py-5 px-28'>
         <div className='flex flex-row w-3/4 gap-5'>
-          <img
-            onClick={() => navigate('/')}
-            src='/images/Fiverr-Logo.png'
-            alt='logo'
-            width='80'
-            height='80'
-            className='cursor-pointer'
-          />
+          <SiFreelancer onClick={() => navigate('/')} className='w-12 h-12 cursor-pointer fill-green-600' />
           <form
             onSubmit={handleSearchKeyword}
             className={`flex flex-row w-full ${
@@ -81,7 +75,7 @@ function HeaderBasic() {
             type='button'
             className={`${
               isFixed ? 'text-gray-600' : `${location.pathname === '/' && 'text-white'}`
-            } text-lg font-semibold hover:text-green-500 mx-2 cursor-pointer transition-all duration-300`}
+            } text-lg font-semibold hover:text-green-500 mx-2 cursor-pointer transition-all duration-300 min-w-max`}
           >
             Become a Seller
           </button>
@@ -90,7 +84,7 @@ function HeaderBasic() {
             type='button'
             className={`${
               isFixed ? 'text-gray-600' : `${location.pathname === '/' && 'text-white'}`
-            } text-lg font-semibold hover:text-green-500 mx-2 cursor-pointer transition-all duration-300`}
+            } text-lg font-semibold hover:text-green-500 mx-2 cursor-pointer transition-all duration-300 min-w-max`}
           >
             Sign In
           </button>

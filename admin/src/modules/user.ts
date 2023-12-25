@@ -42,7 +42,6 @@ export interface IUser {
   role: Array<UserRole>
   orders: Array<IOrder>
   gigs: Array<IGig>
-  contacts?: any
   target: Array<ICategory>
   wishlist: Array<IGig>
   status: UserStatus

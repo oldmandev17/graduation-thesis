@@ -6,11 +6,18 @@ import {
   requestAuthLogIn,
   requestAuthLogout,
   requestAuthRefreshToken,
+  requestAuthSignUp,
   requestForgotPassword,
   requestResetPassword
 } from './auth-requests'
 import { authUpdateUser } from './auth-slice'
-import { ForgotPasswordPayload, LogInGooglePayload, LogInPayload, ResetPasswordPayload } from './auth-types'
+import {
+  ForgotPasswordPayload,
+  LogInGooglePayload,
+  LogInPayload,
+  RegisterPayload,
+  ResetPasswordPayload
+} from './auth-types'
 
 function* handleAuthFetchMe({ payload }: { payload: string }): Generator<any, void, any> {
   try {
@@ -34,6 +41,15 @@ function* handleAuthLogIn({ payload }: { payload: LogInPayload; type: string }):
       saveToken(response.data.accessToken, response.data.refreshToken)
       yield call(handleAuthFetchMe, { payload: response.data.accessToken })
     }
+  } catch (error: any) {
+    toast.error(error.response.data.error.message)
+  }
+}
+
+function* handleAuthSignUp({ payload }: { payload: RegisterPayload; type: string }): Generator<any, void, any> {
+  try {
+    const response = yield call(requestAuthSignUp, payload)
+    if (response.status === 200) toast.success('Please check your email')
   } catch (error: any) {
     toast.error(error.response.data.error.message)
   }
@@ -114,6 +130,7 @@ function* handleAuthResetPassword({
 
 export {
   handleAuthFetchMe,
+  handleAuthSignUp,
   handleAuthForgotPassword,
   handleAuthLogIn,
   handleAuthLogInGoolge,

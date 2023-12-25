@@ -1,13 +1,14 @@
-import React from 'react'
-import { SiFiverr } from 'react-icons/si'
+import { AiFillFacebook, AiFillTwitterSquare, AiOutlineCopyrightCircle, AiOutlineInstagram } from 'react-icons/ai'
 import { BsDot } from 'react-icons/bs'
-import { AiFillFacebook, AiOutlineInstagram, AiFillTwitterSquare, AiOutlineCopyrightCircle } from 'react-icons/ai'
+import { SiFreelancer } from 'react-icons/si'
+import { useNavigate } from 'react-router-dom'
 
 function Footer() {
+  const navigate = useNavigate()
   return (
     <div className='flex flex-col bg-[#00b14f] px-48 py-4'>
       <div className='border-b border-b-gray-300'>
-        <SiFiverr className='w-32 h-28 fill-slate-50' />
+        <SiFreelancer onClick={() => navigate('/')} className='w-16 h-16 cursor-pointer fill-gray-50' />
       </div>
       <div className='grid grid-cols-4 py-8 border-b border-b-gray-300 gap-36'>
         <div className='flex flex-col gap-4 text-lg font-semibold text-white'>

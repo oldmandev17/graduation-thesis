@@ -37,12 +37,7 @@ interface MonthlyStats {
 
 const userSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
-  phone: Yup.string()
-    .matches(
-      /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
-      'Phone number is not valid'
-    )
-    .nullable(),
+  phone: Yup.string(),
   gender: Yup.string().oneOf(Object.values(UserGender)).nullable(),
   status: Yup.string().oneOf(Object.values(UserStatus)),
   avatar: Yup.mixed(),
@@ -278,8 +273,8 @@ function UserDetail() {
     }
 
     orders.forEach((order) => {
-      const orderYear = order.createdAt.getFullYear().toString()
-      const orderMonth = getMonthName(order.createdAt.getMonth() + 1)
+      const orderYear = new Date(order.createdAt).getFullYear().toString()
+      const orderMonth = getMonthName(new Date(order.createdAt).getMonth() + 1)
       const yearMonthKey = `${orderMonth}-${orderYear}`
 
       if (monthlyStatsMap[yearMonthKey]) {

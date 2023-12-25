@@ -11,6 +11,13 @@ export interface LogInPayload {
   password: string
 }
 
+export interface RegisterPayload {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
 export interface LogInGooglePayload {
   accessToken: string
   refreshToken: string

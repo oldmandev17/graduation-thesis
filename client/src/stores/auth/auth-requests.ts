@@ -5,6 +5,10 @@ const requestAuthLogIn = (data: any) => {
   return axiosJson.post('/auth/login', { ...data })
 }
 
+const requestAuthSignUp = (data: any) => {
+  return axiosJson.post('/auth/register', { ...data })
+}
+
 const requestAuthFetchMe = (token: any) => {
   if (!token) return
   return axiosJson.get('/auth/me', {
@@ -69,5 +73,6 @@ export {
   requestAuthRefreshToken,
   requestForgotPassword,
   requestResetPassword,
-  requestAuthLogIn
+  requestAuthLogIn,
+  requestAuthSignUp
 }

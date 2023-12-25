@@ -218,7 +218,7 @@ function CreateGigFaqGalleryPage() {
             {images.map((image, index) => (
               <div key={index} className='relative bg-white border border-gray-700'>
                 <img
-                  className='flex items-center justify-center object-contain w-full h-32'
+                  className='flex items-center justify-center object-contain w-full h-40'
                   alt='gig'
                   src={
                     gig && gig.images && gig?.images?.length === 0
@@ -229,14 +229,14 @@ function CreateGigFaqGalleryPage() {
                   }
                 />
                 <button type='button' className='absolute z-10 top-2 right-2' onClick={() => handleRemoveImage(index)}>
-                  <IoMdClose />
+                  <IoMdClose className='fill-red-600' />
                 </button>
               </div>
             ))}
             {images.length < 5 && (
               <div
                 {...getRootProps()}
-                className='flex flex-col items-center justify-center h-32 bg-white border border-gray-700 border-dashed cursor-pointer'
+                className='flex flex-col items-center justify-center h-40 bg-white border border-gray-700 border-dashed cursor-pointer'
               >
                 <CiImageOn className='w-8 h-8 fill-gray-400' />
                 <span className='text-base text-gray-500'>Drag & drop a photo or</span>

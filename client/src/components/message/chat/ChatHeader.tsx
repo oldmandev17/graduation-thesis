@@ -10,10 +10,18 @@ function ChatHeader() {
   const { currentChatUser } = useMessage()
 
   return (
-    <div className='h-16 px-4 py-3 flex justify-between items-center bg-panel-header-background z-10'>
+    <div className='z-10 flex items-center justify-between h-16 px-4 py-3 shadow-lg bg-panel-header-background'>
       <div className='flex items-center justify-center gap-6'>
         {currentChatUser?.avatar ? (
-          <Avatar type='sm' image={process.env.REACT_APP_URL_SERVER + currentChatUser.avatar} setImage={null} />
+          <Avatar
+            type='sm'
+            image={
+              currentChatUser.avatar.startsWith('upload')
+                ? `${process.env.REACT_APP_URL_SERVER}/${currentChatUser.avatar}`
+                : currentChatUser.avatar
+            }
+            setImage={null}
+          />
         ) : (
           <div className='relative flex items-center justify-center w-8 h-8 bg-purple-500 rounded-full'>
             <span className='text-lg text-white'>{currentChatUser && currentChatUser?.email[0].toUpperCase()}</span>
@@ -21,14 +29,14 @@ function ChatHeader() {
         )}
         <div className='flex flex-col'>
           <span className='text-primary-strong'>{currentChatUser?.name}</span>
-          <span className='text-secondary text-sm'>online/offline</span>
+          <span className='text-sm text-secondary'>online/offline</span>
         </div>
       </div>
       <div className='flex gap-6'>
-        <MdCall className='text-panel-header-icon cursor-pointer text-xl' />
-        <IoVideocam className='text-panel-header-icon cursor-pointer text-xl' />
-        <BiSearchAlt2 className='text-panel-header-icon cursor-pointer text-xl' />
-        <BsThreeDotsVertical className='text-panel-header-icon cursor-pointer text-xl' />
+        <MdCall className='text-xl cursor-pointer text-panel-header-icon' />
+        <IoVideocam className='text-xl cursor-pointer text-panel-header-icon' />
+        <BiSearchAlt2 className='text-xl cursor-pointer text-panel-header-icon' />
+        <BsThreeDotsVertical className='text-xl cursor-pointer text-panel-header-icon' />
       </div>
     </div>
   )

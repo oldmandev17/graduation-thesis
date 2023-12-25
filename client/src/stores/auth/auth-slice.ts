@@ -5,6 +5,7 @@ import {
   ForgotPasswordPayload,
   LogInGooglePayload,
   LogInPayload,
+  RegisterPayload,
   ResetPasswordPayload,
   UpdateUserPayload
 } from './auth-types'
@@ -21,6 +22,11 @@ const authSlice = createSlice({
   reducers: {
     authLogIn: (state, action: PayloadAction<LogInPayload>) => ({
       ...state
+    }),
+
+    authSignUp: (state, action: PayloadAction<RegisterPayload>) => ({
+      ...state,
+      ...action.payload
     }),
 
     authLogInGoogle: (state, action: PayloadAction<LogInGooglePayload>) => ({
@@ -49,6 +55,7 @@ const authSlice = createSlice({
 
 export const {
   authLogIn,
+  authSignUp,
   authUpdateUser,
   authFetchMe,
   authForgotPassowrd,

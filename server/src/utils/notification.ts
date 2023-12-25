@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
-import Notification, { INotification, NotificationStatus, NotificationType } from 'src/models/notificationModel'
-import APIFeature from './apiFeature'
-import { findUser } from './findUser'
+import Notification, { NotificationStatus, NotificationType } from 'src/models/notificationModel'
 import { UserRole } from 'src/models/userModel'
+import { findUser } from './findUser'
 
 export async function createNotification(
   user: string | null,
@@ -66,7 +65,8 @@ export async function getAllNotification(req: Request, res: Response, next: Next
     if (user?.role.includes(UserRole.ADMIN) || user?.role.includes(UserRole.ADMIN)) {
       query.type = NotificationType.ADMIN
     } else {
-      ;(query.user = req.payload.userId), (query.type = NotificationType.USER)
+      query.user = req.payload.userId
+      query.type = NotificationType.USER
     }
     const notifications = await Notification.find(query).sort({ createdAt: 'desc' }).populate('user')
 

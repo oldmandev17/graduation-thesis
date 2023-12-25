@@ -1,14 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { useEffect } from 'react'
-import { toast } from 'react-toastify'
-import * as Yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useAppDispatch } from 'stores/hooks'
+import { SiFreelancer } from 'react-icons/si'
+import { toast } from 'react-toastify'
 import { authForgotPassowrd } from 'stores/auth/auth-slice'
-import { TbBrandFiverr } from 'react-icons/tb'
-import { SiFiverr } from 'react-icons/si'
+import { useAppDispatch } from 'stores/hooks'
+import * as Yup from 'yup'
 
 function ForgotPassword() {
   const forgotPasswordSchema = Yup.object({
@@ -47,10 +46,9 @@ function ForgotPassword() {
 
   return (
     <section>
-      <div className='flex flex-col items-center justify-center px-6 py-20 mx-auto'>
+      <div className='flex flex-col items-center justify-center px-6 py-8 mx-auto'>
         <a href='/' className='flex items-center gap-3 mb-6 text-gray-900 fot-semibold te-xt-2xl dark:text-white'>
-          <TbBrandFiverr className='w-10 h-10 p-2 bg-green-400 rounded-full fill-white' />
-          <SiFiverr className='w-20 h-20 dark:fill-white fill-black' />
+          <SiFreelancer className='w-20 h-20 dark:fill-white fill-black' />
         </a>
         <div className='w-full p-6 bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md dark:bg-gray-800 dark:border-gray-700 sm:p-8'>
           <h1 className='mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white'>

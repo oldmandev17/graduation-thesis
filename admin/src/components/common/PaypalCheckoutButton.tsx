@@ -1,6 +1,5 @@
 import { PayPalButtons } from '@paypal/react-paypal-js'
 // import { IGig, Package } from 'modules/gig'
-import React from 'react'
 
 // { gig, parcel }: { gig: IGig; parcel: Package }
 

@@ -1,3 +1,4 @@
+import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import { MessageProvider } from 'contexts/StateContext'
 import { UserRole } from 'modules/user'
 import RequiredAuth from 'pages/auth/RequiredAuth'
@@ -40,6 +41,9 @@ const AnalyticPage = lazy(() => import('pages/home/SellerPage/AnalyticPage'))
 const PersonalInfoPage = lazy(() => import('pages/home/PersonalInfoPage'))
 const WishlistPage = lazy(() => import('pages/home/WishlistPage'))
 const ProfilePage = lazy(() => import('pages/home/ProfilePage'))
+const CheckoutPage = lazy(() => import('pages/home/BuyerPage/CheckoutPage'))
+const ManageBuyerOrderPage = lazy(() => import('pages/home/BuyerPage/ManageBuyerOrderPage'))
+const OrderDetailPage = lazy(() => import('pages/home/OrderDetailPage'))
 
 const Wrapper = ({ children }: { children: ReactNode }): any => {
   const location = useLocation()
@@ -75,10 +79,6 @@ const router = createBrowserRouter([
             element: <ProfilePage />
           },
           {
-            path: '/user/:userId/wishlists',
-            element: <WishlistPage />
-          },
-          {
             path: '/user/:userId/gig-detail/:id',
             element: <GigDetailPage />
           },
@@ -97,6 +97,38 @@ const router = createBrowserRouter([
           {
             path: '/search',
             element: <GigsPage />
+          },
+          {
+            path: '/user/:userId/',
+            element: <RequiredAuth allowPermissions={[UserRole.BUYER]} />,
+            children: [
+              {
+                path: '/user/:userId/buyer-orders',
+                element: <ManageBuyerOrderPage />
+              },
+              {
+                path: '/user/:userId/buyer-orders/:id',
+                element: <OrderDetailPage />
+              },
+              {
+                path: '/user/:userId/wishlists',
+                element: <WishlistPage />
+              }
+            ]
+          }
+        ]
+      },
+      {
+        path: '/user/:userId',
+        element: <RequiredAuth allowPermissions={[UserRole.BUYER, UserRole.SELLER]} />,
+        children: [
+          {
+            path: '/user/:userId/checkout',
+            element: <CheckoutPage />
+          },
+          {
+            path: '/user/:userId/completion',
+            element: <CheckoutPage />
           }
         ]
       },
@@ -161,7 +193,7 @@ const router = createBrowserRouter([
             element: <SellerOnboardLayout />,
             children: [
               {
-                path: '/user/:userId/',
+                path: '/user/:userId/dashboard',
                 element: <DashboardPage />
               },
               {
@@ -171,6 +203,10 @@ const router = createBrowserRouter([
               {
                 path: '/user/:userId/orders',
                 element: <ManageOrderPage />
+              },
+              {
+                path: '/user/:userId/orders/:id',
+                element: <OrderDetailPage />
               },
               {
                 path: '/user/:userId/analytics',
@@ -210,7 +246,12 @@ createRoot(container).render(
       <Suspense fallback={<p />}>
         <MessageProvider>
           <App>
-            <RouterProvider router={router} />
+            <PayPalScriptProvider
+              options={{ clientId: 'AcBjmzGF3GNUdDIF7jR_9_56O5dzfgrSKOv39T8gRGoKe0UrSrTeKF-kUCQfP-jScMng_IefD4vKOxjy' }}
+            >
+              <div id='photo-picker-element' />
+              <RouterProvider router={router} />
+            </PayPalScriptProvider>
           </App>
         </MessageProvider>
         <ToastContainer

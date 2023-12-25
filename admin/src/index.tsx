@@ -1,3 +1,4 @@
+import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import { UserRole } from 'modules/user'
 import RequiredAuth from 'pages/auth/RequiredAuth'
 import { ReactNode, Suspense, lazy, useLayoutEffect } from 'react'
@@ -7,7 +8,6 @@ import { IoCloseSharp } from 'react-icons/io5'
 import { Provider } from 'react-redux'
 import { Outlet, RouterProvider, createBrowserRouter, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
-import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import 'react-toastify/dist/ReactToastify.css'
 import { store } from 'stores/configureStore'
 import App from './App'
@@ -194,7 +194,10 @@ createRoot(container).render(
       <Suspense fallback={<p />}>
         <App>
           <PayPalScriptProvider
-            options={{ clientId: 'AcBjmzGF3GNUdDIF7jR_9_56O5dzfgrSKOv39T8gRGoKe0UrSrTeKF-kUCQfP-jScMng_IefD4vKOxjy' }}
+            options={{
+              clientId: 'AcBjmzGF3GNUdDIF7jR_9_56O5dzfgrSKOv39T8gRGoKe0UrSrTeKF-kUCQfP-jScMng_IefD4vKOxjy',
+              currency: 'USD'
+            }}
           >
             <RouterProvider router={router} />
           </PayPalScriptProvider>

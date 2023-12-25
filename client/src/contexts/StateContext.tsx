@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { IGig } from 'modules/gig'
+import { IGig, Package } from 'modules/gig'
 import { IMessage } from 'modules/message'
 import { IUser } from 'modules/user'
 import { ReactNode, createContext, useContext, useState } from 'react'
@@ -10,6 +10,11 @@ type MessageContextType = {
   messages: Array<IMessage>
   socket: any
   wishlist: Array<IGig>
+  order: {
+    gig: IGig | undefined
+    quantity: number
+    pack: Package | undefined
+  }
   handleCurrentChatUser: (value: any) => void
   handleContactsPage: () => void
   handleMessages: (value: any) => void
@@ -18,6 +23,8 @@ type MessageContextType = {
   handleWishlist: (value: any) => void
   handleAddWishlist: (value: any) => void
   handleRemoveWishlist: (value: any) => void
+  handleAddOrder: (value: any) => void
+  handleRemoveOrder: () => void
 }
 
 const messageContextDefaultValues: MessageContextType = {
@@ -26,6 +33,11 @@ const messageContextDefaultValues: MessageContextType = {
   messages: [],
   socket: undefined,
   wishlist: [],
+  order: {
+    gig: undefined,
+    quantity: 0,
+    pack: undefined
+  },
   handleCurrentChatUser: () => {},
   handleContactsPage: () => {},
   handleMessages: () => {},
@@ -33,7 +45,9 @@ const messageContextDefaultValues: MessageContextType = {
   handleAddMessage: () => {},
   handleWishlist: () => {},
   handleAddWishlist: () => {},
-  handleRemoveWishlist: () => {}
+  handleRemoveWishlist: () => {},
+  handleAddOrder: () => {},
+  handleRemoveOrder: () => {}
 }
 
 const MessageContext = createContext<MessageContextType>(messageContextDefaultValues)
@@ -52,6 +66,19 @@ export function MessageProvider({ children }: Props) {
   const [socket, setSocket] = useState<any>(undefined)
   const [contactsPage, setContactsPage] = useState<boolean>(false)
   const [wishlist, setWishlist] = useState<Array<IGig>>([])
+  const [order, setOrder] = useState<{ gig: IGig | undefined; quantity: number; pack: Package | undefined }>({
+    gig: undefined,
+    quantity: 0,
+    pack: undefined
+  })
+
+  const handleAddOrder = (value: any) => {
+    setOrder(value)
+  }
+
+  const handleRemoveOrder = () => {
+    setOrder({ gig: undefined, quantity: 0, pack: undefined })
+  }
 
   const handleCurrentChatUser = (value: any) => {
     setCurrentChatUser(value)
@@ -90,6 +117,7 @@ export function MessageProvider({ children }: Props) {
     socket,
     contactsPage,
     wishlist,
+    order,
     handleCurrentChatUser,
     handleMessages,
     handleSocket,
@@ -97,7 +125,9 @@ export function MessageProvider({ children }: Props) {
     handleContactsPage,
     handleWishlist,
     handleAddWishlist,
-    handleRemoveWishlist
+    handleRemoveWishlist,
+    handleAddOrder,
+    handleRemoveOrder
   }
   return <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
 }

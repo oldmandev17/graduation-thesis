@@ -3,8 +3,7 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { SiFiverr } from 'react-icons/si'
-import { TbBrandFiverr } from 'react-icons/tb'
+import { SiFreelancer } from 'react-icons/si'
 import { toast } from 'react-toastify'
 import { authLogIn } from 'stores/auth/auth-slice'
 import { useAppDispatch } from 'stores/hooks'
@@ -47,10 +46,9 @@ function Login() {
 
   return (
     <section>
-      <div className='flex flex-col items-center justify-center px-6 py-12 mx-auto'>
+      <div className='flex flex-col items-center justify-center px-6 mx-5 auto py-'>
         <a href='/' className='flex items-center gap-3 mb-6 text-gray-900 fot-semibold te-xt-2xl dark:text-white'>
-          <TbBrandFiverr className='w-10 h-10 p-2 bg-green-400 rounded-full fill-white' />
-          <SiFiverr className='w-20 h-20 dark:fill-white fill-black' />
+          <SiFreelancer className='w-20 h-20 dark:fill-white fill-black' />
         </a>
         <div className='w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700'>
           <div className='p-6 space-y-4 md:space-y-6 sm:p-8'>

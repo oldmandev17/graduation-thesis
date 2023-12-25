@@ -1,50 +1,81 @@
-import { useEffect, useState } from 'react'
-import { BiArrowBack, BiSearchAlt2 } from 'react-icons/bi'
-import { useAppSelector } from 'stores/hooks'
+/* eslint-disable no-underscore-dangle */
+import { getProfile } from 'apis/api'
 import { useMessage } from 'contexts/StateContext'
+import { IUser } from 'modules/user'
+import { useCallback, useEffect, useState } from 'react'
+import { BiSearchAlt2 } from 'react-icons/bi'
+import { BsFilter } from 'react-icons/bs'
+import { toast } from 'react-toastify'
+import { getToken } from 'utils/auth'
 import ChatListItem from './ChatListItem'
 
 function ContactsList() {
-  const { user } = useAppSelector((state) => state.auth)
   const [allContacts, setAllContacts] = useState<Array<any>>([])
-  const { handleContactsPage } = useMessage()
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const { accessToken } = getToken()
+  const { currentChatUser } = useMessage()
+
+  const getUserProfile = useCallback(async () => {
+    await getProfile(accessToken)
+      .then((response) => {
+        if (response.status === 200) {
+          setAllContacts(response.data.contacts)
+        }
+      })
+      .catch((error: any) => toast.error(error.response.data.error.message))
+  }, [accessToken])
 
   useEffect(() => {
-    if (user?.contacts) setAllContacts(user?.contacts)
-  }, [user])
+    getUserProfile()
+  }, [getUserProfile])
+
+  const filteredContacts = Object.keys(allContacts).reduce((acc: any, key: any) => {
+    const filtered = allContacts[key].filter((contact: any) =>
+      contact.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    if (filtered.length > 0) {
+      acc[key] = filtered
+    }
+
+    return acc
+  }, {})
 
   return (
-    <div className='h-full flex flex-col'>
-      <div className='h-24 flex items-end px-3 py-4'>
-        <div className='flex items-center gap-12 text-white'>
-          <BiArrowBack className='cursor-pointer text-lg' onClick={() => handleContactsPage()} />
-          <span>New Chat</span>
+    <div className='flex flex-col h-full'>
+      {currentChatUser && (
+        <div className='py-5'>
+          <div className='pb-2 pl-10 text-teal-light'>Current User Chat</div>
+          <ChatListItem user={currentChatUser} />
         </div>
-      </div>
-      <div className='bg-search-input-container-background h-full flex-auto overflow-auto custom-scrollbar'>
-        <div className='flex py-3 items-center gap-3 h-14'>
-          <div className='bg-panel-header-background flex items-center gap-5 px-3 py-1 rounded-lg flex-grow mx-4'>
-            <div>
-              <BiSearchAlt2 className='text-panel-header-icon cursor-pointer text-xl' />
-            </div>
-            <div>
-              <input
-                type='text'
-                placeholder='Search contacts'
-                className='bg-transparent text-sm focus:outline-none text-white w-full'
-              />
-            </div>
+      )}
+      <div className='flex items-center gap-3 pl-5 h-14'>
+        <div className='flex items-center flex-grow w-full gap-5 px-3 py-1 rounded-lg bg-panel-header-background'>
+          <div>
+            <BiSearchAlt2 className='text-xl cursor-pointer text-panel-header-icon' />
+          </div>
+          <div>
+            <input
+              type='text'
+              placeholder='Search people ...'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className='w-full text-sm text-white bg-transparent focus:outline-none'
+            />
           </div>
         </div>
-        {Object.entries(allContacts).map(([initialLetter, userList]) => {
+        <div className='pl-3 pr-5'>
+          <BsFilter className='text-xl cursor-pointer text-panel-header-icon' />
+        </div>
+      </div>
+      <div className='flex-auto h-full overflow-auto bg-search-input-container-background custom-scrollbar'>
+        {Object.entries(filteredContacts).map(([initialLetter, userList]: [string, any]) => {
           return (
             <div key={Date.now() + initialLetter}>
-              <div className='text-teal-light pl-10 py-5'>{initialLetter}</div>
-              {userList.map(
-                (contact: { id: string; name: string; email: string; profilePicture: string; about: string }) => {
-                  return <ChatListItem data={contact} isContactsPage key={contact.id} />
-                }
-              )}
+              <div className='pt-5 pb-2 pl-10 text-teal-light'>{initialLetter}</div>
+              {userList.map((contact: IUser) => {
+                return <ChatListItem user={contact} key={contact._id} />
+              })}
             </div>
           )
         })}

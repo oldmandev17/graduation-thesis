@@ -1,5 +1,5 @@
 import ThemeSwitcher from 'components/common/ThemeSwitcher'
-import { SiFiverr } from 'react-icons/si'
+import { SiFreelancer } from 'react-icons/si'
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 function HeaderAuth() {
@@ -8,7 +8,7 @@ function HeaderAuth() {
       <div className='flex flex-wrap items-center justify-between'>
         <div className='flex items-center justify-start'>
           <a href='https://flowbite.com' className='flex items-center justify-between mr-4'>
-            <SiFiverr className='w-20 h-[72px] dark:fill-white fill-black' />
+            <SiFreelancer className='w-16 h-16 dark:fill-white fill-black' />
           </a>
         </div>
         <div className='flex items-center lg:order-2'>
