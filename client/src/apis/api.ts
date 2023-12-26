@@ -273,12 +273,11 @@ function updateOrderStatus(
   })
 }
 
-function getUserById(id: string | undefined, accessToken: string | undefined) {
+function getUserById(id: string | undefined) {
   const url = `/auth/user/${id}`
   return axiosJson.get(url, {
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
+      'Content-Type': 'application/json'
     }
   })
 }

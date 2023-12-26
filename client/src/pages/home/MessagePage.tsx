@@ -8,9 +8,9 @@ import { useMessage } from 'contexts/StateContext'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { io } from 'socket.io-client'
 import { useAppSelector } from 'stores/hooks'
-import { getToken } from 'utils/auth'
 
 function Main() {
   const [socketEvent, setSocketEvent] = useState<boolean>(false)
@@ -18,14 +18,15 @@ function Main() {
   const [search] = useSearchParams()
   const { currentChatUser, handleCurrentChatUser, handleSocket, handleAddMessage, handleMessages } = useMessage()
   const { user } = useAppSelector((state) => state.auth)
-  const { accessToken } = getToken()
 
   const getCurrentChatUser = useCallback(async () => {
-    await getUserById(search.get('to') as string, accessToken).then((response) => {
-      if (response.status === 200) {
-        handleCurrentChatUser(response.data.user)
-      }
-    })
+    await getUserById(search.get('to') as string)
+      .then((response) => {
+        if (response.status === 200) {
+          handleCurrentChatUser(response.data.user)
+        }
+      })
+      .catch((error: any) => toast.error(error.response.data.error.message))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.get('to')])
 

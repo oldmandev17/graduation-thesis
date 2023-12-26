@@ -20,7 +20,7 @@ import { FaCheck, FaRegClock, FaStar } from 'react-icons/fa'
 import { HiRefresh } from 'react-icons/hi'
 import { IoHomeOutline } from 'react-icons/io5'
 import { MdExpandMore } from 'react-icons/md'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 // import { useAppSelector } from 'stores/hooks'
 import { getGigDetailById, getGigDetailBySlug } from 'apis/api'
 import OrderButton from 'components/common/OrderButton'
@@ -30,8 +30,10 @@ import { Helmet } from 'react-helmet-async'
 import { toast } from 'react-toastify'
 import * as searchjs from 'searchjs'
 import { getToken } from 'utils/auth'
+import { useAppSelector } from 'stores/hooks'
 
 function GigDetailPage() {
+  const location = useLocation()
   const [value, setValue] = useState(1)
   const navigate = useNavigate()
   const { slug, id } = useParams<{ slug?: string; id?: string }>()
@@ -51,10 +53,19 @@ function GigDetailPage() {
   })
   const [filteredReviews, setFilteredReviews] = useState<Array<IReview>>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
-  // const { user } = useAppSelector((state) => state.auth)
+  const { user } = useAppSelector((state) => state.auth)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
+  }
+
+  const handleContactMe = () => {
+    if (!user) {
+      navigate('/auth/login')
+      localStorage.setItem('redirect', String(location.pathname))
+    } else {
+      navigate(`/user/${user?.id}/messages?to=${gig && gig?.createdBy?.id}`)
+    }
   }
 
   const getGigDetails = useCallback(async () => {
@@ -590,6 +601,13 @@ function GigDetailPage() {
                   ))}
               </TabContext>
             </Box>
+            <button
+              onClick={handleContactMe}
+              type='button'
+              className='mt-10 border border-black rounded-md p-2 m-5 hover:bg-gray-700 hover:text-white text-lg font-normal w-full text-center'
+            >
+              Contact me
+            </button>
           </div>
         </div>
       </div>
