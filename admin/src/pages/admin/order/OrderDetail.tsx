@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { PayPalButtons } from '@paypal/react-paypal-js'
-import { getOrderDetail } from 'apis/api'
+import { getOrderDetail, updateOrderStatus } from 'apis/api'
 import { IOrder, OrderStatus } from 'modules/order'
 import { useCallback, useEffect, useState } from 'react'
 import { FcFlashOn } from 'react-icons/fc'
@@ -35,12 +35,6 @@ function OrderDetail() {
     getOrderDetails()
   }, [getOrderDetails])
 
-  const handleUpdateStatus = async (status: OrderStatus) => {
-    console.log('🚀 ~ file: OrderDetail.tsx:39 ~ handleUpdateStatus ~ status:', status)
-    const paypalBtn = document.querySelector('.paypal-button')
-    console.log('🚀 ~ file: OrderDetail.tsx:41 ~ handleUpdateStatus ~ paypalBtn:', paypalBtn)
-  }
-
   return (
     <div className='flex flex-col gap-5'>
       {order &&
@@ -55,19 +49,18 @@ function OrderDetail() {
             <div className='flex items-center w-full gap-10 mt-5'>
               <button
                 type='button'
-                onClick={() => handleUpdateStatus(OrderStatus.COMPLETE)}
                 className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
               >
                 {order.status === OrderStatus.BUYER_COMFIRM ? 'COMPLETE' : 'CONFIRM'}
               </button>
               <PayPalButtons
-                // className='hidden'
                 style={{
                   color: 'silver',
                   layout: 'horizontal',
                   height: 48,
                   tagline: false,
-                  shape: 'pill'
+                  shape: 'pill',
+                  label: 'pay'
                 }}
                 onClick={(data, actions) => {
                   if (!order) {
@@ -90,7 +83,24 @@ function OrderDetail() {
                 }}
                 onApprove={async (data, actions) => {
                   // eslint-disable-next-line @typescript-eslint/no-shadow, @typescript-eslint/no-unused-vars
-                  const order = await actions.order?.capture()
+                  const payment = await actions.order?.capture()
+                  if (id) {
+                    await updateOrderStatus(
+                      [id],
+                      order?.status === OrderStatus.BUYER_COMFIRM ? OrderStatus.COMPLETE : OrderStatus.ADMIN_COMFIRM,
+                      undefined,
+                      accessToken
+                    )
+                      .then((response) => {
+                        if (response.status === 200) {
+                          toast.success('Update Completed Successfully!')
+                          getOrderDetails()
+                        }
+                      })
+                      .catch((error: any) => {
+                        toast.error(error.response.data.error.message)
+                      })
+                  }
                 }}
                 onCancel={() => {}}
                 onError={(err: any) => {

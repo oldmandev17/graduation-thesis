@@ -8,6 +8,7 @@ import Gig, { IGig } from 'src/models/gigModel'
 import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Message from 'src/models/messageModel'
 import { NotificationType } from 'src/models/notificationModel'
+import Order from 'src/models/orderModel'
 import User, { IUser, UserProvider, UserRole, UserStatus } from 'src/models/userModel'
 import UserReset from 'src/models/userResetModel'
 import UserVerification from 'src/models/userVerificationModel'
@@ -783,7 +784,13 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
   try {
     const userExist = await User.findOne({ id: req.params.id })
     if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
-    res.status(200).json({ user: userExist })
+    const arrIds = userExist.gigs.map((gig) => gig._id)
+    const orderExist = await Order.find({ gig: { $in: arrIds } }).populate({ path: 'gig', populate: 'reviews' })
+    const gigExist: IGig[] = []
+    orderExist.map((order) => gigExist.push(order.gig))
+    const reviews = gigExist.flatMap((gig) => gig.reviews)
+    const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0)
+    res.status(200).json({ user: userExist, gigs: gigExist })
   } catch (error: any) {
     next(error)
   }

@@ -149,3 +149,8 @@ export const messageSchema = Joi.object({
   to: Joi.string().required(),
   message: Joi.string().required()
 })
+
+export const reviewSchema = Joi.object({
+  reviewText: Joi.string(),
+  rating: Joi.number().required()
+})
