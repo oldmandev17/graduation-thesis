@@ -270,6 +270,10 @@ const arrOrderStatus = [
     value: OrderStatus.CANCEL
   },
   {
+    label: 'ACCEPT',
+    value: OrderStatus.ACCEPT
+  },
+  {
     label: 'COMPLETE',
     value: OrderStatus.COMPLETE
   },
@@ -280,6 +284,10 @@ const arrOrderStatus = [
   {
     label: 'SELLER COMFIRM',
     value: OrderStatus.SELLER_COMFIRM
+  },
+  {
+    label: 'ADMIN COMFIRM',
+    value: OrderStatus.ADMIN_COMFIRM
   }
 ]
 
@@ -287,6 +295,10 @@ const arrOrderMethod = [
   {
     label: 'STRIPE',
     value: OrderMethod.STRIPE
+  },
+  {
+    label: 'PAYPAL',
+    value: OrderMethod.PAYPAL
   }
 ]
 

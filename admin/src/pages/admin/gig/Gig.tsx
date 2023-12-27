@@ -13,8 +13,6 @@ import SelectCustom from 'components/common/SelectCustom'
 import useDebounce from 'hooks/useDebounce'
 import { GigStatus, IGig } from 'modules/gig'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { BiMailSend } from 'react-icons/bi'
-import { HiOutlineViewGridAdd } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getToken } from 'utils/auth'
@@ -181,23 +179,9 @@ function Gig() {
       <div className='inline-flex justify-end rounded-md shadow-sm' role='group'>
         <button
           type='button'
-          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
-        >
-          <HiOutlineViewGridAdd className='w-[14px] h-[14px] mr-2' style={{ strokeWidth: '2.5' }} />
-          Add User
-        </button>
-        <button
-          type='button'
-          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
-        >
-          <BiMailSend className='w-[16px] h-[16px] mr-2' style={{ strokeWidth: '1' }} />
-          Send Mail
-        </button>
-        <button
-          type='button'
           disabled={!gigs.length}
           onClick={() => generateExcel(columns, gigs, 'Gig Sheet', 'Gig')}
-          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
+          className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white'
         >
           <svg
             className='w-3 h-3 mr-2'
@@ -212,7 +196,7 @@ function Gig() {
           Exports
         </button>
       </div>
-      <AccordionCustom title='Refine Users: Curate Your Records with Precision.'>
+      <AccordionCustom title='Refine Gigs: Curate Your Records with Precision.'>
         <div className='flex flex-col gap-5'>
           <div className='grid grid-cols-4 gap-10'>
             <div className='col-span-2'>
@@ -266,7 +250,12 @@ function Gig() {
               >
                 {arrGigStatus?.length &&
                   arrGigStatus
-                    .filter((val) => val.value !== GigStatus.BANNED)
+                    .filter(
+                      (val) =>
+                        val.value === GigStatus.ACTIVE ||
+                        val.value === GigStatus.INACTIVE ||
+                        val.value === GigStatus.DELETED
+                    )
                     .map((val, index) => (
                       <option key={val.value + index} value={val.value}>
                         {val.label}
@@ -294,7 +283,7 @@ function Gig() {
                   </label>
                 </div>
               </th>
-              <th scope='col' className='px-6 py-3'>
+              <th scope='col' className='px-6 py-3 '>
                 <div className='flex items-center'>
                   Name
                   <button type='button' onClick={() => handleSort('name')}>
@@ -393,7 +382,7 @@ function Gig() {
                       </label>
                     </div>
                   </td>
-                  <td className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>{gig.name}</td>
+                  <td className='px-6 py-4 font-medium text-gray-900 dark:text-white'>{gig.name}</td>
                   <td className='px-6 py-4'>{gig.slug}</td>
                   <td className='px-6 py-4'>{gig.status}</td>
                   <td className='px-6 py-4'>{String(gig.category?.name).toString()}</td>

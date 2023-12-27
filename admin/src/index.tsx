@@ -22,11 +22,11 @@ const AccountPage = lazy(() => import('pages/admin/Account'))
 const CategoryPage = lazy(() => import('pages/admin/Category'))
 const GigPage = lazy(() => import('pages/admin/gig/Gig'))
 const GigDetailPage = lazy(() => import('pages/admin/gig/GigDetail'))
-const OrderPage = lazy(() => import('pages/admin/Order'))
+const OrderPage = lazy(() => import('pages/admin/order/Order'))
+const OrderDetailPage = lazy(() => import('pages/admin/order/OrderDetail'))
 const SettingPage = lazy(() => import('pages/admin/Setting'))
 const UserPage = lazy(() => import('pages/admin/user/User'))
 const UserDetailPage = lazy(() => import('pages/admin/user/UserDetail'))
-const MessagePage = lazy(() => import('pages/admin/Message'))
 
 const NotFoundPage = lazy(() => import('pages/admin/NotFound'))
 
@@ -93,6 +93,10 @@ const router = createBrowserRouter([
                 element: <OrderPage />
               },
               {
+                path: '/order-detail/:id',
+                element: <OrderDetailPage />
+              },
+              {
                 path: '/setting',
                 element: <SettingPage />
               },
@@ -103,62 +107,8 @@ const router = createBrowserRouter([
               {
                 path: '/user-detail/:id',
                 element: <UserDetailPage />
-              },
-              {
-                path: '/message',
-                element: <MessagePage />
               }
             ]
-          }
-        ]
-      },
-      {
-        path: '/test',
-        element: <AdminLayout />,
-        children: [
-          {
-            path: '/test/overview',
-            element: <OverviewPage />
-          },
-          {
-            path: '/test/account',
-            element: <AccountPage />
-          },
-          {
-            path: '/test/category',
-            element: <CategoryPage />
-          },
-          {
-            path: '/test/gig',
-            element: <GigPage />
-          },
-          {
-            path: '/test/gig-detail/:id',
-            element: <GigDetailPage />
-          },
-          {
-            path: '/test/log',
-            element: <LogPage />
-          },
-          {
-            path: '/test/order',
-            element: <OrderPage />
-          },
-          {
-            path: '/test/setting',
-            element: <SettingPage />
-          },
-          {
-            path: '/test/user',
-            element: <UserPage />
-          },
-          {
-            path: '/test/user-detail/:id',
-            element: <UserDetailPage />
-          },
-          {
-            path: '/test/message',
-            element: <MessagePage />
           }
         ]
       },

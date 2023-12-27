@@ -303,6 +303,34 @@ function seenNotification(id: string, accessToken: string | undefined) {
   })
 }
 
+function updateOrderStatus(
+  arrIds: Array<string>,
+  status: string,
+  reason: string | undefined,
+  accessToken: string | undefined
+) {
+  const url = `/order/update?status=${status}`
+  const data: any = {}
+  data.ids = arrIds
+  if (reason) data.reason = reason
+  return axiosJson.put(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
+function getOrderDetail(id: string | undefined, accessToken: string | undefined) {
+  const url = `/order/${id}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   createCategory,
   createUser,
@@ -323,5 +351,7 @@ export {
   getGigDetailById,
   updateUser,
   getAllNotification,
-  seenNotification
+  seenNotification,
+  updateOrderStatus,
+  getOrderDetail
 }

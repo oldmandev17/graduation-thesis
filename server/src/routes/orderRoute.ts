@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   createOrder,
   createPaymentIntent,
+  getAllOrder,
   getAllOrderByUser,
   getOrderDetail,
   updateOrderStatus
@@ -24,5 +25,6 @@ orderRoutes
     authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER, UserRole.BUYER]),
     updateOrderStatus
   )
+orderRoutes.route('/').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getAllOrder)
 
 export default orderRoutes
