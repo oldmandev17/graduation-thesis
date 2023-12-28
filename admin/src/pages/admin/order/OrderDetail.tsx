@@ -46,67 +46,71 @@ function OrderDetail() {
               <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Comfirm Order</h2>
               <FcFlashOn className='w-8 h-8 p-1 border border-yellow-600 rounded-full animate-bounce' />
             </div>
-            <div className='flex items-center w-full gap-10 mt-5'>
-              <button
+            <div className='flex flex-col justify-center gap-3 mt-5'>
+              {/* <button
                 type='button'
                 className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
               >
                 {order.status === OrderStatus.BUYER_COMFIRM ? 'COMPLETE' : 'CONFIRM'}
-              </button>
-              <PayPalButtons
-                style={{
-                  color: 'silver',
-                  layout: 'horizontal',
-                  height: 48,
-                  tagline: false,
-                  shape: 'pill',
-                  label: 'pay'
-                }}
-                onClick={(data, actions) => {
-                  if (!order) {
-                    return actions.reject()
-                  }
-                  return actions.resolve()
-                }}
-                createOrder={(data, actions) => {
-                  return actions.order.create({
-                    purchase_units: [
-                      {
-                        amount: {
-                          value: String(
-                            order.status === OrderStatus.COMPLETE ? (order?.price / 105) * 100 : order.quantity
-                          )
+              </button> */}
+              <div className='w-40'>
+                <PayPalButtons
+                  style={{
+                    color: 'silver',
+                    layout: 'horizontal',
+                    height: 48,
+                    tagline: false,
+                    shape: 'pill'
+                  }}
+                  onClick={(data, actions) => {
+                    if (!order) {
+                      return actions.reject()
+                    }
+                    return actions.resolve()
+                  }}
+                  createOrder={(data, actions) => {
+                    return actions.order.create({
+                      purchase_units: [
+                        {
+                          amount: {
+                            value: String(
+                              order.status === OrderStatus.COMPLETE ? (order?.price / 105) * 100 : order.quantity
+                            )
+                          }
                         }
-                      }
-                    ]
-                  })
-                }}
-                onApprove={async (data, actions) => {
-                  // eslint-disable-next-line @typescript-eslint/no-shadow, @typescript-eslint/no-unused-vars
-                  const payment = await actions.order?.capture()
-                  if (id) {
-                    await updateOrderStatus(
-                      [id],
-                      order?.status === OrderStatus.BUYER_COMFIRM ? OrderStatus.COMPLETE : OrderStatus.ADMIN_COMFIRM,
-                      undefined,
-                      accessToken
-                    )
-                      .then((response) => {
-                        if (response.status === 200) {
-                          toast.success('Update Completed Successfully!')
-                          getOrderDetails()
-                        }
-                      })
-                      .catch((error: any) => {
-                        toast.error(error.response.data.error.message)
-                      })
-                  }
-                }}
-                onCancel={() => {}}
-                onError={(err: any) => {
-                  toast.error(err.response.data.error.message)
-                }}
-              />
+                      ]
+                    })
+                  }}
+                  onApprove={async (data, actions) => {
+                    // eslint-disable-next-line @typescript-eslint/no-shadow, @typescript-eslint/no-unused-vars
+                    const payment = await actions.order?.capture()
+                    if (id) {
+                      await updateOrderStatus(
+                        [id],
+                        order?.status === OrderStatus.BUYER_COMFIRM ? OrderStatus.COMPLETE : OrderStatus.ADMIN_COMFIRM,
+                        undefined,
+                        accessToken
+                      )
+                        .then((response) => {
+                          if (response.status === 200) {
+                            toast.success('Update Completed Successfully!')
+                            getOrderDetails()
+                          }
+                        })
+                        .catch((error: any) => {
+                          toast.error(error.response.data.error.message)
+                        })
+                    }
+                  }}
+                  onCancel={() => {}}
+                  onError={(err: any) => {
+                    toast.error(err.response.data.error.message)
+                  }}
+                />
+              </div>
+              <span className='text-lg font-semibold text-white'>
+                Pay and then {order.status === OrderStatus.BUYER_COMFIRM ? 'complete' : 'confirm'} the order.
+              </span>
             </div>
           </div>
         )}

@@ -52,44 +52,40 @@ function ProfileUserPage() {
       </Helmet>
       <div className='flex flex-col gap-10 py-10 px-28'>
         <div className='grid grid-cols-3 gap-10'>
-          <div className='col-span-2 flex flex-col gap-5'>
+          <div className='flex flex-col col-span-2 gap-5'>
             <div className='flex gap-5'>
               <img src='' alt='avatar' />
             </div>
             <div>
-              <h6>About me</h6>
-              <p className='mt-3'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab quas commodi ullam molestiae doloribus
-                eaque, quisquam ad, inventore placeat pariatur ea veritatis excepturi dignissimos saepe molestias
-                distinctio nobis, quasi cum!
-              </p>
+              <h6 className='text-xl font-semibold text-gray-700'>About me</h6>
+              <p className='mt-3'>{userDetail?.description}</p>
             </div>
             <div>
-              <h6>Skill</h6>
-              <p className='mt-3'>123</p>
+              <h6 className='text-xl font-semibold text-gray-700'>Skill</h6>
+              <p className='mt-3'>{userDetail?.skill?.replace(',', '')}</p>
             </div>
           </div>
           <div>
-            <div className='border border-slate-300 shadow-sm rounded-md p-5'>
+            <div className='p-5 border rounded-md shadow-sm border-slate-300'>
               <button
                 onClick={handleContactMe}
                 type='button'
-                className='w-full flex justify-center items-center gap-3 p-3 rounded-md bg-gray-700 text-white font-semibold text-lg hover:bg-gray-500'
+                className='flex items-center justify-center w-full gap-3 p-3 text-lg font-semibold text-white bg-gray-700 rounded-md hover:bg-gray-500'
               >
-                <GrSend />
+                <GrSend className='fill-white' />
                 Contact me
               </button>
             </div>
           </div>
         </div>
         <div>
-          <h4 className='text-2xl text-gray-700'>My Gig</h4>
+          <h4 className='text-2xl font-semibold text-gray-700'>My Gig</h4>
           <div className='mt-3'>
             <div className='grid grid-cols-4 gap-10'>
               {userDetail &&
                 userDetail.gigs.length > 0 &&
                 userDetail.gigs
-                  .slice(0, all ? userDetail.gigs.length - 1 : 3)
+                  .slice(0, all ? userDetail.gigs.length : 4)
                   .map((gig, index) => <GigCard height={200} key={gig?._id + index} gig={gig} type='profile' />)}
             </div>
             {userDetail && userDetail.gigs.length > 4 && !all && (

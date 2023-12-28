@@ -782,7 +782,10 @@ export async function wishlist(req: Request, res: Response, next: NextFunction) 
 
 export async function getUserById(req: Request, res: Response, next: NextFunction) {
   try {
-    const userExist = await User.findOne({ id: req.params.id })
+    const userExist = await User.findOne({ id: req.params.id }).populate({
+      path: 'gigs',
+      populate: [{ path: 'createdBy' }, { path: 'reviews' }]
+    })
     if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
     const arrIds = userExist.gigs.map((gig) => gig._id)
     const orderExist = await Order.find({ gig: { $in: arrIds } }).populate({ path: 'gig', populate: 'reviews' })

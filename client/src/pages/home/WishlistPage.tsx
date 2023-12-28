@@ -52,7 +52,7 @@ function WishlistPage() {
           <div className='grid grid-cols-4 gap-10'>
             {wishlist.length > 0 &&
               wishlist
-                .slice(0, all ? wishlist.length - 1 : 3)
+                .slice(0, all ? wishlist.length : 4)
                 .map((gig, index) => <GigCard height={200} key={gig?._id + index} gig={gig} type='wishlist' />)}
           </div>
           {wishlist.length > 4 && !all && (

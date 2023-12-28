@@ -601,13 +601,15 @@ function GigDetailPage() {
                   ))}
               </TabContext>
             </Box>
-            <button
-              onClick={handleContactMe}
-              type='button'
-              className='mt-10 border border-black rounded-md p-2 m-5 hover:bg-gray-700 hover:text-white text-lg font-normal w-full text-center'
-            >
-              Contact me
-            </button>
+            <div className='w-full p-5 mt-10'>
+              <button
+                onClick={handleContactMe}
+                type='button'
+                className='w-full p-2 text-lg font-normal text-center border border-black rounded-md hover:bg-gray-700 hover:text-white'
+              >
+                Contact me
+              </button>
+            </div>
           </div>
         </div>
       </div>

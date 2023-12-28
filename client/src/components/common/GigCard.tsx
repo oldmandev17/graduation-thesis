@@ -130,7 +130,7 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
             <span className='text-2xl text-white'>{gig && gig?.createdBy?.email[0].toUpperCase()}</span>
           </div>
         )}
-        <Link to='/' target='_blank' className='text-base font-bold hover:underline'>
+        <Link to={`/user-detail/${gig?.createdBy?.id}`} target='_blank' className='text-base font-bold hover:underline'>
           {gig?.createdBy?.name}
         </Link>
       </div>
