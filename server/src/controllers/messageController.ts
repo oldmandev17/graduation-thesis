@@ -1,9 +1,8 @@
-import Message, { IMessage, MessageStatus, MessageType } from 'src/models/messageModel'
-import httpError from 'http-errors'
 import { NextFunction, Request, Response } from 'express'
-import { messageSchema } from 'src/utils/validationSchema'
+import httpError from 'http-errors'
+import Message, { IMessage, MessageStatus, MessageType } from 'src/models/messageModel'
 import User from 'src/models/userModel'
-import { MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
+import { messageSchema } from 'src/utils/validationSchema'
 
 interface MessageQuery {
   from?: string
@@ -14,9 +13,9 @@ export async function addMessage(req: Request, res: Response, next: NextFunction
   try {
     const result = await messageSchema.validateAsync(req.body)
     const fromExist = await User.findOne({ _id: result.from })
-    if (!fromExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!fromExist) throw httpError.NotFound('User does not exist.')
     const toExist = await User.findOne({ _id: result.to })
-    if (!toExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!toExist) throw httpError.NotFound('User does not exist.')
     const globalAny: any = global
     const getUser = globalAny.onlineUsers.get(result.to)
     const newMessage = await Message.create({
@@ -40,9 +39,9 @@ export async function getMessages(req: Request, res: Response, next: NextFunctio
   try {
     const { from, to } = req.params
     const fromExist = await User.findOne({ _id: from })
-    if (!fromExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!fromExist) throw httpError.NotFound('User does not exist.')
     const toExist = await User.findOne({ _id: to })
-    if (!toExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!toExist) throw httpError.NotFound('User does not exist.')
     const messages = await Message.find({
       $or: [
         {
@@ -79,11 +78,11 @@ export async function addImageMessage(req: Request, res: Response, next: NextFun
   try {
     const file = req.file as Express.Multer.File
     const { from, to } = req.query as unknown as MessageQuery
-    if (!from || !to || !file) throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+    if (!from || !to || !file) throw httpError.NotAcceptable('Invalid data.')
     const fromExist = await User.findOne({ _id: from })
-    if (!fromExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!fromExist) throw httpError.NotFound('User does not exist.')
     const toExist = await User.findOne({ _id: to })
-    if (!toExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!toExist) throw httpError.NotFound('User does not exist.')
     const globalAny: any = global
     const getUser = globalAny.onlineUsers.get(to)
     const message = await Message.create({

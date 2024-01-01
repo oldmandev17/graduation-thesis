@@ -15,6 +15,7 @@ type MessageContextType = {
     quantity: number
     pack: Package | undefined
   }
+  onlineUsers: any
   handleCurrentChatUser: (value: any) => void
   handleContactsPage: () => void
   handleMessages: (value: any) => void
@@ -25,6 +26,7 @@ type MessageContextType = {
   handleRemoveWishlist: (value: any) => void
   handleAddOrder: (value: any) => void
   handleRemoveOrder: () => void
+  handleOnlineUsers: (value: any) => void
 }
 
 const messageContextDefaultValues: MessageContextType = {
@@ -38,6 +40,7 @@ const messageContextDefaultValues: MessageContextType = {
     quantity: 0,
     pack: undefined
   },
+  onlineUsers: {},
   handleCurrentChatUser: () => {},
   handleContactsPage: () => {},
   handleMessages: () => {},
@@ -47,7 +50,8 @@ const messageContextDefaultValues: MessageContextType = {
   handleAddWishlist: () => {},
   handleRemoveWishlist: () => {},
   handleAddOrder: () => {},
-  handleRemoveOrder: () => {}
+  handleRemoveOrder: () => {},
+  handleOnlineUsers: () => {}
 }
 
 const MessageContext = createContext<MessageContextType>(messageContextDefaultValues)
@@ -71,6 +75,7 @@ export function MessageProvider({ children }: Props) {
     quantity: 0,
     pack: undefined
   })
+  const [onlineUsers, setOnlineUsers] = useState<any>({})
 
   const handleAddOrder = (value: any) => {
     setOrder(value)
@@ -110,6 +115,10 @@ export function MessageProvider({ children }: Props) {
     setWishlist(wishlist.filter((gig) => gig._id !== value._id))
   }
 
+  const handleOnlineUsers = (value: any) => {
+    setOnlineUsers(value)
+  }
+
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value = {
     currentChatUser,
@@ -118,6 +127,7 @@ export function MessageProvider({ children }: Props) {
     contactsPage,
     wishlist,
     order,
+    onlineUsers,
     handleCurrentChatUser,
     handleMessages,
     handleSocket,
@@ -127,7 +137,8 @@ export function MessageProvider({ children }: Props) {
     handleAddWishlist,
     handleRemoveWishlist,
     handleAddOrder,
-    handleRemoveOrder
+    handleRemoveOrder,
+    handleOnlineUsers
   }
   return <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
 }

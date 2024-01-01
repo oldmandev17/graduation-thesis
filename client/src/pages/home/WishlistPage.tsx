@@ -40,7 +40,7 @@ function WishlistPage() {
       <Helmet>
         <title>My Lists | Freelancer</title>
       </Helmet>
-      <div className='flex flex-col h-screen gap-5 py-10 px-28'>
+      <div className='flex flex-col gap-5 py-10 px-28'>
         <div className='flex flex-row justify-between'>
           <span className='text-4xl font-semibold text-gray-600'>My Lists</span>
         </div>

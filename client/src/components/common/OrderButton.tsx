@@ -48,9 +48,11 @@ function OrderButton({ type, gig, pack }: { type: string; gig: IGig | undefined;
   const handleContinune = async () => {
     await axios
       .post(
-        `${process.env.REACT_APP_URL_SERVER}/api/order/create-payment-intent?amount=${
-          ((pack && pack.price) || 1) * quantity * 1.05
-        }`
+        `${process.env.REACT_APP_URL_SERVER}/api/order/create-payment-intent?amount=${(
+          ((pack && pack.price) || 1) *
+          quantity *
+          1.05
+        ).toFixed(2)}`
       )
       .then((response) => {
         if (response.status === 200) {

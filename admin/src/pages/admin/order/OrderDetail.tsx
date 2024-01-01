@@ -40,7 +40,7 @@ function OrderDetail() {
       {order &&
         (order.status === OrderStatus.CANCEL ||
           order?.status === OrderStatus.PAID ||
-          order.status === OrderStatus.BUYER_COMFIRM) && (
+          order.status === OrderStatus.BUYER_CONFIRM) && (
           <div>
             <div className='flex gap-10'>
               <h2 className='mb-2 text-2xl font-bold text-gray-900 dark:text-white'>Comfirm Order</h2>
@@ -51,7 +51,7 @@ function OrderDetail() {
                 type='button'
                 className='text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
               >
-                {order.status === OrderStatus.BUYER_COMFIRM ? 'COMPLETE' : 'CONFIRM'}
+                {order.status === OrderStatus.BUYER_CONFIRM ? 'COMPLETE' : 'CONFIRM'}
               </button> */}
               <div className='w-40'>
                 <PayPalButtons
@@ -87,7 +87,7 @@ function OrderDetail() {
                     if (id) {
                       await updateOrderStatus(
                         [id],
-                        order?.status === OrderStatus.BUYER_COMFIRM ? OrderStatus.COMPLETE : OrderStatus.ADMIN_COMFIRM,
+                        order?.status === OrderStatus.BUYER_CONFIRM ? OrderStatus.COMPLETE : OrderStatus.ADMIN_CONFIRM,
                         undefined,
                         accessToken
                       )
@@ -109,7 +109,7 @@ function OrderDetail() {
                 />
               </div>
               <span className='text-lg font-semibold text-white'>
-                Pay and then {order.status === OrderStatus.BUYER_COMFIRM ? 'complete' : 'confirm'} the order.
+                Pay and then {order.status === OrderStatus.BUYER_CONFIRM ? 'complete' : 'confirm'} the order.
               </span>
             </div>
           </div>

@@ -134,7 +134,7 @@ function MessageBar() {
           <input
             type='text'
             placeholder='Type a message'
-            className='w-full h-10 px-5 py-4 text-sm text-white rounded-lg bg-input-background focus:outline-none'
+            className='w-full h-10 px-5 py-4 text-sm rounded-lg text-primary-strong bg-[#e5e7eb] focus:outline-none'
             onChange={(e: any) => setMessage(e.target.value)}
             value={message}
           />

@@ -6,12 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "env-cmd -f src/configs/.env.development npx nodemon",
-    "prisma-generate:dev": "env-cmd -f src/configs/.env.development -- yarn prisma generate",
-    "prisma-push:dev": "env-cmd -f src/configs/.env.development -- yarn prisma db push",
-    "prisma-studio:dev": "env-cmd -f src/configs/.env.development -- yarn prisma studio",
     "build": "rimraf ./dist && tsc && tsc-alias",
     "prod": "env-cmd -f src/configs/.env.production node dist/index.js",
-    "prisma:prod": "env-cmd -f src/configs/.env.production -- yarn prisma db push",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",

@@ -488,21 +488,21 @@ function GigDetail() {
             {gig &&
               gig?.reviews?.map((review, index) => (
                 <li key={index} className='mb-10 ms-6'>
-                  <span className='absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900'>
+                  <span className='absolute flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900'>
                     {review.reviewer.avatar ? (
                       <img
-                        className='rounded-full shadow-lg'
+                        className='w-10 h-10 rounded-full shadow-lg'
                         src={`${process.env.REACT_APP_URL_SERVER}/${review.reviewer.avatar}`}
                         alt={review.reviewer.name}
                       />
                     ) : (
-                      <span className='text-2xl text-white'>{review.reviewer.email[0].toUpperCase()}</span>
+                      <span className='w-10 h-10 text-2xl text-white'>{review.reviewer.email[0].toUpperCase()}</span>
                     )}
                   </span>
                   <div className='p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600'>
                     <div className='items-center justify-between mb-3 sm:flex'>
                       <time className='mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0'>
-                        {timeAgo(review.reviewer.createdAt)}
+                        {timeAgo(new Date(review.createdAt))}
                       </time>
                       <div className='text-sm font-normal text-gray-500 lex dark:text-gray-300'>
                         <span className='mr-5 font-semibold text-gray-600 dark:text-white hover:underline'>

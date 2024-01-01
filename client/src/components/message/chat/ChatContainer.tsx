@@ -25,10 +25,10 @@ function ChatContainer() {
                 >
                   {message.type === MessageType.TEXT && (
                     <div
-                      className={`text-white px-2 py-[5px] text-sm rounded-md flex gap-2 items-end max-w-[45%] ${
+                      className={`px-2 py-[5px] text-sm rounded-md flex gap-2 items-end max-w-[45%] ${
                         message.sender._id === currentChatUser?._id
-                          ? 'bg-incoming-background'
-                          : 'bg-outgoing-background'
+                          ? 'bg-incoming-background text-primary-strong'
+                          : 'bg-outgoing-background text-white'
                       }`}
                     >
                       <span className='break-all'>{message.message}</span>

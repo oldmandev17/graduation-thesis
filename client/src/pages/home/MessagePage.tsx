@@ -16,7 +16,8 @@ function Main() {
   const [socketEvent, setSocketEvent] = useState<boolean>(false)
   const socket = useRef<any>()
   const [search] = useSearchParams()
-  const { currentChatUser, handleCurrentChatUser, handleSocket, handleAddMessage, handleMessages } = useMessage()
+  const { currentChatUser, handleCurrentChatUser, handleOnlineUsers, handleSocket, handleAddMessage, handleMessages } =
+    useMessage()
   const { user } = useAppSelector((state) => state.auth)
 
   const getCurrentChatUser = useCallback(async () => {
@@ -41,6 +42,9 @@ function Main() {
     if (user) {
       socket.current = io(process.env.REACT_APP_URL_SERVER as string)
       socket.current.emit('add-user', user._id)
+      socket.current.on('online', (data: any) => {
+        handleOnlineUsers(data.onlineUsers)
+      })
       handleSocket(socket)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

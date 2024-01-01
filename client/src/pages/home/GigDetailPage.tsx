@@ -22,15 +22,18 @@ import { IoHomeOutline } from 'react-icons/io5'
 import { MdExpandMore } from 'react-icons/md'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 // import { useAppSelector } from 'stores/hooks'
-import { getGigDetailById, getGigDetailBySlug } from 'apis/api'
+import { Rating } from '@mui/material'
+import { createReview, getGigDetailById, getGigDetailBySlug } from 'apis/api'
 import OrderButton from 'components/common/OrderButton'
 import { ICategory } from 'modules/category'
+import { IOrder } from 'modules/order'
 import { IReview } from 'modules/review'
 import { Helmet } from 'react-helmet-async'
+import { AiOutlineSearch } from 'react-icons/ai'
 import { toast } from 'react-toastify'
-import * as searchjs from 'searchjs'
-import { getToken } from 'utils/auth'
 import { useAppSelector } from 'stores/hooks'
+import { getToken } from 'utils/auth'
+import calculateTime from 'utils/calculateTime'
 
 function GigDetailPage() {
   const location = useLocation()
@@ -38,9 +41,13 @@ function GigDetailPage() {
   const navigate = useNavigate()
   const { slug, id } = useParams<{ slug?: string; id?: string }>()
   const [gig, setGig] = useState<IGig>()
+  const [orders, setOrders] = useState<Array<IOrder>>([])
   const { accessToken } = getToken()
+  const [rating, setRating] = useState<number | null>(0)
+  const [reviewText, setReviewText] = useState<string>()
   const ref = useRef<HTMLDivElement | null>(null)
   const [grandParentCategory, setGrandParentCategory] = useState<ICategory>()
+  const [page, setPage] = useState<number>(1)
   const [ratings, setRatings] = useState<{ [key: number]: number }>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 })
   const [totalReviews, setTotalReviews] = useState(0)
   const [averageRating, setAverageRating] = useState(0)
@@ -74,6 +81,7 @@ function GigDetailPage() {
         if (response.status === 200) {
           setGrandParentCategory(response.data.grandParentCategory)
           setGig(response.data.gig)
+          setOrders(response.data.orders)
           setRatings(response.data.ratings.ratings)
           setTotalReviews(response.data.ratings.totalReviews)
           setAverageRating(response.data.ratings.averageRating)
@@ -125,11 +133,35 @@ function GigDetailPage() {
   }, [getGigDetails])
 
   const handleSearchReview = () => {
-    if (gig && searchQuery) {
-      const filterTemp = gig.reviews?.filter((review) =>
-        searchjs.matchObject({ reviewText: review.reviewText }, searchQuery)
+    if (gig) {
+      const filterTemp = gig.reviews?.filter(
+        (review) => review.reviewText?.toLowerCase().includes(searchQuery.toLowerCase())
       )
       setFilteredReviews(filterTemp || [])
+    }
+  }
+
+  const handleCreateReview = async () => {
+    if (rating === 0 || rating === null) {
+      toast.warning('Please select the number rating.')
+    } else if (!reviewText) {
+      toast.warning('Please type the message review.')
+    } else if (gig?._id) {
+      const data: any = {}
+      data.rating = rating
+      data.reviewText = reviewText
+      await createReview(gig._id, data, accessToken)
+        .then((response) => {
+          if (response.status === 201) {
+            toast.success('Create review successfull.')
+            getGigDetails()
+            setRating(0)
+            setReviewText('')
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error.response.data.error.message)
+        })
     }
   }
 
@@ -150,7 +182,7 @@ function GigDetailPage() {
               {grandParentCategory && grandParentCategory.name}
             </span>
             <span className='text-sm font-semibold text-gray-400'>/</span>
-            <span className='text-base cursor-pointer' onClick={() => navigate(`/category/${gig?.category?.slug}`)}>
+            <span className='text-base cursor-pointer' onClick={() => navigate(`/sub-category/${gig?.category?.slug}`)}>
               {gig?.category?.name}
             </span>
           </div>
@@ -402,7 +434,7 @@ function GigDetailPage() {
                   <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
                 </svg>
               ))}
-              <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>{averageRating}</p>
+              <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>{averageRating.toFixed(2)}</p>
               <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>out of</p>
               <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>5</p>
             </div>
@@ -417,127 +449,111 @@ function GigDetailPage() {
               </div>
             ))}
           </div>
-          {filteredReviews.length > 0 && (
-            <div className='relative w-1/2'>
-              <div className='absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3'>
-                <svg
-                  className='w-4 h-4 text-gray-500 dark:text-gray-400'
-                  aria-hidden='true'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 20 20'
-                >
-                  <path
-                    stroke='currentColor'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'
-                  />
-                </svg>
-              </div>
+          <div className='relative w-1/2'>
+            <div className='flex flex-row w-full'>
               <input
-                type='search'
-                id='default-search'
+                type='text'
                 onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)}
-                className='block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                placeholder='Search Mockups, Logos...'
+                className='w-full h-12 py-0 pl-5 text-lg text-gray-900 border border-gray-300 rounded-lg rounded-r-none border-1 focus:rounded-none'
+                placeholder='Search review'
               />
               <button
                 type='button'
+                className='flex flex-col justify-center w-16 pl-5 bg-black rounded-l-none rounded-r-lg cursor-pointer '
                 onClick={handleSearchReview}
-                className='text-white absolute end-2.5 bottom-1 bg-gray-900 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
               >
-                Search
+                <AiOutlineSearch className='w-6 h-6 fill-white' />
+              </button>
+            </div>
+          </div>
+          {user && orders.length > 0 && orders.filter((order) => order.createdBy._id === user._id).length > 0 && (
+            <div className='p-5 border rounded-lg shadow-lg border-slate-300'>
+              <Rating
+                name='simple-controlled'
+                value={rating}
+                onChange={(event, newValue) => {
+                  setRating(newValue)
+                }}
+              />
+              <textarea
+                className='w-full col-span-2 px-1 py-2 mt-5 text-gray-600 border border-gray-300 rounded-md bg-gray-50'
+                placeholder='Type the mesage review ...'
+                rows={4}
+                value={reviewText}
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReviewText(event.target.value)}
+              />
+              <button
+                type='button'
+                onClick={handleCreateReview}
+                className='p-2 px-5 mt-5 text-lg font-semibold text-white capitalize bg-black rounded-lg '
+              >
+                Create Review
               </button>
             </div>
           )}
-          <div>
+          <hr />
+          <div className='flex flex-col gap-5'>
             {filteredReviews.length > 0 &&
-              filteredReviews.map((review, index) => (
+              filteredReviews.slice(0, page * 5).map((review, index) => (
                 <article key={index + review._id}>
-                  <div className='flex items-center mb-4'>
-                    <img
-                      className='w-10 h-10 rounded-full me-4'
-                      src='/docs/images/people/profile-picture-5.jpg'
-                      alt=''
-                    />
-                    <div className='font-medium dark:text-white'>
+                  <div className='flex items-center'>
+                    {gig?.createdBy?.avatar ? (
+                      <img
+                        src={
+                          gig?.createdBy?.avatar.startsWith('upload')
+                            ? `${process.env.REACT_APP_URL_SERVER}/${gig?.createdBy?.avatar}`
+                            : gig?.createdBy?.avatar
+                        }
+                        alt='avata'
+                        className='w-12 h-12 rounded-full'
+                      />
+                    ) : (
+                      <div className='relative flex items-center justify-center w-12 h-12 bg-purple-500 rounded-full'>
+                        <span className='text-2xl text-white'>{gig && gig?.createdBy?.email[0].toUpperCase()}</span>
+                      </div>
+                    )}
+                    <div className='ml-4 font-medium'>
                       <p>
-                        Jese Leos{' '}
-                        <time dateTime='2014-08-16 19:00' className='block text-sm text-gray-500 dark:text-gray-400'>
-                          Joined on August 2014
-                        </time>
+                        {review.reviewer.name}
+                        <span className='block text-sm text-gray-500'>@{review.reviewer.id}</span>
                       </p>
                     </div>
                   </div>
-                  <div className='flex items-center mb-1 space-x-1 rtl:space-x-reverse'>
-                    <svg
-                      className='w-4 h-4 text-yellow-300'
-                      aria-hidden='true'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='currentColor'
-                      viewBox='0 0 22 20'
-                    >
-                      <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-                    </svg>
-                    <svg
-                      className='w-4 h-4 text-yellow-300'
-                      aria-hidden='true'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='currentColor'
-                      viewBox='0 0 22 20'
-                    >
-                      <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-                    </svg>
-                    <svg
-                      className='w-4 h-4 text-yellow-300'
-                      aria-hidden='true'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='currentColor'
-                      viewBox='0 0 22 20'
-                    >
-                      <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-                    </svg>
-                    <svg
-                      className='w-4 h-4 text-yellow-300'
-                      aria-hidden='true'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='currentColor'
-                      viewBox='0 0 22 20'
-                    >
-                      <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-                    </svg>
-                    <svg
-                      className='w-4 h-4 text-gray-300 dark:text-gray-500'
-                      aria-hidden='true'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='currentColor'
-                      viewBox='0 0 22 20'
-                    >
-                      <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
-                    </svg>
-                    <h3 className='text-sm font-semibold text-gray-900 ms-2 dark:text-white'>
-                      Thinking to buy another one!
-                    </h3>
+                  <div className='flex items-center gap-3 mb-1 space-x-1 rtl:space-x-reverse'>
+                    <div className='flex'>
+                      {[1, 2, 3, 4, 5].map((star, index) => (
+                        <svg
+                          key={index}
+                          className={`w-4 h-4 ${star <= review.rating ? 'text-yellow-300' : 'text-gray-300'} me-1`}
+                          aria-hidden='true'
+                          xmlns='http://www.w3.org/2000/svg'
+                          fill='currentColor'
+                          viewBox='0 0 22 20'
+                        >
+                          <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
+                        </svg>
+                      ))}{' '}
+                    </div>
+                    |
+                    <div className='text-sm text-gray-500 dark:text-gray-400'>
+                      <p>{calculateTime(review.createdAt)}</p>
+                    </div>
                   </div>
-                  <footer className='mb-5 text-sm text-gray-500 dark:text-gray-400'>
-                    <p>
-                      Reviewed in the United Kingdom on <time dateTime='2017-03-03 19:00'>March 3, 2017</time>
-                    </p>
-                  </footer>
-                  <p className='mb-2 text-gray-500 dark:text-gray-400'>
-                    This is my third Invicta Pro Diver. They are just fantastic value for money. This one arrived
-                    yesterday and the first thing I did was set the time, popped on an identical strap from another
-                    Invicta and went in the shower with it to test the waterproofing.... No problems.
-                  </p>
-                  <p className='text-gray-500 dark:text-gray-400'>
-                    It is obviously not the same build quality as those very expensive watches. But that is like
-                    comparing a Citroën to a Ferrari. This watch was well under £100! An absolute bargain.
-                  </p>
+                  <p className='mb-5 text-gray-500 dark:text-gray-400'>{review.reviewText}</p>
                   {filteredReviews.length !== index + 1 && <hr />}
                 </article>
               ))}
+            {page * 5 < filteredReviews.length && (
+              <div>
+                <button
+                  onClick={() => setPage((page) => page + 1)}
+                  className='p-2 px-5 border border-black rounded-lg'
+                  type='button'
+                >
+                  More ({filteredReviews.length})
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className='col-span-2 '>

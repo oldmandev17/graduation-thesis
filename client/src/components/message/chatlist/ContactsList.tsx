@@ -45,12 +45,12 @@ function ContactsList() {
     <div className='flex flex-col h-full'>
       {currentChatUser && (
         <div className='py-5'>
-          <div className='pb-2 pl-10 text-teal-light'>Current User Chat</div>
+          <div className='pb-2 pl-10 font-semibold text-primary-strong'>Current User Chat</div>
           <ChatListItem user={currentChatUser} />
         </div>
       )}
       <div className='flex items-center gap-3 pl-5 h-14'>
-        <div className='flex items-center flex-grow w-full gap-5 px-3 py-1 rounded-lg bg-panel-header-background'>
+        <div className='flex items-center flex-grow w-full gap-5 px-3 py-1 rounded-lg bg-[#e5e7eb]'>
           <div>
             <BiSearchAlt2 className='text-xl cursor-pointer text-panel-header-icon' />
           </div>
@@ -60,7 +60,7 @@ function ContactsList() {
               placeholder='Search people ...'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className='w-full text-sm text-white bg-transparent focus:outline-none'
+              className='w-full text-sm bg-transparent text-primary-strong focus:outline-none'
             />
           </div>
         </div>

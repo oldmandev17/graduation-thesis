@@ -161,11 +161,11 @@ function OrderDetailPage() {
                       Cancel
                     </MenuItem>
                   )}
-                  {orderDetail && orderDetail.status === OrderStatus.SELLER_COMFIRM && (
+                  {orderDetail && orderDetail.status === OrderStatus.SELLER_CONFIRM && (
                     <MenuItem
                       className='!pr-20 !py-2'
                       onClick={() => {
-                        handleUpdateStatus(OrderStatus.BUYER_COMFIRM)
+                        handleUpdateStatus(OrderStatus.BUYER_CONFIRM)
                         handleCloseAction()
                       }}
                     >
@@ -201,7 +201,7 @@ function OrderDetailPage() {
                     <MenuItem
                       className='!pr-20 !py-2'
                       onClick={() => {
-                        handleUpdateStatus(OrderStatus.SELLER_COMFIRM)
+                        handleUpdateStatus(OrderStatus.SELLER_CONFIRM)
                         handleCloseAction()
                       }}
                     >

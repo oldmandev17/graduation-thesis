@@ -1,0 +1,87 @@
+# Version
+version: '3.7'
+# Services
+services:
+  # Client
+  client:
+    build: 
+      context: ./client
+      dockerfile: dockerfile
+    image: client:latest
+    restart: always
+    container_name: client
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - graduation
+  #Admin 
+  admin:
+    build: 
+      context: ./admin
+      dockerfile: dockerfile
+    image: admin:latest
+    restart: always
+    container_name: admin
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - graduation
+  # Server
+  server:
+    build: 
+      context: ./server
+      dockerfile: dockerfile
+    image: server:latest
+    restart: always
+    container_name: server
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+    networks:
+      - graduation
+  # Mongo database
+  mongo:
+    image: mongo:latest
+    restart: always
+    container_name: mongo
+    volumes:
+      - ./mongorestore.sh:/docker-entrypoint-initdb.d/mongorestore.sh
+      - ./db.dump:/db.dump 
+    networks:
+      - graduation
+  # Redis database
+  redis: 
+    image: redis:latest
+    restart: always
+    container_name: redis
+    networks:
+      - graduation
+    depends_on:
+      - mongo
+  # Nginx proxy
+  proxy: 
+    image: nginx:stable-alpine
+    restart: always
+    container_name: proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    depends_on:
+      - client
+      - admin
+    networks:
+      - graduation
+# Network
+networks:
+  graduation:
+    driver: bridge
+

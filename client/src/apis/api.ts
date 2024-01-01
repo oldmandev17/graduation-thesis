@@ -282,6 +282,16 @@ function getUserById(id: string | undefined) {
   })
 }
 
+function createReview(id: string, data: any, accessToken: string | undefined) {
+  const url = `/gig/review/${id}/create`
+  return axiosJson.post(url, data, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   getAllCategory,
   createGig,
@@ -303,5 +313,6 @@ export {
   getOrderDetail,
   getAllOrderByUser,
   updateOrderStatus,
-  getUserById
+  getUserById,
+  createReview
 }

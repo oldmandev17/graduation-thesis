@@ -32,7 +32,7 @@ function ChatListItem({ user }: { user: IUser }) {
       <div className='flex flex-col justify-center w-full min-h-full pr-2 mt-3'>
         <div className='flex justify-between'>
           <div>
-            <span className='text-white'>{user?.name}</span>
+            <span className='font-semibold text-primary-strong'>{user?.name}</span>
           </div>
         </div>
         <div className='flex pt-1 pb-2 pr-2 border-b border-conversation-border'>

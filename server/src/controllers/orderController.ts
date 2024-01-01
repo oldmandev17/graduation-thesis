@@ -9,7 +9,6 @@ import User, { UserRole } from 'src/models/userModel'
 import APIFeature from 'src/utils/apiFeature'
 import { findUser } from 'src/utils/findUser'
 import { logger } from 'src/utils/logger'
-import { MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
 import { createNotification } from 'src/utils/notification'
 import { sendEmail } from 'src/utils/sendEmail'
 import { orderDeleteSchema, orderSchema, orderStatusSchema } from 'src/utils/validationSchema'
@@ -52,10 +51,10 @@ export async function createOrder(req: Request, res: Response, next: NextFunctio
     const result = await orderSchema.validateAsync(req.body)
     const gigExist = await Gig.findOne({ _id: result.gig }).populate('createdBy')
     let userSeller
-    if (!gigExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!gigExist) throw httpError.NotFound('Gig does not exist.')
     if (gigExist && gigExist.createdBy) userSeller = await User.findOne({ _id: gigExist.createdBy._id })
     if (gigExist.status !== GigStatus.ACTIVE) {
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Gig is no longer valid.')
     }
     const order = await Order.create({
       paymentID: result.paymentID,
@@ -148,24 +147,24 @@ export async function updateOrderStatus(req: Request, res: Response, next: NextF
       .populate('createdBy')
       .populate({ path: 'gig', populate: { path: 'createdBy' } })
     if (status === OrderStatus.CANCEL && orderExist && orderExist.status !== OrderStatus.PENDING)
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Invalid data.')
     else if (status === OrderStatus.PAID && orderExist && orderExist.status !== OrderStatus.PENDING)
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Invalid data.')
     else if (status === OrderStatus.ACCEPT && orderExist && orderExist.status !== OrderStatus.PENDING)
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
-    else if (status === OrderStatus.COMPLETE && orderExist && orderExist.status !== OrderStatus.BUYER_COMFIRM)
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
-    else if (status === OrderStatus.SELLER_COMFIRM && orderExist && orderExist.status !== OrderStatus.ACCEPT)
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
-    else if (status === OrderStatus.BUYER_COMFIRM && orderExist && orderExist.status !== OrderStatus.SELLER_COMFIRM)
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Invalid data.')
+    else if (status === OrderStatus.COMPLETE && orderExist && orderExist.status !== OrderStatus.BUYER_CONFIRM)
+      throw httpError.NotAcceptable('Invalid data.')
+    else if (status === OrderStatus.SELLER_CONFIRM && orderExist && orderExist.status !== OrderStatus.ACCEPT)
+      throw httpError.NotAcceptable('Invalid data.')
+    else if (status === OrderStatus.BUYER_CONFIRM && orderExist && orderExist.status !== OrderStatus.SELLER_CONFIRM)
+      throw httpError.NotAcceptable('Invalid data.')
     else if (
-      status === OrderStatus.ADMIN_COMFIRM &&
+      status === OrderStatus.ADMIN_CONFIRM &&
       orderExist &&
       orderExist.status !== OrderStatus.CANCEL &&
       orderExist.status !== OrderStatus.PAID
     )
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Invalid data.')
 
     await Order.updateOne({ _id: result.ids[0] }, updateField)
     if (
@@ -315,7 +314,7 @@ export async function getOrderDetail(req: Request, res: Response, next: NextFunc
 export async function getAllOrderByUser(req: Request, res: Response, next: NextFunction) {
   try {
     const userExist = await findUser(req.payload.userId)
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist) throw httpError.NotFound('User does not exist.')
     const arrIds = userExist.gigs.map((gig) => gig._id)
     const filter: any = {}
     if (req.params.role === 'seller') {

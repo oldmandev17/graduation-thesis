@@ -47,13 +47,13 @@ export interface IUser extends mongoose.Document {
   wishlist: Array<IGig>
   gigs: Array<IGig>
   orders: Array<IOrder>
-  reviews: Array<IReview>
   status: UserStatus
   language?: string
   description?: string
   occupation?: string
   skill?: string
   education?: string
+  reason?: string
   certification?: string
   createdAt: Date
   createdBy?: IUser
@@ -74,6 +74,9 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     type: String
   },
   avatar: {
+    type: String
+  },
+  reason: {
     type: String
   },
   gender: {
@@ -144,12 +147,6 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'order'
-    }
-  ],
-  reviews: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'review'
     }
   ],
   status: {

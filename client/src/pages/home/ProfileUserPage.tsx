@@ -3,9 +3,12 @@
 /* eslint-disable react/no-array-index-key */
 import { getUserById } from 'apis/api'
 import GigCard from 'components/common/GigCard'
+import SellerTag from 'components/common/SellerTag'
+import { IOrder } from 'modules/order'
 import { IUser } from 'modules/user'
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { FaStar } from 'react-icons/fa'
 import { GrSend } from 'react-icons/gr'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -17,6 +20,9 @@ function ProfileUserPage() {
   const { id } = useParams<{ id?: string }>()
   const [all, setAll] = useState<boolean>(false)
   const navigate = useNavigate()
+  const [orders, setOrders] = useState<Array<IOrder>>([])
+  const [totalReviews, setTotalReviews] = useState(0)
+  const [averageRating, setAverageRating] = useState(0)
   const { user } = useAppSelector((state) => state.auth)
 
   const getUserDetailById = useCallback(async () => {
@@ -24,6 +30,9 @@ function ProfileUserPage() {
       .then((response) => {
         if (response.status === 200) {
           setUserDetail(response.data.user)
+          setTotalReviews(response.data.totalReviews)
+          setAverageRating(response.data.averageRating)
+          setOrders(response.data.orders)
         }
       })
       .catch((error: any) => toast.error(error.response.data.error.message))
@@ -54,15 +63,41 @@ function ProfileUserPage() {
         <div className='grid grid-cols-3 gap-10'>
           <div className='flex flex-col col-span-2 gap-5'>
             <div className='flex gap-5'>
-              <img src='' alt='avatar' />
+              {userDetail?.avatar ? (
+                <img
+                  src={
+                    userDetail.avatar.startsWith('upload')
+                      ? `${process.env.REACT_APP_URL_SERVER}/${userDetail.avatar}`
+                      : userDetail.avatar
+                  }
+                  alt={userDetail?.name}
+                  className='object-contain w-40 h-40 rounded-full'
+                />
+              ) : (
+                <div className='relative flex items-center justify-center w-40 h-40 bg-purple-500 rounded-full'>
+                  <span className='text-2xl text-white'>{userDetail && userDetail?.email[0].toUpperCase()}</span>
+                </div>
+              )}
+              <div className='flex flex-col justify-center gap-2'>
+                <p className='text-xl font-semibold'>
+                  {userDetail?.name}
+                  <span className='ml-5 text-lg font-normal text-gray-600'>@{userDetail?.id}</span>
+                </p>
+                <span className='flex flex-row items-center gap-1'>
+                  <FaStar className='w-4 h-4 fill-gray-900' />
+                  <span className='text-base font-semibold text-gray-900'>{Math.ceil(averageRating)}</span>
+                  <span className='text-base font-semibold text-gray-500 cursor-pointer'>({totalReviews})</span>
+                </span>
+                <SellerTag total={orders.length} />
+              </div>
             </div>
             <div>
               <h6 className='text-xl font-semibold text-gray-700'>About me</h6>
-              <p className='mt-3'>{userDetail?.description}</p>
+              <p className='mt-3 text-lg text-gray-600'>{userDetail?.description}</p>
             </div>
             <div>
               <h6 className='text-xl font-semibold text-gray-700'>Skill</h6>
-              <p className='mt-3'>{userDetail?.skill?.replace(',', '')}</p>
+              <p className='mt-3 text-lg text-gray-600'>{userDetail?.skill?.replace(',', '')}</p>
             </div>
           </div>
           <div>

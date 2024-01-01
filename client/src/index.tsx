@@ -177,12 +177,18 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: '/user/:userId/messages',
-        element: <MessagePage />
-      },
-      {
-        path: '/user/:userId/profile',
-        element: <PersonalInfoPage />
+        path: '/user/:userId',
+        element: <RequiredAuth allowPermissions={[UserRole.BUYER, UserRole.SELLER]} />,
+        children: [
+          {
+            path: '/user/:userId/messages',
+            element: <MessagePage />
+          },
+          {
+            path: '/user/:userId/profile',
+            element: <PersonalInfoPage />
+          }
+        ]
       },
       {
         path: '/user/:userId',

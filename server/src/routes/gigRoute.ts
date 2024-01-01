@@ -15,10 +15,10 @@ import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'
 
-const gigRoutes = Router()
+const gigRouter = Router()
 
-gigRoutes.route('/create').post(verifyAccessToken, authorizeRoles([UserRole.SELLER]), upload('gig').any(), createGig)
-gigRoutes
+gigRouter.route('/create').post(verifyAccessToken, authorizeRoles([UserRole.SELLER]), upload('gig').any(), createGig)
+gigRouter
   .route('/update/:id')
   .put(
     verifyAccessToken,
@@ -26,22 +26,22 @@ gigRoutes
     upload('gig').any(),
     updateGig
   )
-gigRoutes
+gigRouter
   .route('/update')
   .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), updateGigStatus)
-gigRoutes
+gigRouter
   .route('/')
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), deleteGigs)
-gigRoutes.route('/').get(getAllGig)
-gigRoutes.route('/filter').get(getAllGigFilter)
-gigRoutes.route('/user').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getAllGigByUser)
-gigRoutes
+gigRouter.route('/').get(getAllGig)
+gigRouter.route('/filter').get(getAllGigFilter)
+gigRouter.route('/user').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getAllGigByUser)
+gigRouter
   .route('/landing')
   .get(verifyAccessToken, authorizeRoles([UserRole.SELLER, UserRole.BUYER]), getAllLandingGigByUser)
-gigRoutes
+gigRouter
   .route('/id/:id')
   .get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), getGigDetail)
-gigRoutes.route('/slug/:slug').get(getGigDetail)
-gigRoutes.route('/review/:id/create').post(verifyAccessToken, authorizeRoles([UserRole.BUYER]), createReview)
+gigRouter.route('/slug/:slug').get(getGigDetail)
+gigRouter.route('/review/:id/create').post(verifyAccessToken, authorizeRoles([UserRole.BUYER]), createReview)
 
-export default gigRoutes
+export default gigRouter

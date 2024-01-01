@@ -1,13 +1,24 @@
-import React from 'react'
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-underscore-dangle */
 import { useMessage } from 'contexts/StateContext'
-import { MdCall } from 'react-icons/md'
-import { IoVideocam } from 'react-icons/io5'
+import { useEffect, useState } from 'react'
 import { BiSearchAlt2 } from 'react-icons/bi'
 import { BsThreeDotsVertical } from 'react-icons/bs'
+import { IoVideocam } from 'react-icons/io5'
+import { MdCall } from 'react-icons/md'
 import Avatar from '../common/Avatar'
 
 function ChatHeader() {
-  const { currentChatUser } = useMessage()
+  const { currentChatUser, onlineUsers } = useMessage()
+  const [online, setOnline] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (currentChatUser && onlineUsers.length > 0 && onlineUsers.includes(currentChatUser._id)) {
+      setOnline(true)
+    } else {
+      setOnline(false)
+    }
+  }, [onlineUsers, currentChatUser])
 
   return (
     <div className='z-10 flex items-center justify-between h-16 px-4 py-3 shadow-lg bg-panel-header-background'>
@@ -29,7 +40,19 @@ function ChatHeader() {
         )}
         <div className='flex flex-col'>
           <span className='text-primary-strong'>{currentChatUser?.name}</span>
-          <span className='text-sm text-secondary'>online/offline</span>
+          <span className='text-sm text-secondary'>
+            {online ? (
+              <div className='flex items-center'>
+                <span className='flex w-3 h-3 bg-green-500 rounded-full me-3' />
+                Online
+              </div>
+            ) : (
+              <div className='flex items-center'>
+                <span className='flex w-3 h-3 bg-red-500 rounded-full me-3' />
+                Offline
+              </div>
+            )}
+          </span>
         </div>
       </div>
       <div className='flex gap-6'>

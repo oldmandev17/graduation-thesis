@@ -205,7 +205,7 @@ function Order() {
               >
                 {arrOrderStatus?.length &&
                   arrOrderStatus
-                    .filter((val) => val.value === OrderStatus.COMPLETE || val.value === OrderStatus.ADMIN_COMFIRM)
+                    .filter((val) => val.value === OrderStatus.COMPLETE || val.value === OrderStatus.ADMIN_CONFIRM)
                     .map((val, index) => (
                       <option key={val.value + index} value={val.value}>
                         {val.label}

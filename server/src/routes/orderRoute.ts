@@ -10,21 +10,21 @@ import {
 import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 
-const orderRoutes = Router()
+const orderRouter = Router()
 
-orderRoutes.route('/create-payment-intent').post(createPaymentIntent)
-orderRoutes.route('/create').post(verifyAccessToken, authorizeRoles([UserRole.BUYER]), createOrder)
-orderRoutes.route('/:id').get(verifyAccessToken, authorizeRoles([UserRole.BUYER, UserRole.SELLER]), getOrderDetail)
-orderRoutes
+orderRouter.route('/create-payment-intent').post(createPaymentIntent)
+orderRouter.route('/create').post(verifyAccessToken, authorizeRoles([UserRole.BUYER]), createOrder)
+orderRouter.route('/:id').get(verifyAccessToken, authorizeRoles([UserRole.BUYER, UserRole.SELLER]), getOrderDetail)
+orderRouter
   .route('/:role/user')
   .get(verifyAccessToken, authorizeRoles([UserRole.SELLER, UserRole.BUYER]), getAllOrderByUser)
-orderRoutes
+orderRouter
   .route('/update')
   .put(
     verifyAccessToken,
     authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER, UserRole.BUYER]),
     updateOrderStatus
   )
-orderRoutes.route('/').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getAllOrder)
+orderRouter.route('/').get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getAllOrder)
 
-export default orderRoutes
+export default orderRouter

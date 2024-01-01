@@ -11,9 +11,9 @@ import { authorizeRoles, verifyAccessToken } from 'src/middlewares/jwtHelper'
 import { UserRole } from 'src/models/userModel'
 import { upload } from 'src/utils/upload'
 
-const categoryRoutes = Router()
+const categoryRouter = Router()
 
-categoryRoutes
+categoryRouter
   .route('/create')
   .post(
     verifyAccessToken,
@@ -21,7 +21,7 @@ categoryRoutes
     upload('category').single('image'),
     createCategory
   )
-categoryRoutes
+categoryRouter
   .route('/update/:id')
   .put(
     verifyAccessToken,
@@ -29,16 +29,16 @@ categoryRoutes
     upload('category').single('image'),
     updateCategory
   )
-categoryRoutes
+categoryRouter
   .route('/update')
   .put(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), updateCategoryStatus)
-categoryRoutes
+categoryRouter
   .route('/')
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), deleteCategories)
-categoryRoutes.route('/').get(getAllCategory)
-categoryRoutes
+categoryRouter.route('/').get(getAllCategory)
+categoryRouter
   .route('/id/:id')
   .get(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER]), getCategoryDetail)
-categoryRoutes.route('/slug/:slug').get(getCategoryDetail)
+categoryRouter.route('/slug/:slug').get(getCategoryDetail)
 
-export default categoryRoutes
+export default categoryRouter

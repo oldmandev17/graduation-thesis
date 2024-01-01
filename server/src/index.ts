@@ -6,11 +6,12 @@ import { Server } from 'socket.io'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import authRouter from './routes/authRoute'
-import categoryRoutes from './routes/categoryRoute'
-import gigRoutes from './routes/gigRoute'
-import logRoutes from './routes/logRoute'
+import categoryRouter from './routes/categoryRoute'
+import dashboardRouter from './routes/dashboardRoute'
+import gigRouter from './routes/gigRoute'
+import logRouter from './routes/logRoute'
 import messageRouter from './routes/messageRoute'
-import orderRoutes from './routes/orderRoute'
+import orderRouter from './routes/orderRoute'
 import { MESSAGE_NOTFOUND } from './utils/message'
 
 // Use redis cluter
@@ -59,11 +60,12 @@ app.use('/uploads', express.static('./uploads'))
 app.use(express.json())
 app.use(morgan('dev'))
 app.use('/api/auth', authRouter)
-app.use('/api/category', categoryRoutes)
-app.use('/api/log', logRoutes)
-app.use('/api/gig', gigRoutes)
-app.use('/api/order', orderRoutes)
+app.use('/api/category', categoryRouter)
+app.use('/api/log', logRouter)
+app.use('/api/gig', gigRouter)
+app.use('/api/order', orderRouter)
 app.use('/api/message', messageRouter)
+app.use('/api/dashboard', dashboardRouter)
 // Swagger Page
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 // Documentation in JSON format
@@ -117,6 +119,10 @@ io.on('connection', (socket) => {
   socket.on('add-user', (userId) => {
     globalAny.onlineUsers.set(userId, socket.id)
   })
+
+  const array = Array.from(globalAny.onlineUsers, ([name]) => name)
+
+  socket.emit('online', { onlineUsers: array })
 
   socket.on('send-msg', (data: any) => {
     const sendUserSocket = globalAny.onlineUsers.get(data.to)

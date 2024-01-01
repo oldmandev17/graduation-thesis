@@ -16,14 +16,6 @@ import APIFeature from 'src/utils/apiFeature'
 import { findUser } from 'src/utils/findUser'
 import { generateRandomPassword } from 'src/utils/generatePassword'
 import { logger } from 'src/utils/logger'
-import {
-  MESSAGE_BADREQUEST,
-  MESSAGE_CONFLICT,
-  MESSAGE_INTERNALSERVERERROR,
-  MESSAGE_NOTACCEPTABLE,
-  MESSAGE_NOTFOUND,
-  MESSAGE_UNAUTHORIZED
-} from 'src/utils/message'
 import { createNotification } from 'src/utils/notification'
 import { sendEmail, sendPasswordEmail, sendResetEmail, sendVerificationEmail } from 'src/utils/sendEmail'
 import {
@@ -52,7 +44,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     })
     if (userExist.length > 0) {
       if (userExist[0].verify || (!userExist[0].verify && userExist[0].createdAt.getTime() + 21600000 < Date.now())) {
-        throw httpError.Conflict(MESSAGE_CONFLICT)
+        throw httpError.Conflict('Email is already in use.')
       }
       if (!userExist[0].verify && userExist[0].createdAt.getTime() + 21600000 > Date.now()) {
         await User.deleteOne({ _id: userExist[0]._id })
@@ -100,20 +92,20 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 export async function verifyEmail(req: Request, res: Response, next: NextFunction) {
   const user = await findUser(req.params.userId)
   try {
-    if (!user) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!user) throw httpError.NotFound('Account is not registered.')
     const { userId, verificationString } = req.params
     const userVerificationExist = await UserVerification.findOne({
       user: userId
     })
-    if (!userVerificationExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userVerificationExist) throw httpError.NotFound('Invalid account authentication.')
     if (userVerificationExist.isValidExpires()) {
       await User.deleteOne({
         _id: userId
       })
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Authentication timeout has expired.')
     } else {
       if (!userVerificationExist.isValidVerificationString(verificationString))
-        throw httpError.Unauthorized(MESSAGE_UNAUTHORIZED)
+        throw httpError.Unauthorized('Account authentication failed')
       await User.updateOne(
         {
           _id: userId
@@ -161,11 +153,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       email: result.email,
       provider: UserProvider.EMAIL
     })
-    if (!userExist.length) throw httpError.NotFound(MESSAGE_NOTFOUND)
-    if (!userExist[0].verify) throw httpError.BadRequest(MESSAGE_BADREQUEST)
-    if (userExist[0].status !== UserStatus.ACTIVE) throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+    if (!userExist.length) throw httpError.NotFound('Email or password is incorrect.')
+    if (!userExist[0].verify) throw httpError.BadRequest('The account has not been verified.')
+    if (userExist[0].status !== UserStatus.ACTIVE) throw httpError.NotAcceptable('The account is no longer valid.')
     const isMatch = await compare(result.password, userExist[0].password as string)
-    if (!isMatch) throw httpError.Unauthorized(MESSAGE_UNAUTHORIZED)
+    if (!isMatch) throw httpError.Unauthorized('Email or password is incorrect.')
     const accessToken = await signAccessToken(String(userExist[0]._id), userExist[0].role)
     const refreshToken = await signRefreshToken(String(userExist[0]._id))
     logger({
@@ -187,7 +179,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       errorMessage: error.message,
       content: req.body
     })
-    if (error.isJoi === true) next(httpError.BadRequest(MESSAGE_BADREQUEST))
+    if (error.isJoi === true) error.status = 422
     next(error)
   }
 }
@@ -195,13 +187,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 export async function refreshToken(req: Request, res: Response, next: NextFunction) {
   try {
     const { refreshToken } = req.body
-    if (!refreshToken) throw httpError.BadRequest(MESSAGE_BADREQUEST)
+    if (!refreshToken) throw httpError.BadRequest('Invalid account authentication.')
     const userId = (await verifyRefreshToken(refreshToken)) as string
     const userExist = await User.findOne({
       _id: userId
     })
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
-    if (userExist.status !== UserStatus.ACTIVE) throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+    if (!userExist) throw httpError.NotFound('Account does not exist.')
+    if (userExist.status !== UserStatus.ACTIVE) throw httpError.NotAcceptable('The account is no longer valid.')
     const accessToken = await signAccessToken(userId, userExist.role)
     const newRefreshToken = await signRefreshToken(userId)
     res.status(200).json({ accessToken, refreshToken: newRefreshToken })
@@ -212,10 +204,10 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
   const { refreshToken } = req.params
-  if (!refreshToken) throw httpError.BadRequest(MESSAGE_BADREQUEST)
+  if (!refreshToken) throw httpError.BadRequest('Invalid account authentication.')
   const userId = (await verifyRefreshToken(refreshToken)) as string
   try {
-    client.DEL(userId).catch((next: NextFunction) => next(httpError.InternalServerError(MESSAGE_INTERNALSERVERERROR)))
+    client.DEL(userId).catch((next: NextFunction) => next(httpError.InternalServerError('Internal server error.')))
     logger({
       user: userId,
       name: LogName.LOGOUT_USER,
@@ -264,7 +256,7 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
         },
         populate: { path: 'gig' }
       })
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist) throw httpError.NotFound('Account does not exist.')
     const messages = await Message.find({
       $or: [
         {
@@ -394,7 +386,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
       email: result.email,
       provider: UserProvider.EMAIL
     })
-    if (userExist.length) throw httpError.Conflict(MESSAGE_CONFLICT)
+    if (userExist.length) throw httpError.Conflict('Email is already in use.')
     const newUser = await User.create({
       name: result.name,
       email: result.email,
@@ -464,7 +456,7 @@ export async function updateUser(req: any, res: Response, next: NextFunction) {
     const file = req.file as Express.Multer.File
     const result = await userUpdateSchema.validateAsync(req.body)
     const user = await User.findOne({ _id: req.payload.userId })
-    if (!user) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!user) throw httpError.NotFound('User does not exist.')
     else {
       if (file) {
         if (existsSync(user?.avatar as string) && user.provider === UserProvider.EMAIL)
@@ -532,7 +524,7 @@ export async function updateUserByAdmin(req: any, res: Response, next: NextFunct
     const file = req.file as Express.Multer.File
     const result = await userUpdateSchema.validateAsync(req.body)
     const userExist = await User.findOne({ _id: req.params.id })
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist) throw httpError.NotFound('User does not exist.')
     else {
       if (file) {
         if (existsSync(userExist?.avatar as string) && userExist.provider === UserProvider.EMAIL)
@@ -603,8 +595,8 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
   try {
     const result = await authForgotPasswordSchema.validateAsync(req.body)
     const userExist = await User.findOne({ email: result.email })
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
-    if (!userExist.verify) throw httpError.BadRequest(MESSAGE_BADREQUEST)
+    if (!userExist) throw httpError.NotFound('Account does not exist.')
+    if (!userExist.verify) throw httpError.BadRequest('The account has not been verified.')
     logger({
       user: userExist?._id,
       name: LogName.REQUEST_RESET_PASSWORD,
@@ -633,12 +625,13 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
   try {
     const result = await authResetPasswordSchema.validateAsync(req.body)
     const userReset = await UserReset.findOne({ user: result.userId })
-    if (!userReset) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userReset) throw httpError.NotFound('Account does not exist.')
     if (!userReset.isValidExpires()) {
       await UserReset.deleteOne({ user: result.userId })
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Authentication timeout has expired.')
     } else {
-      if (!userReset.isValidResetString(result.resetString)) throw httpError.Unauthorized(MESSAGE_UNAUTHORIZED)
+      if (!userReset.isValidResetString(result.resetString))
+        throw httpError.Unauthorized('Invalid account authentication.')
       await User.updateOne({ _id: result.userId }, { password: result.password })
       await UserReset.deleteOne({ user: result.userId })
       logger({
@@ -716,7 +709,7 @@ export const getUserDetail = async (req: Request, res: Response, next: NextFunct
         },
         populate: { path: 'gig' }
       })
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist) throw httpError.NotFound('User does not exist.')
 
     res.status(200).json({ user: userExist })
   } catch (error: any) {
@@ -763,7 +756,7 @@ export const sendMail = async (req: Request, res: Response, next: NextFunction) 
 export async function wishlist(req: Request, res: Response, next: NextFunction) {
   try {
     const userExist = await User.findOne({ _id: req.payload.userId }).populate('wishlist')
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist) throw httpError.NotFound('User does not exist.')
     if (userExist.wishlist.filter((gig) => gig._id.toString() === req.params.id).length > 0) {
       let arrIds = userExist.wishlist.map((gig) => gig._id)
       arrIds = arrIds.filter((id) => id.toString() !== req.params.id)
@@ -786,14 +779,26 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
       path: 'gigs',
       populate: [{ path: 'createdBy' }, { path: 'reviews' }]
     })
-    if (!userExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+    if (!userExist) throw httpError.NotFound('User does not exist.')
     const arrIds = userExist.gigs.map((gig) => gig._id)
-    const orderExist = await Order.find({ gig: { $in: arrIds } }).populate({ path: 'gig', populate: 'reviews' })
+    const orderExist = await Order.find({ gig: { $in: arrIds } }).populate({
+      path: 'gig',
+      populate: 'reviews'
+    })
     const gigExist: IGig[] = []
-    orderExist.map((order) => gigExist.push(order.gig))
+    orderExist.forEach((order) => {
+      if (gigExist.filter((gig) => gig._id === order.gig._id).length === 0) {
+        gigExist.push(order.gig)
+      }
+    })
     const reviews = gigExist.flatMap((gig) => gig.reviews)
-    const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0)
-    res.status(200).json({ user: userExist, gigs: gigExist })
+    let averageRating = 0
+    if (reviews.length > 0) {
+      averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+    }
+    res
+      .status(200)
+      .json({ user: userExist, gigs: gigExist, averageRating, totalReviews: reviews.length, orders: orderExist })
   } catch (error: any) {
     next(error)
   }

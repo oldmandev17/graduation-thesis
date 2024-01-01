@@ -279,15 +279,15 @@ const arrOrderStatus = [
   },
   {
     label: 'BUYER COMFIRM',
-    value: OrderStatus.BUYER_COMFIRM
+    value: OrderStatus.BUYER_CONFIRM
   },
   {
     label: 'SELLER COMFIRM',
-    value: OrderStatus.SELLER_COMFIRM
+    value: OrderStatus.SELLER_CONFIRM
   },
   {
     label: 'ADMIN COMFIRM',
-    value: OrderStatus.ADMIN_COMFIRM
+    value: OrderStatus.ADMIN_CONFIRM
   }
 ]
 

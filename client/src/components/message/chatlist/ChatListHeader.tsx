@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-restricted-syntax */
 import { BsFillChatLeftTextFill, BsThreeDotsVertical } from 'react-icons/bs'
 import { SiFreelancer } from 'react-icons/si'
 import { useNavigate } from 'react-router-dom'
@@ -27,8 +29,13 @@ function ChatListHeader() {
           )}
         </div>
         <div className='flex flex-col'>
-          <span className='text-primary-strong'>{user?.name}</span>
-          <span className='text-sm text-secondary'>online/offline</span>
+          <span className='font-semibold text-primary-strong'>{user?.name}</span>
+          <span className='text-sm text-secondary'>
+            <div className='flex items-center'>
+              <span className='flex w-3 h-3 bg-green-500 rounded-full me-3' />
+              Online
+            </div>
+          </span>
         </div>
       </div>
       <div className='flex gap-6'>

@@ -116,15 +116,17 @@ function Row({ gig, setReload }: { gig: IGig; setReload: any }) {
           >
             Edit
           </MenuItem>
-          <MenuItem
-            className='!pr-20 !py-2'
-            onClick={() => {
-              handleUpdateGigStatus(GigStatus.DELETED)
-              handleCloseAction()
-            }}
-          >
-            Delete
-          </MenuItem>
+          {gig.orders.length === 0 && (
+            <MenuItem
+              className='!pr-20 !py-2'
+              onClick={() => {
+                handleUpdateGigStatus(GigStatus.DELETED)
+                handleCloseAction()
+              }}
+            >
+              Delete
+            </MenuItem>
+          )}
         </Menu>
       </td>
     </>

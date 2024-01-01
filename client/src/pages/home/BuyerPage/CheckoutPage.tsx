@@ -172,12 +172,12 @@ function CheckoutForm() {
             <div className='flex flex-col gap-4 p-4 px-8'>
               <div className='flex justify-between text-lg font-semibold text-gray-600'>
                 <span>Service fee</span>
-                <span>${order.quantity * ((order.pack && order.pack.price) || 1) * 0.05}</span>
+                <span>${(order.quantity * ((order.pack && order.pack.price) || 1) * 0.05).toFixed(2)}</span>
               </div>
               <hr />
               <div className='flex justify-between text-xl font-bold text-gray-600'>
                 <span>Total</span>
-                <span>${order.quantity * ((order.pack && order.pack.price) || 1) * 1.05}</span>
+                <span>${(order.quantity * ((order.pack && order.pack.price) || 1) * 1.05).toFixed(2)}</span>
               </div>
               <div className='flex justify-between text-lg font-semibold text-gray-600'>
                 <span>Total delivery time</span>
@@ -237,7 +237,9 @@ function CheckoutForm() {
                         purchase_units: [
                           {
                             amount: {
-                              value: String(order.quantity * ((order.pack && order.pack.price) || 1) * 1.05)
+                              value: String(
+                                (order.quantity * ((order.pack && order.pack.price) || 1) * 1.05).toFixed(2)
+                              )
                             }
                           }
                         ]
@@ -256,7 +258,7 @@ function CheckoutForm() {
                   />
                 )}
                 <span className='text-center'>
-                  You will be charged ${order.quantity * ((order.pack && order.pack.price) || 1) * 1.05}.
+                  You will be charged ${(order.quantity * ((order.pack && order.pack.price) || 1) * 1.05).toFixed(2)}
                 </span>
               </div>
             </div>

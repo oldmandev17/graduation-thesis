@@ -26,22 +26,22 @@ function OrderStatusTag({ status }: { status: OrderStatus | undefined }) {
           {OrderStatus.ACCEPT}
         </span>
       )
-    case OrderStatus.BUYER_COMFIRM:
+    case OrderStatus.BUYER_CONFIRM:
       return (
         <span className='text-white border border-yellow-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 bg-yellow-500'>
-          {OrderStatus.BUYER_COMFIRM}
+          {OrderStatus.BUYER_CONFIRM}
         </span>
       )
-    case OrderStatus.SELLER_COMFIRM:
+    case OrderStatus.SELLER_CONFIRM:
       return (
         <span className='text-white border border-lime-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 bg-lime-800'>
-          {OrderStatus.SELLER_COMFIRM}
+          {OrderStatus.SELLER_CONFIRM}
         </span>
       )
-    case OrderStatus.ADMIN_COMFIRM:
+    case OrderStatus.ADMIN_CONFIRM:
       return (
         <span className='text-white border border-purple-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 bg-purple-800'>
-          {OrderStatus.ADMIN_COMFIRM}
+          {OrderStatus.ADMIN_CONFIRM}
         </span>
       )
     default:

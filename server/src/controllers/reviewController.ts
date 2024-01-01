@@ -5,19 +5,18 @@ import { LogMethod, LogName, LogStatus } from 'src/models/logModel'
 import Order from 'src/models/orderModel'
 import Review, { ReviewStatus } from 'src/models/reviewModel'
 import { logger } from 'src/utils/logger'
-import { MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
-import { orderSchema } from 'src/utils/validationSchema'
+import { reviewSchema } from 'src/utils/validationSchema'
 
 export async function createReview(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await orderSchema.validateAsync(req.body)
+    const result = await reviewSchema.validateAsync(req.body)
     const gigExist = await Gig.findOne({ _id: req.params.id })
     if (!gigExist) {
-      throw httpError.NotFound(MESSAGE_NOTFOUND)
+      throw httpError.NotFound('Gig does not exist.')
     }
     const orderExist = await Order.find({ gig: gigExist?._id, createdBy: req.payload.userId })
     if (orderExist.length < 1) {
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Cannot reivew.')
     }
     const review = await Review.create({
       ...result,

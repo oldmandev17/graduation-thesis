@@ -2,10 +2,11 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/no-array-index-key */
-import { addOrRemoveWishlist } from 'apis/api'
+import { addOrRemoveWishlist, getUserById } from 'apis/api'
 import { useMessage } from 'contexts/StateContext'
 import { IGig } from 'modules/gig'
-import { CSSProperties, useEffect, useState } from 'react'
+import { IOrder } from 'modules/order'
+import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -18,6 +19,7 @@ import 'swiper/css/pagination'
 import { EffectFade, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { getToken } from 'utils/auth'
+import SellerTag from './SellerTag'
 
 function GigCard({ gig, type, height }: { gig: IGig; type: string; height: number }) {
   const location = useLocation()
@@ -28,6 +30,24 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
   const [hover, setHover] = useState<boolean>(false)
   const totalRating = gig?.reviews.reduce((sum, review) => sum + review.rating, 0)
   const avgRating = totalRating / gig.reviews.length || 0
+  const [orders, setOrders] = useState<Array<IOrder>>([])
+
+  const getUserDetailById = useCallback(async () => {
+    await getUserById(gig.createdBy && gig.createdBy.id)
+      .then((response) => {
+        if (response.status === 200) {
+          setOrders(response.data.orders)
+        }
+      })
+      .catch((error: any) => toast.error(error.response.data.error.message))
+  }, [gig])
+
+  useEffect(() => {
+    if (gig && gig.createdBy && gig.createdBy.id) {
+      getUserDetailById()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getUserDetailById])
 
   const handleWishlist = async () => {
     if (!user) {
@@ -114,25 +134,34 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
           } stroke-white top-3 right-3 cursor-pointer`}
         />
       </div>
-      <div className='flex flex-row items-center gap-2'>
-        {gig?.createdBy?.avatar ? (
-          <img
-            src={
-              gig?.createdBy?.avatar.startsWith('upload')
-                ? `${process.env.REACT_APP_URL_SERVER}/${gig?.createdBy?.avatar}`
-                : gig?.createdBy?.avatar
-            }
-            alt='avata'
-            className='rounded-full h-9 w-9'
-          />
-        ) : (
-          <div className='relative flex items-center justify-center bg-purple-500 rounded-full h-9 w-9'>
-            <span className='text-2xl text-white'>{gig && gig?.createdBy?.email[0].toUpperCase()}</span>
-          </div>
-        )}
-        <Link to={`/user-detail/${gig?.createdBy?.id}`} target='_blank' className='text-base font-bold hover:underline'>
-          {gig?.createdBy?.name}
-        </Link>
+      <div className='flex flex-row justify-between'>
+        <div className='flex flex-row items-center gap-2'>
+          {gig?.createdBy?.avatar ? (
+            <img
+              src={
+                gig?.createdBy?.avatar.startsWith('upload')
+                  ? `${process.env.REACT_APP_URL_SERVER}/${gig?.createdBy?.avatar}`
+                  : gig?.createdBy?.avatar
+              }
+              alt='avata'
+              className='rounded-full h-9 w-9'
+            />
+          ) : (
+            <div className='relative flex items-center justify-center bg-purple-500 rounded-full h-9 w-9'>
+              <span className='text-2xl text-white'>{gig && gig?.createdBy?.email[0].toUpperCase()}</span>
+            </div>
+          )}
+          <Link
+            to={`/user-detail/${gig?.createdBy?.id}`}
+            target='_blank'
+            className='text-base font-bold hover:underline'
+          >
+            {gig?.createdBy?.name}
+          </Link>
+        </div>
+        <div className='flex items-center'>
+          <SellerTag total={orders.length} />
+        </div>
       </div>
       <div className='flex flex-col gap-1'>
         <Link

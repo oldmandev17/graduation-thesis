@@ -1,1 +1,18 @@
-FROM baseImage
+# Use an official Node.js image as the base image
+FROM node:18
+# Use production environment
+ENV NODE_ENV production 
+# Set the working directory
+WORKDIR /app
+# Copy the package.json and package-lock.json files
+COPY /package*.json ./
+# Install the dependencies
+RUN yarn install
+# Copy folder server
+COPY / ./
+# Build server
+RUN yarn run prod
+# Expose port 5000 for incoming HTTP requests
+EXPOSE 5000
+# Start the server
+CMD ["yarn", "run", "prod"]

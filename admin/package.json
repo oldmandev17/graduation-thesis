@@ -65,7 +65,7 @@
   "scripts": {
     "dev": "set PORT=4000 && env-cmd -f .env.development react-scripts start",
     "build": "set PORT=4000 && env-cmd -f .env.development react-scripts build",
-    "prod": "set PORT=4000 && env-cmd -f .env.production react-scripts test",
+    "prod": "set PORT=4000 && env-cmd -f .env.production react-scripts build",
     "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."

@@ -83,18 +83,18 @@ function Avatar({ type, image, setImage }: { type: string; image: string; setIma
     <>
       <div className='flex items-center justify-center'>
         {type === 'sm' && (
-          <div className='relative h-10 w-10'>
-            <img src={image} alt='avatar' className='rounded-full' />
+          <div className='relative w-10 h-10'>
+            <img src={image} alt='avatar' className='object-cover w-10 h-10 rounded-full' />
           </div>
         )}
         {type === 'lg' && (
           <div className='relative h-14 w-14'>
-            <img src={image} alt='avatar' className='rounded-full' />
+            <img src={image} alt='avatar' className='object-cover rounded-full h-14 w-14' />
           </div>
         )}
         {type === 'xl' && (
           <div
-            className='relative cursor-pointer z-0'
+            className='relative z-0 cursor-pointer'
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
           >
@@ -110,8 +110,8 @@ function Avatar({ type, image, setImage }: { type: string; image: string; setIma
                 Change <br /> Profile Photo
               </span>
             </div>
-            <div className='h-60 w-60 flex justify-center items-center'>
-              <img src={image} alt='avatar' className='rounded-full' />
+            <div className='flex items-center justify-center h-60 w-60'>
+              <img src={image} alt='avatar' className='object-cover rounded-full h-60 w-60' />
             </div>
           </div>
         )}

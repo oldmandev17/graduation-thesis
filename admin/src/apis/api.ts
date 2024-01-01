@@ -331,6 +331,16 @@ function getOrderDetail(id: string | undefined, accessToken: string | undefined)
   })
 }
 
+function getAnalytics(timeInterval: string, accessToken: string | undefined) {
+  const url = `/dashboard/analytics/${timeInterval}`
+  return axiosJson.get(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+
 export {
   createCategory,
   createUser,
@@ -353,5 +363,6 @@ export {
   getAllNotification,
   seenNotification,
   updateOrderStatus,
-  getOrderDetail
+  getOrderDetail,
+  getAnalytics
 }

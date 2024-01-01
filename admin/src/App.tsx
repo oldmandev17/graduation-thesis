@@ -30,6 +30,7 @@ function App({ children }: { children: ReactNode }) {
         logout()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, user])
 
   return (

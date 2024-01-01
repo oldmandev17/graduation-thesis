@@ -11,7 +11,6 @@ import APIFeature from 'src/utils/apiFeature'
 import { createUniqueSlug } from 'src/utils/createUniqueSlug'
 import { findUser } from 'src/utils/findUser'
 import { logger } from 'src/utils/logger'
-import { MESSAGE_FORBIDDEN, MESSAGE_NOTACCEPTABLE, MESSAGE_NOTFOUND } from 'src/utils/message'
 import { createNotification } from 'src/utils/notification'
 import { sendEmail } from 'src/utils/sendEmail'
 import { gigDeleteSchema, gigSchema, gigStatusSchema } from 'src/utils/validationSchema'
@@ -38,10 +37,10 @@ export async function createGig(req: Request, res: Response, next: NextFunction)
     const result = await gigSchema.validateAsync(req.body)
     const categoryExist = await Category.findOne({ _id: result.category })
     if (!categoryExist) {
-      throw httpError.NotFound(MESSAGE_NOTFOUND)
+      throw httpError.NotFound('Category does not exist.')
     }
     if (categoryExist.level !== 3) {
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('Category level is invalid.')
     }
     const slug = await createUniqueSlug(Gig, result.name)
     const images: string[] = []
@@ -99,10 +98,10 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
   try {
     const gigExist = await Gig.findOne({ _id: req.params.id })
     if (!gigExist) {
-      throw httpError.NotFound(MESSAGE_NOTFOUND)
+      throw httpError.NotFound('Gig does not exist.')
     }
     if (user?.role.includes(UserRole.SELLER) && user._id !== gigExist.createdBy) {
-      httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      httpError.NotAcceptable('Account has no permissions.')
     }
     const files = req.files as Express.Multer.File[]
 
@@ -191,7 +190,7 @@ export async function updateGigStatus(req: Request, res: Response, next: NextFun
     const result = await gigStatusSchema.validateAsync(req.body)
     const { status } = req.query as unknown as GigQuery
     if (status === GigStatus.BANNED && !result.reason) {
-      throw httpError.NotAcceptable(MESSAGE_NOTACCEPTABLE)
+      throw httpError.NotAcceptable('There must be a reason for refusal.')
     }
     const updateField: any = { status, reason: result.reason }
     if (user?.role.includes(UserRole.SELLER)) {
@@ -426,7 +425,7 @@ export async function getAllGig(req: Request, res: Response, next: NextFunction)
     }
     if (categoryId) {
       const categoryExist = await Category.findOne({ _id: categoryId })
-      if (!categoryExist) throw httpError.NotFound(MESSAGE_NOTFOUND)
+      if (!categoryExist) throw httpError.NotFound('Category does not exist.')
       const categoryIds: string[] = []
       if (categoryExist.level === 3) {
         categoryIds.push(categoryExist._id)
@@ -481,7 +480,7 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
       })
 
     if (!gigExist) {
-      throw httpError.NotFound(MESSAGE_NOTFOUND)
+      throw httpError.NotFound('Gig does not exist.')
     }
 
     if (req.params.id) {
@@ -492,7 +491,7 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
         gigExist.createdBy &&
         gigExist.createdBy._id.toString() !== req.payload.userId
       ) {
-        throw httpError.Forbidden(MESSAGE_FORBIDDEN)
+        throw httpError.Forbidden('Account has no permissions.')
       }
     }
 
@@ -518,9 +517,11 @@ export async function getGigDetail(req: Request, res: Response, next: NextFuncti
 
     const parentCategory = await Category.find({ subCategories: gigExist.category?._id })
     const grandParentCategory = await Category.find({ subCategories: parentCategory[0]._id })
+    const orders = await Order.find({ gig: gigExist._id }).populate('createdBy')
 
     res.status(200).json({
       gig: gigExist,
+      orders,
       grandParentCategory: grandParentCategory[0],
       ratings: {
         ratings,
