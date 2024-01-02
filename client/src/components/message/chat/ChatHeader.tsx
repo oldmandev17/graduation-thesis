@@ -6,11 +6,13 @@ import { BiSearchAlt2 } from 'react-icons/bi'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import { IoVideocam } from 'react-icons/io5'
 import { MdCall } from 'react-icons/md'
+import { useAppSelector } from 'stores/hooks'
 import Avatar from '../common/Avatar'
 
 function ChatHeader() {
   const { currentChatUser, onlineUsers } = useMessage()
   const [online, setOnline] = useState<boolean>(false)
+  const { user } = useAppSelector((state) => state.auth)
 
   useEffect(() => {
     if (currentChatUser && onlineUsers.length > 0 && onlineUsers.includes(currentChatUser._id)) {
@@ -41,7 +43,7 @@ function ChatHeader() {
         <div className='flex flex-col'>
           <span className='text-primary-strong'>{currentChatUser?.name}</span>
           <span className='text-sm text-secondary'>
-            {online ? (
+            {online || (user && currentChatUser && user._id === currentChatUser._id) ? (
               <div className='flex items-center'>
                 <span className='flex w-3 h-3 bg-green-500 rounded-full me-3' />
                 Online

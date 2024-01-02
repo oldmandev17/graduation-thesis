@@ -1,7 +1,8 @@
+/* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable react/no-array-index-key */
 import { Divider } from '@mui/material'
-import { getProfile } from 'apis/api'
-import { OrderStatus } from 'modules/order'
+import { getAllOrderByUser, getProfile } from 'apis/api'
+import { IOrder, OrderStatus } from 'modules/order'
 import { IUser } from 'modules/user'
 import { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
@@ -36,6 +37,21 @@ function DashboardPage() {
   const [profile, setProfile] = useState<IUser>()
   const { accessToken } = getToken()
   const navigate = useNavigate()
+  const [orders, setOrders] = useState<Array<IOrder>>([])
+
+  const getAllOrderByUsers = useCallback(async () => {
+    await getAllOrderByUser(accessToken, undefined, '', 'createdAt', 'desc', 'seller')
+      .then((response) => {
+        if (response.status === 200) {
+          setOrders(response.data.orders)
+        }
+      })
+      .catch((error: any) => toast.error(error.response.data.error.message))
+  }, [accessToken])
+
+  useEffect(() => {
+    getAllOrderByUsers()
+  }, [getAllOrderByUsers])
 
   const getUserProfile = useCallback(async () => {
     await getProfile(accessToken)
@@ -116,23 +132,24 @@ function DashboardPage() {
                       className='h-3 bg-gray-500 rounded-xl'
                       style={{
                         width: `${
-                          profile && profile.orders && profile.orders.length <= 0
+                          orders && orders.length <= 0
                             ? '100'
-                            : `${
-                                (profile?.orders?.filter((order) => order.status === OrderStatus.COMPLETE)
-                                  ?.length as number) / Number(profile?.orders?.length)
-                              }`
+                            : `${Number(
+                                (orders?.filter((order) => order.status === OrderStatus.COMPLETE).length /
+                                  orders?.length) *
+                                  100
+                              ).toFixed(0)}`
                         }%`
                       }}
                     />
                   </div>
                   <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    {profile && profile.orders && profile.orders.length <= 0
+                    {orders && orders.length <= 0
                       ? '100'
-                      : `${
-                          (profile?.orders?.filter((order) => order.status === OrderStatus.COMPLETE)
-                            ?.length as number) / Number(profile?.orders?.length)
-                        }`}
+                      : `${Number(
+                          (orders?.filter((order) => order.status === OrderStatus.COMPLETE).length / orders?.length) *
+                            100
+                        ).toFixed(0)}`}
                     %
                   </span>
                 </div>

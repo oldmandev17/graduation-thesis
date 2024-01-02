@@ -33,7 +33,11 @@ function ChatContainer() {
                     >
                       <span className='break-all'>{message.message}</span>
                       <div className='flex items-end gap-1'>
-                        <span className='text-bubble-meta text-[11px] pt-1 min-w-fit'>
+                        <span
+                          className={`${
+                            message.sender._id === currentChatUser?._id ? 'text-gray-400' : 'text-bubble-meta'
+                          } text-[11px] pt-1 min-w-fit`}
+                        >
                           {calculateTime(message.createdAt)}
                         </span>
                         <span>{message.sender._id === user?._id && <MessageStatus status={message.status} />}</span>

@@ -212,7 +212,7 @@ function GigDetailPage() {
               </div>
               <span className='flex flex-row items-center gap-1'>
                 <FaStar className='w-4 h-4 fill-gray-900' />
-                <span className='text-base font-semibold text-gray-900'>{Math.ceil(averageRating)}</span>
+                <span className='text-base font-semibold text-gray-900'>{Math.ceil(averageRating).toFixed(1)}</span>
                 <span className='text-base font-semibold text-gray-500 cursor-pointer'>({totalReviews})</span>
               </span>
             </div>
@@ -434,7 +434,7 @@ function GigDetailPage() {
                   <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
                 </svg>
               ))}
-              <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>{averageRating.toFixed(2)}</p>
+              <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>{averageRating.toFixed(1)}</p>
               <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>out of</p>
               <p className='text-sm font-medium text-gray-500 ms-1 dark:text-gray-400'>5</p>
             </div>
@@ -497,19 +497,21 @@ function GigDetailPage() {
               filteredReviews.slice(0, page * 5).map((review, index) => (
                 <article key={index + review._id}>
                   <div className='flex items-center'>
-                    {gig?.createdBy?.avatar ? (
+                    {review?.reviewer?.avatar ? (
                       <img
                         src={
-                          gig?.createdBy?.avatar.startsWith('upload')
-                            ? `${process.env.REACT_APP_URL_SERVER}/${gig?.createdBy?.avatar}`
-                            : gig?.createdBy?.avatar
+                          review?.reviewer?.avatar.startsWith('upload')
+                            ? `${process.env.REACT_APP_URL_SERVER}/${review?.reviewer?.avatar}`
+                            : review?.reviewer?.avatar
                         }
                         alt='avata'
                         className='w-12 h-12 rounded-full'
                       />
                     ) : (
                       <div className='relative flex items-center justify-center w-12 h-12 bg-purple-500 rounded-full'>
-                        <span className='text-2xl text-white'>{gig && gig?.createdBy?.email[0].toUpperCase()}</span>
+                        <span className='text-2xl text-white'>
+                          {review && review?.reviewer?.email[0].toUpperCase()}
+                        </span>
                       </div>
                     )}
                     <div className='ml-4 font-medium'>

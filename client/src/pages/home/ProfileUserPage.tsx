@@ -85,7 +85,7 @@ function ProfileUserPage() {
                 </p>
                 <span className='flex flex-row items-center gap-1'>
                   <FaStar className='w-4 h-4 fill-gray-900' />
-                  <span className='text-base font-semibold text-gray-900'>{Math.ceil(averageRating)}</span>
+                  <span className='text-base font-semibold text-gray-900'>{Math.ceil(averageRating).toFixed(1)}</span>
                   <span className='text-base font-semibold text-gray-500 cursor-pointer'>({totalReviews})</span>
                 </span>
                 <SellerTag total={orders.length} />

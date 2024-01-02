@@ -106,7 +106,9 @@ function OrderDetailPage() {
           </div>
           <div className='flex gap-10'>
             <button
-              onClick={() => navigate(`/user/${user?.id}/buyer-orders`)}
+              onClick={() =>
+                navigate(`/user/${user?.id}/${user?._id === orderDetail?.createdBy._id ? 'buyer-orders' : 'orders'}`)
+              }
               type='button'
               className='bg-[#00b14f] text-lg font-bold text-white rounded-lg px-3 py-1 uppercase'
             >
@@ -184,7 +186,7 @@ function OrderDetailPage() {
                           handleCloseAction()
                         }}
                       >
-                        Refuse
+                        Deny
                       </MenuItem>
                       <MenuItem
                         className='!pr-20 !py-2'

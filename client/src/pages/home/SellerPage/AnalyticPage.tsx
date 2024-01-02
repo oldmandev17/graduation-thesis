@@ -168,7 +168,8 @@ function AnalyticPage() {
               {orders.length > 0
                 ? orders
                     .filter((order) => order.status === OrderStatus.COMPLETE)
-                    .reduce((sum, current) => sum + current.price, 0) / orders.length
+                    .reduce((sum, current) => sum + (current.price / 105) * 100, 0) /
+                  orders.filter((order) => order.status === OrderStatus.COMPLETE).length
                 : 0}
             </span>
           </div>

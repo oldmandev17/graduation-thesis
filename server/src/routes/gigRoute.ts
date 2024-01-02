@@ -34,7 +34,7 @@ gigRouter
   .delete(verifyAccessToken, authorizeRoles([UserRole.ADMIN, UserRole.MANAGER, UserRole.SELLER]), deleteGigs)
 gigRouter.route('/').get(getAllGig)
 gigRouter.route('/filter').get(getAllGigFilter)
-gigRouter.route('/user').get(verifyAccessToken, authorizeRoles([UserRole.SELLER]), getAllGigByUser)
+gigRouter.route('/user').get(verifyAccessToken, authorizeRoles([UserRole.SELLER, UserRole.BUYER]), getAllGigByUser)
 gigRouter
   .route('/landing')
   .get(verifyAccessToken, authorizeRoles([UserRole.SELLER, UserRole.BUYER]), getAllLandingGigByUser)
