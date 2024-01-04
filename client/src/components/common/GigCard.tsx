@@ -5,7 +5,7 @@
 import { addOrRemoveWishlist, getUserById } from 'apis/api'
 import { useMessage } from 'contexts/StateContext'
 import { IGig } from 'modules/gig'
-import { IOrder } from 'modules/order'
+import { IOrder, OrderStatus } from 'modules/order'
 import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { AiOutlineStar } from 'react-icons/ai'
 import { BsFillSuitHeartFill } from 'react-icons/bs'
@@ -160,7 +160,7 @@ function GigCard({ gig, type, height }: { gig: IGig; type: string; height: numbe
           </Link>
         </div>
         <div className='flex items-center'>
-          <SellerTag total={orders.length} />
+          <SellerTag total={orders.filter((order) => order.status === OrderStatus.COMPLETE).length} />
         </div>
       </div>
       <div className='flex flex-col gap-1'>

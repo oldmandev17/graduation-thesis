@@ -193,7 +193,13 @@ function AnalyticPage() {
             <div className='w-[200px] h-5 bg-gray-200 rounded dark:bg-gray-500'>
               <div
                 className='h-5 bg-[#00b14f] rounded'
-                style={{ width: `${orders.length >= 5 ? '100' : (orders.length / 5) * 100}%` }}
+                style={{
+                  width: `${
+                    orders.filter((order) => order.status === OrderStatus.COMPLETE).length >= 5
+                      ? '100'
+                      : (orders.filter((order) => order.status === OrderStatus.COMPLETE).length / 5) * 100
+                  }%`
+                }}
               />
             </div>
             <div className='rounded-full h-16 w-16 bg-[#91d8d9] flex flex-col justify-center items-center text-xs text-white font-bold'>
@@ -203,7 +209,13 @@ function AnalyticPage() {
             <div className='w-[200px] h-5 bg-gray-200 rounded dark:bg-gray-500'>
               <div
                 style={{
-                  width: `${orders.length <= 5 ? '0' : orders.length > 10 ? '100' : ((orders.length - 5) / 5) * 100}%`
+                  width: `${
+                    orders.filter((order) => order.status === OrderStatus.COMPLETE).length <= 5
+                      ? '0'
+                      : orders.filter((order) => order.status === OrderStatus.COMPLETE).length > 10
+                      ? '100'
+                      : ((orders.filter((order) => order.status === OrderStatus.COMPLETE).length - 5) / 5) * 100
+                  }%`
                 }}
                 className='h-5 bg-[#00b14f] rounded'
               />
@@ -216,7 +228,11 @@ function AnalyticPage() {
               <div
                 style={{
                   width: `${
-                    orders.length <= 10 ? '0' : orders.length > 15 ? '100' : ((orders.length - 10) / 15) * 100
+                    orders.filter((order) => order.status === OrderStatus.COMPLETE).length <= 10
+                      ? '0'
+                      : orders.filter((order) => order.status === OrderStatus.COMPLETE).length > 15
+                      ? '100'
+                      : ((orders.filter((order) => order.status === OrderStatus.COMPLETE).length - 10) / 15) * 100
                   }%`
                 }}
                 className='h-5 bg-[#00b14f] rounded'

@@ -144,7 +144,7 @@ export async function updateGig(req: Request, res: Response, next: NextFunction)
       createNotification(
         null,
         'New Gig Create Or Update',
-        `<p>Just a heads up, we've received a new gig  ${gigUpdate?.name} created or updated.<a className="font-semibold text-blue-600" href="${process.env.URL_ADMIN}/gig-detail/${gigUpdate?._id}"> Learn more</a></p>`,
+        `<p>Just a heads up, we've received a new gig ${gigUpdate?.name} created or updated.<a className="font-semibold text-blue-600" href="${process.env.URL_ADMIN}/gig-detail/${gigUpdate?._id}"> Learn more</a></p>`,
         NotificationType.ADMIN,
         next
       )

@@ -74,7 +74,7 @@ function OrderDetail() {
                         {
                           amount: {
                             value: String(
-                              order.status === OrderStatus.COMPLETE ? (order?.price / 105) * 100 : order.quantity
+                              order.status === OrderStatus.BUYER_CONFIRM ? (order?.price / 105) * 100 : order.price
                             )
                           }
                         }

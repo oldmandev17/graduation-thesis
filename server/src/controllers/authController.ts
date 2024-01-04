@@ -783,7 +783,7 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
     const arrIds = userExist.gigs.map((gig) => gig._id)
     const orderExist = await Order.find({ gig: { $in: arrIds } }).populate({
       path: 'gig',
-      populate: 'reviews'
+      populate: [{ path: 'reviews', populate: 'reviewer' }, { path: 'category' }]
     })
     const gigExist: IGig[] = []
     orderExist.forEach((order) => {
@@ -792,13 +792,36 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
       }
     })
     const reviews = gigExist.flatMap((gig) => gig.reviews)
-    let averageRating = 0
-    if (reviews.length > 0) {
-      averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+    const ratings: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    let totalRating = 0
+    let totalReviews = 0
+    if (reviews) {
+      reviews.forEach((review) => {
+        ratings[review?.rating]++
+        totalRating += review.rating
+      })
+
+      totalReviews = reviews.length
     }
-    res
-      .status(200)
-      .json({ user: userExist, gigs: gigExist, averageRating, totalReviews: reviews.length, orders: orderExist })
+    const averageRating = totalReviews ? totalRating / totalReviews : 0
+
+    const percentagePerStar: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    if (totalReviews) {
+      for (let i = 1; i <= 5; i++) {
+        percentagePerStar[i] = (ratings[i] / totalReviews) * 100
+      }
+    }
+    res.status(200).json({
+      user: userExist,
+      gigs: gigExist,
+      ratings: {
+        ratings,
+        totalReviews,
+        averageRating,
+        percentagePerStar
+      },
+      orders: orderExist
+    })
   } catch (error: any) {
     next(error)
   }

@@ -158,7 +158,14 @@ function DashboardPage() {
             <Divider />
             <div className='flex justify-between'>
               <p className='text-lg font-semibold text-gray-600'>Earned in December</p>
-              <span className='text-lg font-semibold'>US$0</span>
+              <span className='text-lg font-semibold'>
+                $
+                {orders.length > 0
+                  ? orders
+                      .filter((order) => order.status === OrderStatus.COMPLETE)
+                      .reduce((sum, current) => sum + (current.price / 105) * 100, 0)
+                  : 0}
+              </span>
             </div>
           </div>
           <div className='flex justify-between w-full p-5 bg-white'>
@@ -166,7 +173,7 @@ function DashboardPage() {
             <button
               className='font-semibold text-blue-600'
               type='button'
-              onClick={() => navigate(`/user/${profile?.id}/message`)}
+              onClick={() => navigate(`/user/${profile?.id}/messages`)}
             >
               View All
             </button>

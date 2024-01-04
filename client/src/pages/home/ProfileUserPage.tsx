@@ -4,15 +4,17 @@
 import { getUserById } from 'apis/api'
 import GigCard from 'components/common/GigCard'
 import SellerTag from 'components/common/SellerTag'
-import { IOrder } from 'modules/order'
+import { IGig } from 'modules/gig'
+import { IOrder, OrderStatus } from 'modules/order'
 import { IUser } from 'modules/user'
 import { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { FaStar } from 'react-icons/fa'
 import { GrSend } from 'react-icons/gr'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAppSelector } from 'stores/hooks'
+import calculateTime from 'utils/calculateTime'
 
 function ProfileUserPage() {
   const location = useLocation()
@@ -21,8 +23,17 @@ function ProfileUserPage() {
   const [all, setAll] = useState<boolean>(false)
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Array<IOrder>>([])
+  const [ratings, setRatings] = useState<{ [key: number]: number }>({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 })
   const [totalReviews, setTotalReviews] = useState(0)
   const [averageRating, setAverageRating] = useState(0)
+  const [percentagePerStar, setPercentagePerStar] = useState<{ [key: number]: number }>({
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0
+  })
+  const [gigs, setGigs] = useState<Array<IGig>>([])
   const { user } = useAppSelector((state) => state.auth)
 
   const getUserDetailById = useCallback(async () => {
@@ -30,9 +41,12 @@ function ProfileUserPage() {
       .then((response) => {
         if (response.status === 200) {
           setUserDetail(response.data.user)
-          setTotalReviews(response.data.totalReviews)
-          setAverageRating(response.data.averageRating)
+          setRatings(response.data.ratings.ratings)
+          setTotalReviews(response.data.ratings.totalReviews)
+          setAverageRating(response.data.ratings.averageRating)
+          setPercentagePerStar(response.data.ratings.percentagePerStar)
           setOrders(response.data.orders)
+          setGigs(response.data.gigs)
         }
       })
       .catch((error: any) => toast.error(error.response.data.error.message))
@@ -88,7 +102,7 @@ function ProfileUserPage() {
                   <span className='text-base font-semibold text-gray-900'>{Math.ceil(averageRating).toFixed(1)}</span>
                   <span className='text-base font-semibold text-gray-500 cursor-pointer'>({totalReviews})</span>
                 </span>
-                <SellerTag total={orders.length} />
+                <SellerTag total={orders.filter((order) => order.status === OrderStatus.COMPLETE).length} />
               </div>
             </div>
             <div>
@@ -130,6 +144,116 @@ function ProfileUserPage() {
             )}
           </div>
         </div>
+        <div id='gig_faq' className='flex flex-col w-2/3'>
+          <div className='flex items-center mb-2'>
+            <p className='mr-2 text-lg font-medium text-gray-800 '>{totalReviews} reviews </p>
+            {[1, 2, 3, 4, 5].map((star, index) => (
+              <svg
+                key={index}
+                className={`w-4 h-4 ${star <= averageRating ? 'text-yellow-300' : 'text-gray-300'} me-1`}
+                aria-hidden='true'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='currentColor'
+                viewBox='0 0 22 20'
+              >
+                <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
+              </svg>
+            ))}
+            <p className='text-lg font-medium text-gray-800 ms-1 '>{averageRating.toFixed(1)}</p>
+          </div>
+          {[5, 4, 3, 2, 1].map((star, index) => (
+            <div key={index} className='flex items-center mt-2'>
+              <span className='text-base font-medium text-gray-800 hover:underline'>{star} stars</span>
+              <div className='w-2/4 h-3 mx-4 bg-gray-200 rounded '>
+                <div className='h-3 bg-gray-500 rounded' style={{ width: `${percentagePerStar[star]}%` }} />
+              </div>
+              <span className='text-sm font-medium text-gray-500 '>({ratings[star]})</span>
+            </div>
+          ))}
+        </div>
+        <hr />
+        {gigs &&
+          gigs.map((gig, index) => (
+            <div key={gig._id + index}>
+              {gig.reviews.map((review, ind) => (
+                <div className='flex flex-col gap-5'>
+                  <div key={review._id + ind} className='grid grid-cols-3 gap-5 divide-x'>
+                    <div className='col-span-2'>
+                      <article>
+                        <div className='flex items-center'>
+                          {review?.reviewer?.avatar ? (
+                            <img
+                              src={
+                                review?.reviewer?.avatar.startsWith('upload')
+                                  ? `${process.env.REACT_APP_URL_SERVER}/${review?.reviewer?.avatar}`
+                                  : review?.reviewer?.avatar
+                              }
+                              alt='avata'
+                              className='w-12 h-12 rounded-full'
+                            />
+                          ) : (
+                            <div className='relative flex items-center justify-center w-12 h-12 bg-purple-500 rounded-full'>
+                              <span className='text-2xl text-white'>
+                                {review && review?.reviewer?.email[0].toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          <div className='ml-4 font-medium'>
+                            <p>
+                              {review.reviewer.name}
+                              <span className='block text-sm text-gray-500'>@{review.reviewer.id}</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div className='flex items-center gap-3 mb-1 space-x-1 rtl:space-x-reverse'>
+                          <div className='flex'>
+                            {[1, 2, 3, 4, 5].map((star, indexStar) => (
+                              <svg
+                                key={indexStar}
+                                className={`w-4 h-4 ${
+                                  star <= review.rating ? 'text-yellow-300' : 'text-gray-300'
+                                } me-1`}
+                                aria-hidden='true'
+                                xmlns='http://www.w3.org/2000/svg'
+                                fill='currentColor'
+                                viewBox='0 0 22 20'
+                              >
+                                <path d='M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z' />
+                              </svg>
+                            ))}{' '}
+                          </div>
+                          |
+                          <div className='text-sm text-gray-500 '>
+                            <p>{calculateTime(review.createdAt)}</p>
+                          </div>
+                        </div>
+                        <p className='mb-5 text-gray-500 '>{review.reviewText}</p>
+                      </article>
+                    </div>
+                    <div className='flex flex-col gap-3 px-10 py-5'>
+                      <h6>Ordered:</h6>
+                      <Link to={`/gig-detail/${gig?.slug}`} target='_blank'>
+                        <div className='flex w-full gap-5 p-5 rounded-lg shadow-lg'>
+                          <img
+                            src={`${process.env.REACT_APP_URL_SERVER}/${
+                              gig && gig.images && gig.images.length > 0 && gig.images[0]
+                            }`}
+                            alt={gig.name}
+                            className='w-2/5'
+                          />
+                          <div className='flex flex-col justify-center text-lg font-semibold'>
+                            <p>{gig && gig.category && gig.category.name}</p>
+                            <p>From ${gig && gig.packages && gig.packages.length > 0 && gig.packages[0].price}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                  <hr className='mb-5' />
+                </div>
+              ))}
+            </div>
+          ))}
       </div>
     </>
   )

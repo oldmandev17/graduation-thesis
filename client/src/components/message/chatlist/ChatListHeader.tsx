@@ -42,7 +42,7 @@ function ChatListHeader() {
         <SiFreelancer
           className='text-xl cursor-pointer text-panel-header-icon'
           title='Freelancer'
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
         />
         <BsFillChatLeftTextFill className='text-xl cursor-pointer text-panel-header-icon' title='New Chat' />
         <BsThreeDotsVertical className='text-xl cursor-pointer text-panel-header-icon' title='Menu' />
