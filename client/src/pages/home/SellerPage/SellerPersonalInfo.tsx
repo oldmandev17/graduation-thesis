@@ -26,6 +26,7 @@ import { getToken } from 'utils/auth'
 import * as Yup from 'yup'
 
 const steps = ['Personal Info', 'Account Security']
+const phoneRegExp = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
 
 const personalSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -36,7 +37,7 @@ const personalSchema = Yup.object().shape({
   skill: Yup.string().required('Skill is required'),
   education: Yup.string(),
   certification: Yup.string(),
-  phone: Yup.string()
+  phone: Yup.string().matches(phoneRegExp, 'Phone is not valid').nullable()
 })
 
 function SellerPersonalInfo() {
