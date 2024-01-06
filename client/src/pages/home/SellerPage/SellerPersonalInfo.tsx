@@ -26,7 +26,8 @@ import { getToken } from 'utils/auth'
 import * as Yup from 'yup'
 
 const steps = ['Personal Info', 'Account Security']
-const phoneRegExp = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
+// eslint-disable-next-line no-useless-escape
+const phoneRegExp = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/
 
 const personalSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),

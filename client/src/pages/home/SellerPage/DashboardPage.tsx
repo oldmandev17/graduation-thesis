@@ -157,7 +157,7 @@ function DashboardPage() {
             </div>
             <Divider />
             <div className='flex justify-between'>
-              <p className='text-lg font-semibold text-gray-600'>Earned in December</p>
+              <p className='text-lg font-semibold text-gray-600'>Earned</p>
               <span className='text-lg font-semibold'>
                 $
                 {orders.length > 0

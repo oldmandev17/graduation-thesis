@@ -147,7 +147,7 @@ const popularServicesData = [
     name: 'Font & Typography',
     label: 'Add talent for design',
     image: '/banners/service1.png',
-    slug: 'font-and-typography'
+    slug: 'fonts-and-typography'
   },
   {
     name: 'Logo Design',
