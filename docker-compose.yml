@@ -26,7 +26,7 @@ services:
     restart: always
     container_name: admin
     volumes:
-      - ./client:/app
+      - ./admin:/app
       - /app/node_modules
     depends_on:
       - server
